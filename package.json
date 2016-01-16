@@ -1,0 +1,15 @@
+{
+  "name": "thingpedia-api",
+  "version": "1.0.0",
+  "description": "Base ThingPedia API",
+  "author": "Stanford Mobisocial lab",
+  "contributors": [
+    {
+      "name": "Giovanni Campagna",
+      "email": "gcampagn@cs.stanford.edu"
+    }
+  ],
+  "main": "index.js",
+  "dependencies": {
+  }
+}
