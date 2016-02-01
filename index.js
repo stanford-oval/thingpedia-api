@@ -12,6 +12,7 @@ const BaseDevice = require('./lib/base_device');
 const BaseChannel = require('./lib/base_channel');
 const UtilityDev = require('./lib/utility_devices');
 const UtilityCh = require('./lib/utility_channels');
+const Helpers = require('./lib/helpers');
 
 // a meta class for inheriting from BaseDevice, which avoids exposing
 // lang.Class, and also has some utility for adding devices
@@ -90,4 +91,6 @@ module.exports = {
     Tier: BaseDevice.Tier,
 
     Messaging: Messaging,
+
+    Helpers: Helpers,
 };
