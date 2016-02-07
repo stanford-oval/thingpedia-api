@@ -11,6 +11,7 @@
   ],
   "main": "index.js",
   "dependencies": {
-    "oauth": "~0.9.14"
+    "oauth": "~0.9.14",
+    "q": "~1.4.1"
   }
 }
