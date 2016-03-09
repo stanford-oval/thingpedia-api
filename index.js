@@ -25,6 +25,7 @@ module.exports = {
     SimpleAction: UtilityCh.SimpleAction,
 
     DeviceClass: Classes.DeviceClass,
+    ThingClass: Classes.ThingClass,
     ChannelClass: Classes.ChannelClass,
 
     Availability: BaseDevice.Availability,
