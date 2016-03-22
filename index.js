@@ -14,6 +14,8 @@ const UtilityDev = require('./lib/utility_devices');
 const UtilityCh = require('./lib/utility_channels');
 const Helpers = require('./lib/helpers');
 const Classes = require('./lib/classes');
+const BaseCursor = require('./lib/cursor');
+const SimpleCursor = require('./lib/simple_cursor');
 
 module.exports = {
     BaseDevice: BaseDevice,
@@ -24,9 +26,15 @@ module.exports = {
     HttpPollingTrigger: UtilityCh.HttpPollingTrigger,
     SimpleAction: UtilityCh.SimpleAction,
 
+    BaseCursor: BaseCursor,
+    SimpleCursor: SimpleCursor,
+
     DeviceClass: Classes.DeviceClass,
-    ThingClass: Classes.ThingClass,
+    ThingClass: Classes.DeviceClass,
     ChannelClass: Classes.ChannelClass,
+    TriggerClass: Classes.ChannelClass,
+    ActionClass: Classes.ChannelClass,
+    QueryClass: Classes.ChannelClass,
 
     Availability: BaseDevice.Availability,
     Tier: BaseDevice.Tier,
