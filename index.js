@@ -14,6 +14,7 @@ const UtilityDev = require('./lib/utility_devices');
 const UtilityCh = require('./lib/utility_channels');
 const Helpers = require('./lib/helpers');
 const Classes = require('./lib/classes');
+const TripleStore = require('./lib/triplestore');
 
 module.exports = {
     BaseDevice: BaseDevice,
@@ -37,4 +38,6 @@ module.exports = {
     Messaging: Messaging,
 
     Helpers: Helpers,
+
+    TripleStore: TripleStore
 };
