@@ -16,7 +16,7 @@ const Helpers = require('./lib/helpers');
 const Classes = require('./lib/classes');
 const TripleStore = require('./lib/triplestore');
 const ObjectSet = require('./lib/object_set');
-const DiscoveryDelegate = require('./lib/discovery_delegate');
+const ConfigDelegate = require('./lib/config_delegate');
 
 module.exports = {
     BaseDevice: BaseDevice,
@@ -38,7 +38,7 @@ module.exports = {
     Tier: BaseDevice.Tier,
 
     Messaging: Messaging,
-    DiscoveryDelegate: DiscoveryDelegate,
+    ConfigDelegate: DiscoveryDelegate,
 
     Helpers: Helpers,
 
