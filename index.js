@@ -38,7 +38,7 @@ module.exports = {
     Tier: BaseDevice.Tier,
 
     Messaging: Messaging,
-    ConfigDelegate: DiscoveryDelegate,
+    ConfigDelegate: ConfigDelegate,
 
     Helpers: Helpers,
 
