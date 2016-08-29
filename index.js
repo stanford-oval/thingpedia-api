@@ -18,6 +18,23 @@ const TripleStore = require('./lib/triplestore');
 const ObjectSet = require('./lib/object_set');
 const ConfigDelegate = require('./lib/config_delegate');
 
+const VERSION = {
+    major: 1,
+    minor: 0,
+    valueOf() {
+        return this.major * 100 + this.minor;
+    },
+    compatible(v) {
+        if (typeof v === 'number')
+            return this.valueOf() >= v && Math.floor(v/100) === this.major;
+        else
+            return this.major === v.major && this.minor >= v.minor;
+    },
+    hasFeature(f) {
+        return false;
+    }
+}
+
 module.exports = {
     BaseDevice: BaseDevice,
     OnlineAccount: UtilityDev.OnlineAccount,
@@ -44,5 +61,7 @@ module.exports = {
 
     TripleStore: TripleStore,
 
-    ObjectSet: ObjectSet
+    ObjectSet: ObjectSet,
+
+    version: VERSION
 };
