@@ -42,6 +42,7 @@ module.exports = {
     BaseChannel: BaseChannel,
     PollingTrigger: UtilityCh.PollingTrigger,
     HttpPollingTrigger: UtilityCh.HttpPollingTrigger,
+    RSSPollingTrigger: UtilityCh.RSSPollingTrigger,
     SimpleAction: UtilityCh.SimpleAction,
 
     DeviceClass: Classes.DeviceClass,
