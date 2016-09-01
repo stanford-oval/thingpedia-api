@@ -20,7 +20,7 @@ const ConfigDelegate = require('./lib/config_delegate');
 
 const VERSION = {
     major: 1,
-    minor: 0,
+    minor: 1,
     valueOf() {
         return this.major * 100 + this.minor;
     },
@@ -31,7 +31,12 @@ const VERSION = {
             return this.major === v.major && this.minor >= v.minor;
     },
     hasFeature(f) {
-        return false;
+        switch (f) {
+        case 'rss':
+            return true;
+        default:
+            return false;
+        }
     }
 }
 
