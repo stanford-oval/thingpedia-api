@@ -20,7 +20,7 @@ const ConfigDelegate = require('./lib/config_delegate');
 
 const VERSION = {
     major: 1,
-    minor: 1,
+    minor: 2,
     valueOf() {
         return this.major * 100 + this.minor;
     },
