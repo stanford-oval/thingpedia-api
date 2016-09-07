@@ -10,8 +10,7 @@
 const Messaging = require('./lib/messaging');
 const BaseDevice = require('./lib/base_device');
 const BaseChannel = require('./lib/base_channel');
-const UtilityDev = require('./lib/utility_devices');
-const UtilityCh = require('./lib/utility_channels');
+const Utility = require('./lib/utilities');
 const Helpers = require('./lib/helpers');
 const Classes = require('./lib/classes');
 const TripleStore = require('./lib/triplestore');
@@ -42,13 +41,13 @@ const VERSION = {
 
 module.exports = {
     BaseDevice: BaseDevice,
-    OnlineAccount: UtilityDev.OnlineAccount,
+    OnlineAccount: Utility.OnlineAccount,
 
     BaseChannel: BaseChannel,
-    PollingTrigger: UtilityCh.PollingTrigger,
-    HttpPollingTrigger: UtilityCh.HttpPollingTrigger,
-    RSSPollingTrigger: UtilityCh.RSSPollingTrigger,
-    SimpleAction: UtilityCh.SimpleAction,
+    PollingTrigger: Utility.PollingTrigger,
+    HttpPollingTrigger: Utility.HttpPollingTrigger,
+    RSSPollingTrigger: Utility.RSSPollingTrigger,
+    SimpleAction: Utility.SimpleAction,
 
     DeviceClass: Classes.DeviceClass,
     ThingClass: Classes.DeviceClass,
