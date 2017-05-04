@@ -19,7 +19,7 @@ const ConfigDelegate = require('./lib/config_delegate');
 
 const VERSION = {
     major: 1,
-    minor: 2,
+    minor: 3,
     valueOf() {
         return this.major * 100 + this.minor;
     },
@@ -32,6 +32,8 @@ const VERSION = {
     hasFeature(f) {
         switch (f) {
         case 'rss':
+            return true;
+        case 'format-helpers':
             return true;
         default:
             return false;
