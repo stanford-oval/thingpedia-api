@@ -33,8 +33,6 @@ const VERSION = {
         switch (f) {
         case 'rss':
             return true;
-        case 'format-helpers':
-            return true;
         default:
             return false;
         }
