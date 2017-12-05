@@ -18,8 +18,8 @@ const ObjectSet = require('./lib/object_set');
 const ConfigDelegate = require('./lib/config_delegate');
 
 const VERSION = {
-    major: 1,
-    minor: 3,
+    major: 2,
+    minor: 0,
     valueOf() {
         return this.major * 100 + this.minor;
     },
@@ -40,6 +40,10 @@ const VERSION = {
 }
 
 module.exports = {
+    // Modules is a private implementation detail between thingengine-core
+    // and thingpedia, don't use it
+    Modules: require('./lib/modules'),
+
     BaseDevice: BaseDevice,
     OnlineAccount: Utility.OnlineAccount,
 
