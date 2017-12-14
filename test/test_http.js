@@ -5,6 +5,7 @@
 // Copyright 2016 Giovanni Campagna <gcampagn@cs.stanford.edu>
 //
 // See COPYING for details
+"use strict";
 
 const assert = require('assert');
 const Helpers = require('../lib/helpers');
