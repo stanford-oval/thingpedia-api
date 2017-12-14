@@ -13,7 +13,6 @@ const BaseChannel = require('./lib/base_channel');
 const Utility = require('./lib/utilities');
 const Helpers = require('./lib/helpers');
 const Classes = require('./lib/classes');
-const TripleStore = require('./lib/triplestore');
 const ObjectSet = require('./lib/object_set');
 const ConfigDelegate = require('./lib/config_delegate');
 
@@ -37,7 +36,7 @@ const VERSION = {
             return false;
         }
     }
-}
+};
 
 module.exports = {
     // Modules is a private implementation detail between thingengine-core
@@ -67,8 +66,6 @@ module.exports = {
     ConfigDelegate: ConfigDelegate,
 
     Helpers: Helpers,
-
-    TripleStore: TripleStore,
 
     ObjectSet: ObjectSet,
 
