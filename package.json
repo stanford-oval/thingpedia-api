@@ -16,5 +16,11 @@
     "q": "~1.4.1",
     "tmp": "0.0.31",
     "xml2js": "^0.4.17"
+  },
+  "scripts": {
+    "lint": "eslint ./lib"
+  },
+  "devDependencies": {
+    "eslint": "^4.18.2"
   }
 }
