@@ -18,9 +18,11 @@ const Classes = require('./lib/classes');
 const ObjectSet = require('./lib/object_set');
 const ConfigDelegate = require('./lib/config_delegate');
 
+const ThingTalk = require('thingtalk');
+
 const VERSION = {
     major: 2,
-    minor: 0,
+    minor: 1,
     valueOf() {
         return this.major * 100 + this.minor;
     },
@@ -33,6 +35,7 @@ const VERSION = {
     hasFeature(f) {
         switch (f) {
         case 'rss':
+        case 'value-types':
             return true;
         default:
             return false;
@@ -54,6 +57,7 @@ module.exports = {
     RSSPollingTrigger: Utility.RSSPollingTrigger,
     SimpleAction: Utility.SimpleAction,
 
+    // deprecated compatibility code
     DeviceClass: Classes.DeviceClass,
     ThingClass: Classes.DeviceClass,
     ChannelClass: Classes.ChannelClass,
@@ -64,12 +68,20 @@ module.exports = {
     Availability: BaseDevice.Availability,
     Tier: BaseDevice.Tier,
 
+    // interfaces (for documentation/type-checking only)
     Messaging: Messaging,
     ConfigDelegate: ConfigDelegate,
 
     Helpers: Helpers,
 
     ObjectSet: ObjectSet,
+
+    Value: {
+        Entity: ThingTalk.Builtin.Entity,
+        Currency: ThingTalk.Builtin.Currency,
+        Location: ThingTalk.Builtin.Location,
+        Time: ThingTalk.Builtin.Time
+    },
 
     version: VERSION
 };
