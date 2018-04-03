@@ -49,15 +49,14 @@ module.exports = {
     Modules: require('./lib/modules'),
 
     BaseDevice: BaseDevice,
-    OnlineAccount: Utility.OnlineAccount,
 
+    // deprecated compatibility code
+    OnlineAccount: Utility.OnlineAccount,
     BaseChannel: BaseChannel,
     PollingTrigger: Utility.PollingTrigger,
     HttpPollingTrigger: Utility.HttpPollingTrigger,
     RSSPollingTrigger: Utility.RSSPollingTrigger,
     SimpleAction: Utility.SimpleAction,
-
-    // deprecated compatibility code
     DeviceClass: Classes.DeviceClass,
     ThingClass: Classes.DeviceClass,
     ChannelClass: Classes.ChannelClass,
@@ -66,6 +65,8 @@ module.exports = {
     QueryClass: Classes.ChannelClass,
 
     Availability: BaseDevice.Availability,
+
+    // internal semi-obsolete stuff
     Tier: BaseDevice.Tier,
 
     // interfaces (for documentation/type-checking only)
