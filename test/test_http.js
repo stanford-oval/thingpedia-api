@@ -15,25 +15,25 @@ const Helpers = require('../lib/helpers');
 // test http helpers using some of the best nanoservices on the web
 
 function testGetRaw() {
-    Helpers.Http.get('http://www.foaas.com/because/Me', { accept: 'application/json', raw: true }).spread(function(data, contentType) {
+    Helpers.Http.get('http://www.foaas.com/because/Me', { accept: 'application/json', raw: true }).then(function([data, contentType]) {
         var parsed = JSON.parse(data);
-        assert.equal(parsed.message, 'Why? Because Fuck you, that\'s why.');
+        assert.equal(parsed.message, 'Why? Because fuck you, that\'s why.');
         assert.equal(parsed.subtitle, '- Me');
     }).catch(function(e) {
         console.error('*** testGet: ' + e.message);
         console.error(e.stack);
-    }).done();
+    });
 }
 
 function testGet() {
     Helpers.Http.get('http://www.foaas.com/because/Me', { accept: 'application/json' }).then(function(data) {
         var parsed = JSON.parse(data);
-        assert.equal(parsed.message, 'Why? Because Fuck you, that\'s why.');
+        assert.equal(parsed.message, 'Why? Because fuck you, that\'s why.');
         assert.equal(parsed.subtitle, '- Me');
     }).catch(function(e) {
         console.error('*** testGet: ' + e.message);
         console.error(e.stack);
-    }).done();
+    });
 }
 
 function testPost() {
@@ -48,7 +48,7 @@ function testPost() {
         }).catch(function(e) {
             console.error('*** testPost: ' + e.message);
             console.error(e.stack);
-        }).done();
+        });
 }
 
 function main() {
