@@ -6,7 +6,7 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 //
-// See COPYING for details
+// See LICENSE for details
 "use strict";
 
 const Messaging = require('./lib/messaging');
