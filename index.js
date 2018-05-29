@@ -12,7 +12,6 @@
 const Messaging = require('./lib/messaging');
 const BaseDevice = require('./lib/base_device');
 const BaseChannel = require('./lib/base_channel');
-const Utility = require('./lib/utilities');
 const Helpers = require('./lib/helpers');
 const Classes = require('./lib/classes');
 const ObjectSet = require('./lib/object_set');
@@ -48,34 +47,24 @@ module.exports = {
     // and thingpedia, don't use it
     Modules: require('./lib/modules'),
 
-    BaseDevice: BaseDevice,
+    BaseDevice,
+    Availability: BaseDevice.Availability,
 
     // deprecated compatibility code
-    OnlineAccount: Utility.OnlineAccount,
     BaseChannel: BaseChannel,
-    PollingTrigger: Utility.PollingTrigger,
-    HttpPollingTrigger: Utility.HttpPollingTrigger,
-    RSSPollingTrigger: Utility.RSSPollingTrigger,
-    SimpleAction: Utility.SimpleAction,
     DeviceClass: Classes.DeviceClass,
-    ThingClass: Classes.DeviceClass,
     ChannelClass: Classes.ChannelClass,
-    TriggerClass: Classes.ChannelClass,
-    ActionClass: Classes.ChannelClass,
-    QueryClass: Classes.ChannelClass,
-
-    Availability: BaseDevice.Availability,
 
     // internal semi-obsolete stuff
     Tier: BaseDevice.Tier,
 
     // interfaces (for documentation/type-checking only)
-    Messaging: Messaging,
-    ConfigDelegate: ConfigDelegate,
+    Messaging,
+    ConfigDelegate,
 
-    Helpers: Helpers,
+    Helpers,
 
-    ObjectSet: ObjectSet,
+    ObjectSet,
 
     Value: {
         Entity: ThingTalk.Builtin.Entity,
