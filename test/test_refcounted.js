@@ -20,6 +20,8 @@ function timeout(delay) {
         setTimeout(() => resolve(), delay);
     });
 }
+class DefaultRefCounted extends RefCounted {
+}
 
 class MyRefCounted extends RefCounted {
     constructor() {
@@ -45,6 +47,26 @@ class MyRefCounted extends RefCounted {
         this._allowClose = false;
         return timeout(100);
     }
+}
+
+function test0() {
+    const obj = new DefaultRefCounted();
+
+    return obj.open().then(() => {
+        return obj.close();
+    });
+}
+
+function testError() {
+    const obj = new DefaultRefCounted();
+
+    assert.throws(() => obj.close());
+
+    return obj.open().then(() => {
+        return obj.close();
+    }).then(() => {
+        assert.throws(() => obj.close());
+    });
 }
 
 function test1() {
@@ -121,6 +143,8 @@ function test4() {
 
 function main() {
     return Promise.all([
+        test0(),
+        testError(),
         test1(),
         test2(),
         test3(),
