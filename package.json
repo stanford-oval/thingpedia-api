@@ -21,9 +21,13 @@
     "xml2js": "^0.4.17"
   },
   "scripts": {
-    "lint": "eslint ./lib"
+    "lint": "eslint ./lib",
+    "test": "nyc node ./test",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "devDependencies": {
-    "eslint": "^4.18.2"
+    "coveralls": "^3.0.1",
+    "eslint": "^4.18.2",
+    "nyc": "^11.8.0"
   }
 }

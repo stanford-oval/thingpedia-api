@@ -11,7 +11,6 @@
 
 const assert = require('assert');
 
-const BaseChannel = require('../lib/base_channel');
 const BaseDevice = require('../lib/base_device');
 
 class MyDevice extends BaseDevice {
@@ -24,19 +23,19 @@ class MyDevice extends BaseDevice {
     }
 }
 MyDevice.metadata = {
-    types: [],
+    types: ['fooable'],
     child_types: []
-}
-
-class MyChannel extends BaseChannel {
-}
+};
 
 function main() {
-    var e = {}
-    var d = new MyDevice(e, {});
-    var c = new MyChannel(e, d);
+    var e = {};
+    var d = new MyDevice(e, { kind: 'com.foo' });
 
-    assert.equal(c.engine, e);
-    assert.equal(c.device, d);
+    assert.strictEqual(d.engine, e);
+    assert.strictEqual(d.kind, 'com.foo');
+    assert(d.hasKind('com.foo'));
+    assert(d.hasKind('fooable'));
 }
-main();
+module.exports = main;
+if (!module.parent)
+    main();
