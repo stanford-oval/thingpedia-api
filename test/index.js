@@ -17,6 +17,7 @@ function seq(array) {
 
 seq([
     () => require('./test_class')(),
+    () => require('./test_object_set')(),
     () => require('./test_http')(),
     () => require('./test_refcounted')()
 ]);
