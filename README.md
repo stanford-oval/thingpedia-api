@@ -15,8 +15,4 @@ You can find more information at http://www.thingpedia.org
 
 ## License
 
-This package, as well as ThingEngine, is covered by the GNU
-General Public License, version 2 or any later version.
-This means, among other things, that any project or package
-wishing to use this API, or to be published in Thingpedia, must
-use a GPL-compatible license.
+This package is covered by the 3-clause BSD license.
