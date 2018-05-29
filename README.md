@@ -1,17 +1,26 @@
-# Thingpedia API
+# Thingpedia Device API
 
-## Help the World Connect the Dots
+[![Build Status](https://travis-ci.org/Stanford-Mobisocial-IoT-Lab/thingpedia-api.svg?branch=master)](https://travis-ci.org/Stanford-Mobisocial-IoT-Lab/thingpedia-api) [![Coverage Status](https://coveralls.io/repos/github/Stanford-Mobisocial-IoT-Lab/thingpedia-api/badge.svg?branch=master)](https://coveralls.io/github/Stanford-Mobisocial-IoT-Lab/thingpedia-api?branch=master) [![Dependency Status](https://david-dm.org/Stanford-Mobisocial-IoT-Lab/thingpedia-api/status.svg)](https://david-dm.org/Stanford-Mobisocial-IoT-Lab/thingpedia-api)
 
-Thingpedia is the distributed open source platform for IoT rules.
+## An Open, Crowdsourced Repository of APIs
 
-Anyone can contribute the interface code to access any device or
-web service to Thingpedia.
+Thingpedia is the open repository of API used by the [Almond Virtual Assistant](https://almond.stanford.edu).
+Anyone can contribute the interface code to access any device or web service, publish it on Thingpedia, and 
 
 This package contains the public API and set of JS interfaces
-that any package published in Thingpedia should adhere too.
+that any package published in Thingpedia should implement.
+It also contains a various helpers that are available to Thingpedia packages.
 
-Thingpedia is a research project led by prof. Monica Lam, from Stanford University.
-You can find more information at http://www.thingpedia.org
+Thingpedia and Almond are research projects led by prof. Monica Lam,
+from Stanford University.  You can find more information at
+<https://almond.stanford.edu>
+
+## Documentation
+
+Documentation for this package is hosted on the [Almond website](https://almond.stanford.edu/thingpedia/developers).
+
+ * [Overview and API Guide](https://almond.stanford.edu/thingpedia/developers/thingpedia-device-intro.md)
+ * [API Reference](https://almond.stanford.edu/thingpedia/developers/thingpedia-helpers.md)
 
 ## License
 
