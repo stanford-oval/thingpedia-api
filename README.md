@@ -22,6 +22,11 @@ Documentation for this package is hosted on the [Almond website](https://almond.
  * [Overview and API Guide](https://almond.stanford.edu/thingpedia/developers/thingpedia-device-intro.md)
  * [API Reference](https://almond.stanford.edu/thingpedia/developers/thingpedia-helpers.md)
 
+**NOTE**: you should not install this package separately from npm. If you are writing
+an interface for Thingpedia, the correct version of this module is already available
+in the environment and you can just `require('thingpedia')`. The only case where it is
+useful to install this module is when you're developing Almond itself.
+
 ## License
 
 This package is covered by the 3-clause BSD license.

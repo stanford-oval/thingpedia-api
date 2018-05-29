@@ -1,0 +1,5 @@
+2.2.0
+=====
+
+* First official release in npm
+* Much of the compatibility API that was obsoleted in 2.0.0 was removed.
