@@ -19,5 +19,7 @@ seq([
     () => require('./test_class')(),
     () => require('./test_object_set')(),
     () => require('./test_http')(),
+    () => require('./test_rss')(),
+    () => require('./test_polling')(),
     () => require('./test_refcounted')()
 ]);
