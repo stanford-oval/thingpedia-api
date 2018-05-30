@@ -5,7 +5,7 @@
 ## An Open, Crowdsourced Repository of APIs
 
 Thingpedia is the open repository of API used by the [Almond Virtual Assistant](https://almond.stanford.edu).
-Anyone can contribute the interface code to access any device or web service, publish it on Thingpedia, and 
+Anyone can contribute the interface code to access any device or web service, and publish it on Thingpedia.
 
 This package contains the public API and set of JS interfaces
 that any package published in Thingpedia should implement.
