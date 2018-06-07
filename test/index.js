@@ -22,5 +22,4 @@ seq([
     () => require('./test_rss')(),
     () => require('./test_polling')(),
     () => require('./test_refcounted')(),
-    () => require('./test_v2_device')(),
 ]);

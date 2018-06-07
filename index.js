@@ -43,10 +43,6 @@ const VERSION = {
 };
 
 module.exports = {
-    // Modules is a private implementation detail between thingengine-core
-    // and thingpedia, don't use it
-    Modules: require('./lib/modules'),
-
     BaseDevice,
     Availability: BaseDevice.Availability,
 
