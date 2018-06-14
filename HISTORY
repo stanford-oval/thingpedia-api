@@ -1,3 +1,14 @@
+2.2.2
+=====
+
+* Removed loader modules, which were moved to thingengine-core (and soon
+  will be moved to a separate thingpedia-client module) [#3]
+
+2.2.1
+=====
+
+* Fixed handling of 301 redirects [#1]
+
 2.2.0
 =====
 
