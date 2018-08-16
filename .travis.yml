@@ -4,7 +4,13 @@ node_js:
 before_install:
 - mkdir -p ../node_modules
 - ln -s -T `pwd` ../node_modules/thingpedia
+- yarn global add greenkeeper-lockfile@1
+before_script: greenkeeper-lockfile-update
+after_script: greenkeeper-lockfile-upload
 script:
 - yarn lint
 - TZ="America/Los_Angeles" yarn test
 after_success: yarn run coverage
+env:
+  global:
+    secure: L6XZjIB7I9fZ01h75PE9ydwhHIAi+GgnfIeKzdylwopgT5Mu00uB+EDGuHZMb0Do8SVfHeeTuHVR/RUlKcqcVv5oZI1FFY5ZJz1vdAx4nqW38FC1cHUtBS83aN1BpjUx/Wk2qscTJV7twUTvHrgPRT0Um6trtud0Kt9IDGbXnxH4LPaHhJ4t6Xs9fF53LVTQCV4tJfBi4n836dcm82siuuQw7NFSKwk2hhv55XXQvTOq4zEK8cTCadZWqzbLxu2TPLdlVEgqNAXi1S8T04Dy+QDnxcHRBkCzh9JsxMxMhNZKWOZQYZHXgKStTvZvSFb6K7U8oK5KziTXYN9V0SUK4BoPV3eBDJLo5tI7CUSZSqsk4j0VFd3gC3VHmDRmTFH0nlo7eVKjFmeHp8qc/vg5eKNRzkH6DcXQxgjOBuZS2/n1X2upsz1NC9XF18QpUbN0GXfnEoFH6jmdvFao4RWurWBWoYANDEkzd/MRhYWoCUpCGX6nIscc5aEAAmEVFyX3woM/aEoxmUSdzwAuT3ylDQdIsscWtQxCboFoKK4z6G/nxyxYSm+1Wm2K7sxc/BrqVcZ0cx8ounjr9EMBvmVZ9BYxjJPzlWci0mO27H+PJNyBR6VS/waYy86yPtt/TZIIYQ75jID3WEnRjsot+KfVpax7rHoSmk3bCt5bQGooupU=
