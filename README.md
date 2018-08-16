@@ -1,6 +1,6 @@
 # Thingpedia Device API
 
-[![Build Status](https://travis-ci.org/Stanford-Mobisocial-IoT-Lab/thingpedia-api.svg?branch=master)](https://travis-ci.org/Stanford-Mobisocial-IoT-Lab/thingpedia-api) [![Coverage Status](https://coveralls.io/repos/github/Stanford-Mobisocial-IoT-Lab/thingpedia-api/badge.svg?branch=master)](https://coveralls.io/github/Stanford-Mobisocial-IoT-Lab/thingpedia-api?branch=master) [![Dependency Status](https://david-dm.org/Stanford-Mobisocial-IoT-Lab/thingpedia-api/status.svg)](https://david-dm.org/Stanford-Mobisocial-IoT-Lab/thingpedia-api)
+[![Build Status](https://travis-ci.org/Stanford-Mobisocial-IoT-Lab/thingpedia-api.svg?branch=master)](https://travis-ci.org/Stanford-Mobisocial-IoT-Lab/thingpedia-api) [![Coverage Status](https://coveralls.io/repos/github/Stanford-Mobisocial-IoT-Lab/thingpedia-api/badge.svg?branch=master)](https://coveralls.io/github/Stanford-Mobisocial-IoT-Lab/thingpedia-api?branch=master) [![Dependency Status](https://david-dm.org/Stanford-Mobisocial-IoT-Lab/thingpedia-api/status.svg)](https://david-dm.org/Stanford-Mobisocial-IoT-Lab/thingpedia-api) [![Greenkeeper badge](https://badges.greenkeeper.io/Stanford-Mobisocial-IoT-Lab/thingpedia-api.svg)](https://greenkeeper.io/)
 
 ## An Open, Crowdsourced Repository of APIs
 
