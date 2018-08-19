@@ -151,6 +151,21 @@ function testRedirectNoFollow() {
     });
 }
 
+function testRedirectTemporary() {
+    return Helpers.Http.get('https://httpbin.org/status/307').then((response) => {
+        const parsed = JSON.parse(response);
+        assert.strictEqual(parsed.url, 'https://httpbin.org/get');
+    });
+}
+function testRedirectTemporaryNoFollow() {
+    return Helpers.Http.get('https://httpbin.org/status/307', { followRedirects: false }).then((response) => {
+        assert.fail('expected an error');
+    }, (err) => {
+        assert.strictEqual(err.code, 307);
+        assert.strictEqual(err.redirect, 'https://httpbin.org/redirect/1');
+    });
+}
+
 function seq(array) {
     return (function loop(i) {
         if (i === array.length)
@@ -175,7 +190,9 @@ function main() {
         testAbsoluteRedirect,
         testRedirect,
         testMultiRedirect,
-        testRedirectNoFollow
+        testRedirectNoFollow,
+        testRedirectTemporary,
+        testRedirectTemporaryNoFollow
     ]);
 }
 module.exports = main;
