@@ -16,6 +16,8 @@ const RSS = require('../lib/helpers/rss');
 function testRSS1() {
     return RSS.get('http://lorem-rss.herokuapp.com/feed?unit=day').then((items) => {
         items.forEach((item, i) => {
+            assert(item.updated_time instanceof Date);
+            assert(item.updated instanceof Date);
             if (i > 0)
                 assert(+item.updated_time <= +items[i-1].updated_time);
             assert(item.title.startsWith('Lorem ipsum '));
@@ -28,6 +30,8 @@ function testRSS1() {
 function testAtom() {
     return RSS.get('https://xkcd.com/atom.xml').then((items) => {
         items.forEach((item, i) => {
+            assert(item.updated_time instanceof Date);
+            assert(item.updated instanceof Date);
             if (i > 0)
                 assert(+item.updated_time <= +items[i-1].updated_time);
             assert(!!item.title);
