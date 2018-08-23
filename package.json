@@ -13,6 +13,7 @@
   ],
   "main": "index.js",
   "dependencies": {
+    "feedparser": "^2.2.9",
     "ip": "~1.1.0",
     "oauth": "~0.9.14",
     "p-finally": "^1.0.0",
