@@ -11,9 +11,7 @@
 
 const Messaging = require('./lib/messaging');
 const BaseDevice = require('./lib/base_device');
-const BaseChannel = require('./lib/base_channel');
 const Helpers = require('./lib/helpers');
-const Classes = require('./lib/classes');
 const ObjectSet = require('./lib/object_set');
 const ConfigDelegate = require('./lib/config_delegate');
 
@@ -46,22 +44,15 @@ module.exports = {
     BaseDevice,
     Availability: BaseDevice.Availability,
 
-    // deprecated compatibility code
-    BaseChannel: BaseChannel,
-    DeviceClass: Classes.DeviceClass,
-    ChannelClass: Classes.ChannelClass,
-
     // internal semi-obsolete stuff
     Tier: BaseDevice.Tier,
 
     // interfaces (for documentation/type-checking only)
     Messaging,
     ConfigDelegate,
-
-    Helpers,
-
     ObjectSet,
 
+    Helpers,
     Value: {
         Entity: ThingTalk.Builtin.Entity,
         Currency: ThingTalk.Builtin.Currency,
