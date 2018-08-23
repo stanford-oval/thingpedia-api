@@ -40,10 +40,42 @@ function testAtom() {
     });
 }
 
+function testXkcdWhatIf() {
+    // Xkcd's what if requires handling namespaces correctly
+    return RSS.get('https://what-if.xkcd.com/feed.atom').then((items) => {
+        items.forEach((item, i) => {
+            assert(item.updated_time instanceof Date);
+            assert(item.updated instanceof Date);
+            if (i > 0)
+                assert(+item.updated_time <= +items[i-1].updated_time);
+            assert(item.title);
+            assert(item.link.startsWith('https://what-if.xkcd.com'));
+        });
+    });
+}
+
+function testWashingtonPost() {
+    // Washington Post requires correct handling of pictures
+    return RSS.get('http://feeds.washingtonpost.com/rss/politics').then((items) => {
+        items.forEach((item, i) => {
+            assert(item.updated_time instanceof Date);
+            assert(item.updated instanceof Date);
+            if (i > 0)
+                assert(+item.updated_time <= +items[i-1].updated_time);
+            assert(item.title);
+            assert(item.description);
+            assert(item.picture_url);
+            assert(item.link.startsWith('https://www.washingtonpost.com/'));
+        });
+    });
+}
+
 function main() {
     return Promise.all([
         testRSS1(),
-        testAtom()
+        testAtom(),
+        testXkcdWhatIf(),
+        testWashingtonPost()
     ]);
 }
 module.exports = main;
