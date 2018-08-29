@@ -64,7 +64,7 @@ function testWashingtonPost() {
                 assert(+item.updated_time <= +items[i-1].updated_time);
             assert(item.title);
             assert(item.description);
-            assert(item.picture_url);
+            assert(item.picture_url || item.picture_url === null);
             assert(item.link.startsWith('https://www.washingtonpost.com/'));
         });
     });
