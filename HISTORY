@@ -1,3 +1,9 @@
+2.2.3
+=====
+* Refactored the RSS helpers to use a third-party library, making
+  them more robust [#7]
+* Fixed 307 redirection in HTTP helpers
+
 2.2.2
 =====
 
