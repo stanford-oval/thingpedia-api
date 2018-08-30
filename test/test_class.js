@@ -24,17 +24,57 @@ class MyDevice extends BaseDevice {
 }
 MyDevice.metadata = {
     types: ['fooable'],
-    child_types: []
+    child_types: [],
+    category: 'data'
 };
 
-function main() {
-    var e = {};
-    var d = new MyDevice(e, { kind: 'com.foo' });
-
+function testBasic(d, e) {
     assert.strictEqual(d.engine, e);
     assert.strictEqual(d.kind, 'com.foo');
+    assert.strictEqual(d.ownerTier, 'global');
+}
+
+function testHasKind(d) {
     assert(d.hasKind('com.foo'));
     assert(d.hasKind('fooable'));
+    assert(d.hasKind('data-source'));
+    assert(!d.hasKind('thingengine-system'));
+    assert(!d.hasKind('online-account'));
+}
+
+function testStateChanged(d) {
+    let success = false;
+    d.on('state-changed', () => {
+        assert.strictEqual(success, false);
+        success = true;
+    });
+    d.stateChanged();
+    assert.strictEqual(success, true);
+}
+
+function testChangeState(d) {
+    const newState = { kind: 'com.foo', v: 42 };
+
+    assert(newState !== d.state);
+    d.updateState(newState);
+    assert.strictEqual(d.state, newState);
+}
+
+async function main() {
+    var e = {};
+
+    const state = { kind: 'com.foo' };
+    var d = new MyDevice(e, state);
+    assert.strictEqual(d.state, state);
+    assert.strictEqual(d.serialize(), state);
+
+    testBasic(d, e);
+    testHasKind(d);
+
+    await d.checkAvailable();
+
+    testStateChanged(d);
+    testChangeState(d);
 }
 module.exports = main;
 if (!module.parent)
