@@ -10,6 +10,7 @@
 "use strict";
 
 const assert = require('assert');
+require('./assert_rejects');
 
 const RSS = require('../lib/helpers/rss');
 
@@ -70,12 +71,18 @@ function testWashingtonPost() {
     });
 }
 
+async function testNotRSS() {
+    await assert.rejects(() => RSS.get('https://httpbin.org/get'));
+    await assert.rejects(() => RSS.get('httsp://www.google.com'));
+}
+
 function main() {
     return Promise.all([
         testRSS1(),
         testAtom(),
         testXkcdWhatIf(),
-        testWashingtonPost()
+        testWashingtonPost(),
+        testNotRSS()
     ]);
 }
 module.exports = main;
