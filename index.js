@@ -19,7 +19,7 @@ const ThingTalk = require('thingtalk');
 
 const VERSION = {
     major: 2,
-    minor: 2,
+    minor: 3,
     valueOf() {
         return this.major * 100 + this.minor;
     },
