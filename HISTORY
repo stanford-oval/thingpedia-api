@@ -1,3 +1,9 @@
+2.3.0
+=====
+* BaseDevice now provides a default name, description and uniqueId,
+  based on the Thingpedia metadata.
+* Support code for v1 Thingpedia devices was removed.
+
 2.2.3
 =====
 * Refactored the RSS helpers to use a third-party library, making
