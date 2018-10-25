@@ -19,9 +19,6 @@ from Stanford University.  You can find more information at
 
 Documentation for this package is hosted on the [Almond website](https://almond.stanford.edu/thingpedia/developers).
 
- * [Overview and API Guide](https://almond.stanford.edu/thingpedia/developers/thingpedia-device-intro.md)
- * [API Reference](https://almond.stanford.edu/thingpedia/developers/thingpedia-helpers.md)
-
 **NOTE**: you should not install this package separately from npm. If you are writing
 an interface for Thingpedia, the correct version of this module is already available
 in the environment and you can just `require('thingpedia')`. The only case where it is
