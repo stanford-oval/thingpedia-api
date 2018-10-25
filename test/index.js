@@ -6,22 +6,20 @@ require('..');
 process.on('unhandledRejection', (up) => { throw up; });
 process.env.TEST_MODE = '1';
 
-function seq(array) {
-    return (function loop(i) {
-        if (i === array.length)
-            return Promise.resolve();
-        else
-            return Promise.resolve(array[i]()).then(() => loop(i+1));
-    })(0);
+async function seq(array) {
+    for (let el of array) {
+        console.log(`Running tests for ${el}`);
+        await require(el)();
+    }
 }
 
 seq([
-    require('./test_version'),
-    require('./test_class'),
-    require('./test_object_set'),
-    require('./test_http'),
-    require('./test_rss'),
-    require('./test_polling'),
-    require('./test_refcounted'),
-    require('./test_content')
+    ('./test_version'),
+    ('./test_class'),
+    ('./test_object_set'),
+    ('./test_http'),
+    ('./test_rss'),
+    ('./test_polling'),
+    ('./test_refcounted'),
+    ('./test_content')
 ]);

@@ -13,24 +13,78 @@ const assert = require('assert');
 
 const BaseDevice = require('../lib/base_device');
 
-class MyDevice extends BaseDevice {
+class MyDevice1 extends BaseDevice {
     constructor(engine, state) {
         super(engine, state);
 
         assert(Array.isArray(this.descriptors));
-        assert.equal(this._engine, engine);
-        assert.equal(this.state, state);
+        assert.strictEqual(this._engine, engine);
+        assert.strictEqual(this.state, state);
+        assert.strictEqual(this.uniqueId, 'com.foo');
+        assert.strictEqual(this.name, 'My Device 1');
+        assert.strictEqual(this.description, 'This is the first device');
     }
 }
-MyDevice.metadata = {
+MyDevice1.metadata = {
     types: ['fooable'],
     child_types: [],
-    category: 'data'
+    category: 'data',
+    params: {},
+    name: 'My Device 1',
+    description: 'This is the first device',
+
+    auth: { type: 'none' }
 };
 
-function testBasic(d, e) {
+class MyDevice2 extends BaseDevice {
+    constructor(engine, state) {
+        super(engine, state);
+
+        assert(Array.isArray(this.descriptors));
+        assert.strictEqual(this._engine, engine);
+        assert.strictEqual(this.state, state);
+        assert.strictEqual(this.uniqueId, 'com.bar-url:http://www.google.com');
+        assert.strictEqual(this.name, 'My Device 2');
+        assert.strictEqual(this.description, 'This is the second device');
+    }
+}
+MyDevice2.metadata = {
+    types: [],
+    child_types: [],
+    category: 'data',
+    params: {
+        url: ['url', 'URL'],
+    },
+    name: 'My Device 2',
+    description: 'This is the second device',
+
+    auth: { type: 'none' }
+};
+
+class MyDevice3 extends BaseDevice {
+    constructor(engine, state) {
+        super(engine, state);
+
+        assert(Array.isArray(this.descriptors));
+        assert.strictEqual(this._engine, engine);
+        assert.strictEqual(this.state, state);
+        assert.strictEqual(this.uniqueId, undefined);
+        assert.strictEqual(this.name, undefined);
+        assert.strictEqual(this.description, undefined);
+    }
+}
+MyDevice3.metadata = {
+    types: [],
+    child_types: [],
+    category: 'data',
+    params: {},
+
+    auth: { type: 'oauth2' }
+};
+
+function testBasic(d, e, k) {
     assert.strictEqual(d.engine, e);
-    assert.strictEqual(d.kind, 'com.foo');
+    assert.strictEqual(d.kind, k);
     assert.strictEqual(d.ownerTier, 'global');
 }
 
@@ -61,20 +115,31 @@ function testChangeState(d) {
 }
 
 async function main() {
-    var e = {};
+    const e = {};
 
     const state = { kind: 'com.foo' };
-    var d = new MyDevice(e, state);
-    assert.strictEqual(d.state, state);
-    assert.strictEqual(d.serialize(), state);
+    const d1 = new MyDevice1(e, state);
+    assert.strictEqual(d1.state, state);
+    assert.strictEqual(d1.serialize(), state);
 
-    testBasic(d, e);
-    testHasKind(d);
+    testBasic(d1, e, 'com.foo');
+    testHasKind(d1);
 
-    await d.checkAvailable();
+    await d1.checkAvailable();
 
-    testStateChanged(d);
-    testChangeState(d);
+    testStateChanged(d1);
+    testChangeState(d1);
+
+    const d2 = new MyDevice2(e, {
+        kind: 'com.bar',
+        url: 'http://www.google.com'
+    });
+    testBasic(d2, e, 'com.bar');
+
+    const d3 = new MyDevice3(e, {
+        kind: 'com.baz'
+    });
+    testBasic(d3, e, 'com.baz');
 }
 module.exports = main;
 if (!module.parent)
