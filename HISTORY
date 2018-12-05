@@ -1,3 +1,8 @@
+2.3.1
+=====
+* Extra data returned by /token OAuth2 endpoint is now available
+  to the helpers callback [#14]
+
 2.3.0
 =====
 * BaseDevice now provides a default name, description and uniqueId,
