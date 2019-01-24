@@ -1,3 +1,8 @@
+2.3.3
+=====
+* Output of HTTP helpers can be made quieter with a new `debug`
+  option [#17]
+
 2.3.2
 =====
 * Updated ThingTalk dependency
