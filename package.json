@@ -18,7 +18,6 @@
     "oauth": "~0.9.14",
     "p-finally": "^1.0.0",
     "thingtalk": "^1.4.1",
-    "tmp": "0.0.33",
     "xml2js": "^0.4.17"
   },
   "scripts": {
