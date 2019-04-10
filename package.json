@@ -3,7 +3,7 @@
   "version": "2.3.4",
   "description": "Base ThingPedia API",
   "license": "BSD-3-Clause",
-  "repository": "https://github.com/Stanford-Mobisocial-IoT-Lab/thingpedia-api",
+  "repository": "https://github.com/stanford-oval/thingpedia-api",
   "author": "Stanford University Mobile and Social Computing Lab",
   "contributors": [
     {
