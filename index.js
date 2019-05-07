@@ -14,6 +14,7 @@ const BaseDevice = require('./lib/base_device');
 const Helpers = require('./lib/helpers');
 const ObjectSet = require('./lib/object_set');
 const ConfigDelegate = require('./lib/config_delegate');
+const { OAuthError } = require('./lib/errors');
 
 const ThingTalk = require('thingtalk');
 
@@ -59,6 +60,8 @@ module.exports = {
         Location: ThingTalk.Builtin.Location,
         Time: ThingTalk.Builtin.Time
     },
+
+    OAuthError,
 
     version: VERSION
 };
