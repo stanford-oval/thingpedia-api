@@ -1,3 +1,9 @@
+2.4.0
+=====
+* Error caused by OAuth are now wrapped in a custom error class,
+  which is exposed in the API [#23]
+* Updated dependencies
+
 2.3.4
 =====
 * Fixed handling of 301/302/307 redirects after POST requests
