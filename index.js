@@ -15,6 +15,10 @@ const Helpers = require('./lib/helpers');
 const ObjectSet = require('./lib/object_set');
 const ConfigDelegate = require('./lib/config_delegate');
 const { OAuthError } = require('./lib/errors');
+const BaseClient = require('./lib/base_client');
+const HttpClient = require('./lib/http_client');
+const DeviceFactory = require('./lib/factory');
+const { ImplementationError, UnsupportedError } = require('./lib/errors');
 
 const ThingTalk = require('thingtalk');
 
@@ -34,6 +38,7 @@ const VERSION = {
         switch (f) {
         case 'rss':
         case 'value-types':
+        case 'thingpedia-client':
             return true;
         default:
             return false;
@@ -42,10 +47,11 @@ const VERSION = {
 };
 
 module.exports = {
+    version: VERSION,
+
+    // APIs for implementers of Thingpedia interfaces
     BaseDevice,
     Availability: BaseDevice.Availability,
-
-    // internal semi-obsolete stuff
     Tier: BaseDevice.Tier,
 
     // interfaces (for documentation/type-checking only)
@@ -53,6 +59,7 @@ module.exports = {
     ConfigDelegate,
     ObjectSet,
 
+    // helper libraries and portions of ThingTalk API that are public/stable
     Helpers,
     Value: {
         Entity: ThingTalk.Builtin.Entity,
@@ -61,7 +68,13 @@ module.exports = {
         Time: ThingTalk.Builtin.Time
     },
 
-    OAuthError,
+    // APIs for users of Thingpedia interfaces
+    BaseClient,
+    HttpClient,
+    DeviceFactory,
 
-    version: VERSION
+    // expose errors
+    ImplementationError,
+    UnsupportedError,
+    OAuthError,
 };
