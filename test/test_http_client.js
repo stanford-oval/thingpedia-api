@@ -27,9 +27,8 @@ const _mockPlatform = {
 };
 const _mockDeveloperPlatform = {
     getDeveloperKey() {
-        if (!process.env.THINGENGINE_DEVELOPER_KEY)
-            throw new Error('Invalid test setup: missing THINGENGINE_DEVELOPER_KEY');
-        return process.env.THINGENGINE_DEVELOPER_KEY;
+        // almond-dev developer key
+        return '88c03add145ad3a3aa4074ffa828be5a391625f9d4e1d0b034b445f18c595656';
     },
 
     get locale() {
