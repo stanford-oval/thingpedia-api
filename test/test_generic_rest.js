@@ -12,7 +12,6 @@
 
 const assert = require('assert');
 const qs = require('qs');
-const Url = require('url');
 const tough = require('tough-cookie');
 const ThingTalk = require('thingtalk');
 
@@ -223,7 +222,7 @@ async function testAlmondOAuth() {
     });
 
     console.log('start run oauth');
-    const [redirectToAlmond, oauthSession] = await factory.runOAuth2(mockEngine, null);
+    const [redirectToAlmond, oauthSession] = await factory.loadFromCustomOAuth(mockEngine);
 
     assert.strictEqual(typeof oauthSession['oauth2-state-edu.stanford.almond-dev'], 'string');
     assert.strictEqual(redirectToAlmond, `https://almond-dev.stanford.edu/me/api/oauth2/authorize?response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fdevices%2Foauth2%2Fcallback%2Fedu.stanford.almond-dev&state=${oauthSession['oauth2-state-edu.stanford.almond-dev']}&scope=profile&client_id=5524304f0ce9cb5c`);
@@ -244,36 +243,11 @@ async function testAlmondOAuth() {
 
     console.log('obtained redirect with code');
     assert(redirectToUs.startsWith('http://127.0.0.1:3000/devices/oauth2/callback/edu.stanford.almond-dev'));
-    const parsedRedirect = Url.parse(redirectToUs, { parseQueryString: true });
-    const req = {
-        httpVersion: 1.0,
-        headers: [],
-        rawHeaders: [],
-
-        method: 'GET',
-        url: redirectToUs,
-        query: parsedRedirect.query,
-        session: oauthSession
-    };
 
     console.log('second run oauth');
 
-    const mockDevices = {
-        loadOneDevice(state, addToDB) {
-            assert.strictEqual(state.kind, 'edu.stanford.almond-dev');
-            assert.strictEqual(addToDB, true);
-            return new factory(mockEngine, state);
-        }
-    };
-    const mockEngineWithDevices = Object.create(mockEngine, {
-        devices: {
-            configurable: true,
-            enumerable: true,
-            value: mockDevices,
-            writable: false
-        }
-    });
-    const instance = await factory.runOAuth2(mockEngineWithDevices, req);
+    const instance = await factory.completeCustomOAuth(mockEngine, redirectToUs, oauthSession);
+    assert.strictEqual(instance.kind, 'edu.stanford.almond-dev');
 
     //assert.strictEqual(instance.uniqueId, 'edu.stanford.almond-dev-517e033d9b977261');
     assert.strictEqual(typeof instance.accessToken, 'string');

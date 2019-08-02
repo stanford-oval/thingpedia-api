@@ -20,12 +20,12 @@ const { mockClient, mockEngine } = require('./mock');
 const factory = new DeviceFactory(mockEngine, mockClient);
 
 async function testBasic() {
-    const deviceFactory = await factory.getFactory('org.thingpedia.test.mydevice');
+    const deviceFactory = await factory.getDeviceClass('org.thingpedia.test.mydevice');
     assert.strictEqual(deviceFactory, MyDevice);
 }
 
 async function testQuery() {
-    const modules = await factory.getCachedModules();
+    const modules = await factory.getCachedDeviceClasses();
     modules.sort((a, b) => a.name.localeCompare(b.name));
     assert.deepStrictEqual(modules, [
         { name: 'com.herokuapp.lorem-rss', version: 1 },
@@ -51,7 +51,7 @@ async function testQuery() {
 }
 
 async function testConfigure() {
-    const instance = await factory.createDevice('org.thingpedia.test.mydevice', {
+    const instance = await factory.loadSerialized('org.thingpedia.test.mydevice', {
         kind: 'org.thingpedia.test.mydevice'
     });
     assert(instance instanceof MyDevice);
