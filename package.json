@@ -1,7 +1,7 @@
 {
   "name": "thingpedia",
   "version": "2.4.0",
-  "description": "Base ThingPedia API",
+  "description": "Thingpedia SDK",
   "license": "BSD-3-Clause",
   "repository": "https://github.com/stanford-oval/thingpedia-api",
   "author": "Stanford University Mobile and Social Computing Lab",
