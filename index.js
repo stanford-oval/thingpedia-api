@@ -19,6 +19,8 @@ const BaseClient = require('./lib/base_client');
 const HttpClient = require('./lib/http_client');
 const DeviceFactory = require('./lib/factory');
 const { ImplementationError, UnsupportedError } = require('./lib/errors');
+const BaseEngine = require('./lib/base_engine');
+const BasePlatform = require('./lib/base_platform');
 
 const ThingTalk = require('thingtalk');
 
@@ -69,6 +71,8 @@ module.exports = {
     },
 
     // APIs for users of Thingpedia interfaces
+    BaseEngine,
+    BasePlatform,
     BaseClient,
     HttpClient,
     DeviceFactory,

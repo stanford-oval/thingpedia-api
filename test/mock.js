@@ -10,27 +10,6 @@
 "use strict";
 
 const assert = require('assert');
-if (!assert.rejects) {
-    // added in node 9.*, we still support (and mostly use) 8.*
-
-    assert.rejects = async function rejects(promise, error, message) {
-        if (typeof promise === 'function')
-            promise = promise();
-
-        try {
-            await promise;
-            try {
-                assert.fail("Expected a rejected promise");
-            } catch(e) {
-                return Promise.reject(e);
-            }
-        } catch(e) {
-            assert.throws(() => { throw e; }, error, message);
-        }
-        return Promise.resolve();
-    };
-}
-
 const path = require('path');
 const child_process = require('child_process');
 const os = require('os');
@@ -39,6 +18,8 @@ const util = require('util');
 
 const ThingTalk = require('thingtalk');
 const BaseClient = require('../lib/base_client');
+const BasePlatform = require('../lib/base_platform');
+const BaseEngine = require('../lib/base_engine');
 
 const _unzipApi = {
     unzip(zipPath, dir) {
@@ -54,35 +35,6 @@ const _unzipApi = {
             console.log('stdout', stdout);
             console.log('stderr', stderr);
         });
-    }
-};
-
-const mockPlatform = {
-    getCacheDir() {
-        return path.dirname(module.filename);
-    },
-    getTmpDir() {
-        return os.tmpdir();
-    },
-    hasCapability(cap) {
-        switch (cap) {
-        case 'code-download':
-            return true;
-        default:
-            return false;
-        }
-    },
-    getCapability(cap) {
-        switch (cap) {
-        case 'code-download':
-            return _unzipApi;
-        default:
-            return null;
-        }
-    },
-    getOrigin() {
-        // like almond-server
-        return 'http://127.0.0.1:3000';
     }
 };
 
@@ -125,33 +77,69 @@ class MockClient extends BaseClient {
         }
     }
 }
-const mockClient = new MockClient();
 
-const mockEngine = {
-    get platform() {
-        return mockPlatform;
-    },
-    get thingpedia() {
-        return mockClient;
-    },
+class MockPlatform extends BasePlatform {
+    constructor() {
+        super();
 
-    _schemas: new ThingTalk.SchemaRetriever(mockClient, null, false),
-    get schemas() {
-        return this._schemas;
-    },
-    get ownTier() {
-        return 'desktop';
-    },
+        this._mockClient = new MockClient(this);
+    }
+
+    get type() {
+        return 'server';
+    }
+    get locale() {
+        return 'en-US';
+    }
+    get timezone() {
+        return 'America/Los_Angeles';
+    }
+
+    getCacheDir() {
+        return path.dirname(module.filename);
+    }
+    getTmpDir() {
+        return os.tmpdir();
+    }
+    hasCapability(cap) {
+        switch (cap) {
+        case 'code-download':
+        case 'thingpedia-client':
+            return true;
+        default:
+            return false;
+        }
+    }
+    getCapability(cap) {
+        switch (cap) {
+        case 'code-download':
+            return _unzipApi;
+        case 'thingpedia-client':
+            return this._mockClient;
+        default:
+            return null;
+        }
+    }
+    getOrigin() {
+        // like almond-server
+        return 'http://127.0.0.1:3000';
+    }
+}
+const mockPlatform = new MockPlatform();
+const mockClient = mockPlatform.getCapability('thingpedia-client');
+
+class MockEngine extends BaseEngine {
     get devices() {
         throw assert.fail('nothing should call this');
-    },
+    }
     get apps() {
         throw assert.fail('nothing should call this');
-    },
+    }
     get stats() {
         throw assert.fail('nothing should call this');
     }
-};
+}
+const mockEngine = new MockEngine(mockPlatform);
 
 class State {
     constructor() {
