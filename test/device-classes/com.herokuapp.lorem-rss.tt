@@ -1,0 +1,26 @@
+class @com.herokuapp.lorem-rss
+#[version=1] {
+  import loader from @org.thingpedia.rss();
+  import config from @org.thingpedia.config.none();
+
+  monitorable list query feed(out title: String,
+                              out link: Entity(tt:url),
+                              out description: String,
+                              out updated_time: Date)
+  #[poll_interval=60000ms]
+  #[url="http://lorem-rss.herokuapp.com/feed"];
+
+  list query feed_nomonitor(out title: String,
+                            out link: Entity(tt:url),
+                            out description: String,
+                            out updated_time: Date)
+  #[url="http://lorem-rss.herokuapp.com/feed"];
+
+  monitorable list query feed_input(in req unit: Enum(minute,second,day,month,year),
+                                    out title: String,
+                                    out link: Entity(tt:url),
+                                    out description: String,
+                                    out updated_time: Date)
+  #[poll_interval=60000ms]
+  #[url="http://lorem-rss.herokuapp.com/feed?unit=${unit}"];
+}

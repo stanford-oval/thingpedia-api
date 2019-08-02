@@ -1,0 +1,4 @@
+{"name":"org.thingpedia.test.broken",
+ "main": "index.js",
+ "thingpedia-version":1
+}

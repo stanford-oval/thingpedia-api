@@ -14,6 +14,7 @@ async function seq(array) {
 }
 
 seq([
+    ('./test_unit'),
     ('./test_version'),
     ('./test_class'),
     ('./test_object_set'),
@@ -21,5 +22,11 @@ seq([
     ('./test_rss'),
     ('./test_polling'),
     ('./test_refcounted'),
-    ('./test_content')
+    ('./test_content'),
+    ('./test_factory_api'),
+    ('./test_http_client'),
+    ('./test_builtin'),
+    ('./test_v2_device'),
+    ('./test_generic_rest'),
+    ('./test_rss_device'),
 ]);

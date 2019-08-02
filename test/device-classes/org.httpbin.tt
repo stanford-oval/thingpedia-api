@@ -1,0 +1,34 @@
+class @org.httpbin
+#[version=1] {
+  import loader from @org.thingpedia.generic_rest.v1();
+  import config from @org.thingpedia.config.none();
+
+  monitorable query get(out url: Entity(tt:url),
+                        out user_agent: Entity(tt:url) #[json_key="headers.User-Agent"])
+  #[poll_interval=5000ms]
+  #[url="https://httpbin.org/get"];
+
+  monitorable query get_args(in req input: String,
+                             out output: String #[json_key="args.input"])
+  #[poll_interval=5000ms]
+  #[url="https://httpbin.org/get?input=${input}"];
+
+  query get_nomonitor(out url: Entity(tt:url),
+                      out user_agent: Entity(tt:url) #[json_key="headers.User-Agent"])
+  #[url="https://httpbin.org/get"];
+
+  monitorable query post_query(in req input: String,
+                               out url: Entity(tt:url),
+                               out output: String #[json_key="json.input"])
+  #[poll_interval=5000ms]
+  #[method="POST"]
+  #[url="https://httpbin.org/post"];
+
+  action post_action(in req input: String)
+  #[url="https://httpbin.org/post"];
+
+  action put_action(in req input: String)
+  #[method="PUT"]
+  #[url="https://httpbin.org/put"];
+}
+

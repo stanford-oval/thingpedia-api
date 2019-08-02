@@ -1,0 +1,27 @@
+class @org.thingpedia.test.broken
+#[version=1]
+#[package_version=1] {
+  import loader from @org.thingpedia.v2();
+  import config from @org.thingpedia.config.none();
+
+  monitorable query something(out v1: String,
+                              out v2: Number)
+  #[poll_interval=0ms];
+
+  monitorable query something_poll1(out v1: String,
+                                    out v2: Number)
+  #[poll_interval=1000ms];
+
+  monitorable query something_poll2(out v1: String,
+                                    out v2: Number)
+  #[poll_interval=1000ms];
+
+  monitorable query something_poll3(out v1: String,
+                                    out v2: Number)
+  #[poll_interval=1000ms];
+
+  monitorable query something_poll4(out v1: String,
+                                    out v2: Number)
+  #[poll_interval=1000ms];
+}
+

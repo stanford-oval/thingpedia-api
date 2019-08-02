@@ -1,0 +1,11 @@
+class @org.httpbin.broken
+#[version=1] {
+  import loader from @org.thingpedia.generic_rest.v1();
+  import config from @org.thingpedia.config.none();
+
+  monitorable query get(out url: Entity(tt:url),
+                        out user_agent: Entity(tt:url) #[json_key="headers.User-Agent"])
+  #[poll_interval=0ms]
+  #[url="https://httpbin.org/get"];
+}
+
