@@ -224,6 +224,74 @@ async function testPkgVersion() {
     await module.getDeviceClass();
 }
 
+async function testBluetooth() {
+    const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.bluetooth'));
+
+    const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
+    const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.bluetooth', metadata, downloader);
+
+    const deviceClass = await module.getDeviceClass();
+
+    const delegate = {
+        async configDone() {
+        },
+        async configFailed(error) {
+            throw error;
+        },
+        async confirm(question) {
+            throw new Error(question);
+        },
+        async requestCode(question) {
+            if (question === 'Please insert the PIN code')
+                return '1234';
+            throw new Error(question);
+        }
+    };
+
+    const instance = await deviceClass.loadFromDiscovery(mockEngine, {
+        kind: 'bluetooth',
+        uuids: [],
+        class: 0
+    }, {
+        address: '11:22:33:44:55:66',
+        alias: 'Foo',
+        paired: false
+    });
+    assert(instance instanceof deviceClass);
+
+    const i2 = await instance.completeDiscovery(delegate);
+    assert.strictEqual(i2, instance);
+}
+
+async function testInteractive() {
+    const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.interactive'));
+
+    const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
+    const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.interactive', metadata, downloader);
+
+    const deviceClass = await module.getDeviceClass();
+
+    const delegate = {
+        async configDone() {
+        },
+        async configFailed(error) {
+            throw error;
+        },
+        async confirm(question) {
+            throw new Error(question);
+        },
+        async requestCode(question) {
+            if (question === 'Please insert the Password')
+                return '12345678';
+            throw new Error(question);
+        }
+    };
+
+    const instance = await deviceClass.loadInteractively(mockEngine, delegate);
+    assert(instance instanceof deviceClass);
+}
+
+
 async function main() {
     await testPreloaded();
     await testSubdevice();
@@ -231,6 +299,8 @@ async function main() {
     await testThingpedia();
     await testDownloader();
     await testPkgVersion();
+    await testBluetooth();
+    await testInteractive();
 }
 module.exports = main;
 if (!module.parent)
