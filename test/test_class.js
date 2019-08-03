@@ -19,6 +19,7 @@ class MyDevice1 extends BaseDevice {
 
         assert(Array.isArray(this.descriptors));
         assert.strictEqual(this._engine, engine);
+        assert.strictEqual(this.platform, engine.platform);
         assert.strictEqual(this.state, state);
         assert.strictEqual(this.uniqueId, 'com.foo');
         assert.strictEqual(this.name, 'My Device 1');
@@ -42,6 +43,7 @@ class MyDevice2 extends BaseDevice {
 
         assert(Array.isArray(this.descriptors));
         assert.strictEqual(this._engine, engine);
+        assert.strictEqual(this.platform, engine.platform);
         assert.strictEqual(this.state, state);
         assert.strictEqual(this.uniqueId, 'com.bar-url:http://www.google.com');
         assert.strictEqual(this.name, 'My Device 2');
@@ -67,6 +69,7 @@ class MyDevice3 extends BaseDevice {
 
         assert(Array.isArray(this.descriptors));
         assert.strictEqual(this._engine, engine);
+        assert.strictEqual(this.platform, engine.platform);
         assert.strictEqual(this.state, state);
         assert.strictEqual(this.uniqueId, undefined);
         assert.strictEqual(this.name, undefined);
