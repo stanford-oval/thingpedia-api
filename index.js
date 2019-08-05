@@ -11,6 +11,7 @@
 
 require('./lib/string_format');
 const Messaging = require('./lib/messaging');
+const Preferences = require('./lib/prefs');
 const BaseDevice = require('./lib/base_device');
 const Helpers = require('./lib/helpers');
 const ConfigDelegate = require('./lib/config_delegate');
@@ -68,6 +69,7 @@ module.exports = {
     // interfaces (for documentation/type-checking only)
     Messaging,
     ConfigDelegate,
+    Preferences,
 
     // compatibility export
     ObjectSet: Helpers.ObjectSet,

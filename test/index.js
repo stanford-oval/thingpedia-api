@@ -18,6 +18,7 @@ seq([
     ('./test_version'),
     ('./test_class'),
     ('./test_object_set'),
+    ('./test_prefs'),
     ('./test_http'),
     ('./test_rss'),
     ('./test_polling'),
