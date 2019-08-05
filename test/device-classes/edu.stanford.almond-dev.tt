@@ -1,0 +1,22 @@
+class @edu.stanford.almond-dev
+#[version=1] {
+  import loader from @org.thingpedia.generic_rest.v1();
+  import config from @org.thingpedia.config.oauth2(
+  	client_id="5524304f0ce9cb5c",
+  	client_secret="2e220f56ccbb35812422ac1043c22b75e0d3f8cc2f8722627ac1f7999c7595bc",
+  	authorize="https://almond-dev.stanford.edu/me/api/oauth2/authorize",
+  	get_access_token="https://almond-dev.stanford.edu/me/api/oauth2/token",
+  	scope=["profile"],
+  	get_profile="https://almond-dev.stanford.edu/me/api/profile",
+  	profile=["id"],
+  	set_state=true);
+
+  query user_info(out username : String,
+                  out full_name : String,
+                  out email : Entity(tt:email_address),
+                  out locale : String,
+                  out timezone : String,
+                  out model_tag : String)
+  #[url="https://almond-dev.stanford.edu/me/api/profile"];
+}
+

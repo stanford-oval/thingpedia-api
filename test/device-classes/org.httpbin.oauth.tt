@@ -1,0 +1,10 @@
+class @org.httpbin.oauth
+#[version=1] {
+  import loader from @org.thingpedia.generic_rest.v1();
+  import config from @org.thingpedia.config.oauth2(client_id="foo", client_secret="secretfoo", authorize="https://example.com/authorize", token="https://example.com/token", get_profile="https://httpbin.org/get");
+
+  query get(out authenticated: Boolean,
+            out token: String)
+  #[url="https://httpbin.org/bearer"];
+}
+

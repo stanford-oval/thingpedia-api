@@ -1,0 +1,9 @@
+class @org.thingpedia.test.pkgversion
+#[version=2]
+#[package_version=0] {
+  import loader from @org.thingpedia.v2();
+  import config from @org.thingpedia.config.none();
+
+  query something(out v1: String,
+                  out v2: Number);
+}

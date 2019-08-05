@@ -1,0 +1,4 @@
+{"name":"org.thingpedia.test.pkgversion",
+ "main": "index.js",
+ "thingpedia-version":0
+}

@@ -1,0 +1,15 @@
+class @com.herokuapp.lorem-rss.broken.hasaction
+#[version=1] {
+  import loader from @org.thingpedia.rss();
+  import config from @org.thingpedia.config.none();
+
+  monitorable query feed(out title: String,
+                         out link: Entity(tt:url),
+                         out description: String,
+                         out updated_time: Date)
+  #[poll_interval=60000ms]
+  #[url="http://lorem-rss.herokuapp.com/feed"];
+
+  action post_action(in req input: String)
+  #[url="https://httpbin.org/post"];
+}

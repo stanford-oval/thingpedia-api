@@ -1,0 +1,6 @@
+class @org.httpbin.form
+#[version=1] {
+  import loader from @org.thingpedia.generic_rest.v1();
+  import config from @org.thingpedia.config.form(params=makeArgMap(foo: String));
+}
+
