@@ -13,7 +13,6 @@ require('./lib/string_format');
 const Messaging = require('./lib/messaging');
 const BaseDevice = require('./lib/base_device');
 const Helpers = require('./lib/helpers');
-const ObjectSet = require('./lib/object_set');
 const ConfigDelegate = require('./lib/config_delegate');
 const { OAuthError } = require('./lib/errors');
 const BaseClient = require('./lib/base_client');
@@ -57,11 +56,6 @@ module.exports = {
     Availability: BaseDevice.Availability,
     Tier: BaseDevice.Tier,
 
-    // interfaces (for documentation/type-checking only)
-    Messaging,
-    ConfigDelegate,
-    ObjectSet,
-
     // helper libraries and portions of ThingTalk API that are public/stable
     Helpers,
     Value: {
@@ -70,6 +64,13 @@ module.exports = {
         Location: ThingTalk.Builtin.Location,
         Time: ThingTalk.Builtin.Time
     },
+
+    // interfaces (for documentation/type-checking only)
+    Messaging,
+    ConfigDelegate,
+
+    // compatibility export
+    ObjectSet: Helpers.ObjectSet,
 
     // APIs for users of Thingpedia interfaces
     BaseEngine,

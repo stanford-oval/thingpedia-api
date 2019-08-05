@@ -12,7 +12,7 @@
 const events = require('events');
 const assert = require('assert');
 
-const ObjectSet = require('../lib/object_set');
+const ObjectSet = require('../lib/helpers/object_set');
 
 function timeout(delay) {
     return new Promise((resolve, reject) => {
