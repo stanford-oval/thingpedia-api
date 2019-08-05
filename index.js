@@ -9,6 +9,7 @@
 // See LICENSE for details
 "use strict";
 
+require('./lib/string_format');
 const Messaging = require('./lib/messaging');
 const BaseDevice = require('./lib/base_device');
 const Helpers = require('./lib/helpers');
