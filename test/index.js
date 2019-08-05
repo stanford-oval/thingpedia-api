@@ -15,6 +15,7 @@ async function seq(array) {
 
 seq([
     ('./test_unit'),
+    ('./test_string_format'),
     ('./test_version'),
     ('./test_class'),
     ('./test_object_set'),
