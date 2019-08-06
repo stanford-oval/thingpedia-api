@@ -15,9 +15,11 @@ async function seq(array) {
 
 seq([
     ('./test_unit'),
+    ('./test_string_format'),
     ('./test_version'),
     ('./test_class'),
     ('./test_object_set'),
+    ('./test_prefs'),
     ('./test_http'),
     ('./test_rss'),
     ('./test_polling'),

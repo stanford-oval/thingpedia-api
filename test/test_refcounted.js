@@ -13,7 +13,7 @@ const assert = require('assert');
 const events = require('events');
 
 
-const RefCounted = require('../lib/ref_counted');
+const RefCounted = require('../lib/helpers/ref_counted');
 
 function timeout(delay) {
     return new Promise((resolve, reject) => {
