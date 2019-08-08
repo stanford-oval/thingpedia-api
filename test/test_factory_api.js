@@ -14,10 +14,10 @@ const assert = require('assert');
 
 const DeviceFactory = require('../lib/factory');
 
-const MyDevice = require('./device-classes/org.thingpedia.test.mydevice');
 const { mockClient, mockEngine } = require('./mock');
-
 const factory = new DeviceFactory(mockEngine, mockClient);
+
+const MyDevice = require('./device-classes/org.thingpedia.test.mydevice');
 
 async function testBasic() {
     const deviceFactory = await factory.getDeviceClass('org.thingpedia.test.mydevice');
@@ -41,10 +41,13 @@ async function testQuery() {
         { name: 'org.thingpedia.builtin.test.invalid', version: 0 },
         { name: 'org.thingpedia.test.bluetooth', version: 1 },
         { name: 'org.thingpedia.test.broken', version: 1 },
+        { name: 'org.thingpedia.test.broken.databasequery1', version: 1 },
+        { name: 'org.thingpedia.test.broken.databasequery2', version: 1 },
         { name: 'org.thingpedia.test.broken.noaction', version: 1 },
         { name: 'org.thingpedia.test.broken.noquery', version: 1 },
         { name: 'org.thingpedia.test.broken.nosubscribe', version: 1 },
         { name: 'org.thingpedia.test.collection', version: 1 },
+        { name: 'org.thingpedia.test.databasequery', version: 1 },
         { name: 'org.thingpedia.test.interactive', version: 1 },
         { name: 'org.thingpedia.test.mydevice', version: 1 },
         { name: 'org.thingpedia.test.pkgversion', version: 2 },

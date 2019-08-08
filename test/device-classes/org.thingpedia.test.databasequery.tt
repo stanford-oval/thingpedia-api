@@ -1,0 +1,9 @@
+class @org.thingpedia.test.databasequery
+#[version=1]
+#[package_version=1] {
+  import loader from @org.thingpedia.v2();
+  import config from @org.thingpedia.config.none();
+
+  list query foo(out bar: String)
+  #[handle_thingtalk=true];
+}

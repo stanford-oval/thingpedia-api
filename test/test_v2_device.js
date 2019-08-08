@@ -166,7 +166,7 @@ async function testBrokenDevices() {
 
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
 
-    for (let err of ['noaction', 'noquery', 'nosubscribe']) {
+    for (let err of ['noaction', 'noquery', 'nosubscribe', 'databasequery1', 'databasequery2']) {
         const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.broken.' + err));
         const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.broken.' + err,
                                                           metadata, downloader);
@@ -291,6 +291,18 @@ async function testInteractive() {
     assert(instance instanceof deviceClass);
 }
 
+async function testDatabase() {
+    const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.databasequery'));
+
+    const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
+    const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.databasequery', metadata, downloader);
+
+    const factory = await module.getDeviceClass();
+    const device = new factory(mockEngine, { kind: 'org.thingpedia.test.mydevice' });
+
+    assert.strictEqual(typeof device.query, 'function');
+}
+
 
 async function main() {
     await testPreloaded();
@@ -301,6 +313,7 @@ async function main() {
     await testPkgVersion();
     await testBluetooth();
     await testInteractive();
+    await testDatabase();
 }
 module.exports = main;
 if (!module.parent)
