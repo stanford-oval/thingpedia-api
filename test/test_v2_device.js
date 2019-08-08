@@ -166,7 +166,7 @@ async function testBrokenDevices() {
 
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
 
-    for (let err of ['noaction', 'noquery', 'nosubscribe']) {
+    for (let err of ['noaction', 'noquery', 'nosubscribe', 'databasequery1', 'databasequery2']) {
         const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.broken.' + err));
         const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.broken.' + err,
                                                           metadata, downloader);

@@ -41,6 +41,8 @@ async function testQuery() {
         { name: 'org.thingpedia.builtin.test.invalid', version: 0 },
         { name: 'org.thingpedia.test.bluetooth', version: 1 },
         { name: 'org.thingpedia.test.broken', version: 1 },
+        { name: 'org.thingpedia.test.broken.databasequery1', version: 1 },
+        { name: 'org.thingpedia.test.broken.databasequery2', version: 1 },
         { name: 'org.thingpedia.test.broken.noaction', version: 1 },
         { name: 'org.thingpedia.test.broken.noquery', version: 1 },
         { name: 'org.thingpedia.test.broken.nosubscribe', version: 1 },
