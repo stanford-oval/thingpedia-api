@@ -1,3 +1,39 @@
+2.5.0-beta.1
+============
+
+* The `thingpedia-client` library was imported here. It includes
+  the loaders for Thingpedia devices and the configuration mixins.
+  The goal is that `thingpedia` will become a sufficient library
+  to consume Thingpedia devices without a full instance of Almond.
+  To this end, the import also includes new classes `BasePlatform`
+  and `BaseEngine`, which provide the full extend of the engine
+  and platform API that is guaranteed to be available to Thingpedia
+  devices [#26].
+* The configuration interface for Thingpedia devices was revamped and cleaned.
+  Devices can now implement the following hooks:
+  - `static loadFromOAuth2`: to configure a device using plain OAuth 2.0
+  - `static loadFromCustomOAuth` + `static completeCustomOAuth`:
+    to configure a device with custom OAuth-like flows
+  - `static loadFromDiscovery` + `completeDiscovery` for local
+    discovery (Bluetooth, UPnP)
+  - `static loadInteractively` for interactive (dialog-based) configuration
+  Devices using these hooks should return a new instance of themselves,
+  and not call any engine method. The old mechanism, based on
+  `loadOneDevice`, will continue to be supported but is deprecated
+  and will go away in the next major version [#10, #26].
+* New API: `BaseDevice.platform` is a simpler way to access platform-specific
+  APIs from device implementations [#13, #26].
+* `BaseDevice.engine` is now deprecated and should not be used [#26].
+* `ObjectSet` and `RefCounted` are now exposed as `Helpers`; the old
+  names are still accessible but are deprecated [#27].
+* New API: `Preferences` & `Helpers.FilePreferences`; this is a simple
+  persistent key-value store and provides the interface and usual
+  implementation of `Platform.getSharedPreferences()`.
+* Thingpedia devices can now include the `#[handle_thingtalk]` annotation
+  on their functions; if so, only a single `query` method per class is expected,
+  instead of one `get_` method per Thingpedia function [#28].
+* Updated dependencies [#24, #25, #29].
+
 2.4.0
 =====
 * Error caused by OAuth are now wrapped in a custom error class,

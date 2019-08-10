@@ -27,9 +27,13 @@ const ThingTalk = require('thingtalk');
 
 const VERSION = {
     major: 2,
-    minor: 4,
+    minor: 5,
+    full: '2.5.0-beta.1',
     valueOf() {
         return this.major * 100 + this.minor;
+    },
+    toString() {
+        return this.full;
     },
     compatible(v) {
         if (typeof v === 'number')
