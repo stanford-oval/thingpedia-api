@@ -28,7 +28,7 @@ const ThingTalk = require('thingtalk');
 const VERSION = {
     major: 2,
     minor: 5,
-    full: '2.5.0-beta.1',
+    full: '2.5.0',
     valueOf() {
         return this.major * 100 + this.minor;
     },
