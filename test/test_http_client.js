@@ -418,6 +418,20 @@ async function testLookupLocation() {
     assert(found);
 }
 
+async function testGetEntities() {
+    const all = await _httpClient.getAllEntityTypes();
+
+    assert(Array.isArray(all));
+    for (let entity of all) {
+        assertNonEmptyString(entity.type);
+        assertNonEmptyString(entity.name);
+        // the API is not consistent on this...
+        assert(typeof entity.has_ner_support === 'boolean' || typeof entity.has_ner_support === 'number');
+        assert(typeof entity.is_well_known === 'boolean' || typeof entity.is_well_known === 'number');
+        assert(!entity.is_well_known || entity.type.startsWith('tt:'));
+    }
+}
+
 async function main() {
     await testGetDeviceCode();
     await testGetModuleLocation();
@@ -443,6 +457,8 @@ async function main() {
     await testGetExamples();
 
     await testLookupLocation();
+
+    await testGetEntities();
 }
 
 module.exports = main;

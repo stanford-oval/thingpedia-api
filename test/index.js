@@ -27,6 +27,7 @@ seq([
     ('./test_content'),
     ('./test_factory_api'),
     ('./test_http_client'),
+    ('./test_file_client'),
     ('./test_builtin'),
     ('./test_v2_device'),
     ('./test_generic_rest'),
