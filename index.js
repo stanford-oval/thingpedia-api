@@ -18,6 +18,7 @@ const ConfigDelegate = require('./lib/config_delegate');
 const { OAuthError } = require('./lib/errors');
 const BaseClient = require('./lib/base_client');
 const HttpClient = require('./lib/http_client');
+const FileClient = require('./lib/file_thingpedia_client');
 const DeviceFactory = require('./lib/factory');
 const { ImplementationError, UnsupportedError } = require('./lib/errors');
 const BaseEngine = require('./lib/base_engine');
@@ -83,6 +84,7 @@ module.exports = {
     BasePlatform,
     BaseClient,
     HttpClient,
+    FileClient,
     DeviceFactory,
 
     // expose errors
