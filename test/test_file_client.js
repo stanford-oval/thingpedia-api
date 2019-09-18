@@ -106,9 +106,22 @@ async function testGetExamples() {
     const all = ThingTalk.Grammar.parse(await _fileClient.getAllExamples());
     assert(all.isLibrary);
     assert.strictEqual(all.classes.length, 0);
-    assert.strictEqual(all.datasets.length, 1);
+    assert.strictEqual(all.datasets.length, 3);
 
     for (let ex of all.datasets[0].examples) {
+        assert.deepStrictEqual(typeof ex.id, 'number');
+        assert(ex.utterances.length > 0);
+        ex.utterances.forEach((u) => assertNonEmptyString(u));
+        assert.strictEqual(ex.utterances.length, ex.preprocessed.length);
+        ex.preprocessed.forEach((p) => assertNonEmptyString(p));
+    }
+
+    const bing = ThingTalk.Grammar.parse(await _fileClient.getExamplesByKinds(['com.bing']));
+    assert(bing.isLibrary);
+    assert.strictEqual(bing.classes.length, 0);
+    assert.strictEqual(bing.datasets.length, 1);
+
+    for (let ex of bing.datasets[0].examples) {
         assert.deepStrictEqual(typeof ex.id, 'number');
         assert(ex.utterances.length > 0);
         ex.utterances.forEach((u) => assertNonEmptyString(u));
