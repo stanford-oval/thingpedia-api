@@ -261,6 +261,14 @@ async function testAlmondOAuth() {
         model_tag: null,
         timezone: 'America/Los_Angeles'
     }]);
+
+    const accessToken1 = instance.accessToken;
+
+    await instance.refreshCredentials();
+
+    assert.strictEqual(typeof instance.accessToken, 'string');
+    assert.strictEqual(typeof instance.refreshToken, 'string');
+    assert(instance.accessToken !== accessToken1);
 }
 
 async function testBasicAuth() {
