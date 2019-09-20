@@ -49,6 +49,7 @@ class MockClient extends BaseClient {
     async getDeviceCode(kind) {
         switch (kind) {
         case 'edu.stanford.almond-dev':
+        case 'org.thingpedia.builtin.test.invalid':
         case 'org.thingpedia.test.mydevice':
         case 'org.thingpedia.test.pkgversion':
         case 'org.thingpedia.test.collection':
