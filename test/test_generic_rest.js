@@ -201,6 +201,12 @@ async function startSession(url) {
     return { csrfToken, cookie: cookie.cookieString() };
 }
 
+function delay(ms) {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, ms);
+    });
+}
+
 async function testAlmondOAuth() {
     const metadata = toClassDef(await mockClient.getDeviceCode('edu.stanford.almond-dev'));
 
@@ -263,6 +269,9 @@ async function testAlmondOAuth() {
     }]);
 
     const accessToken1 = instance.accessToken;
+
+    // wait 1 second to ensure that the token we get is different (has a different expiration time)
+    await delay(1000);
 
     await instance.refreshCredentials();
 
