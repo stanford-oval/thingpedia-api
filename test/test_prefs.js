@@ -24,8 +24,8 @@ function safeUnlinkSync(filename) {
 }
 
 async function testBasic() {
-    safeUnlinkSync('./test.json');
-    const store1 = new FilePreferences('./test.json');
+    safeUnlinkSync('./testprefs.json');
+    const store1 = new FilePreferences('./testprefs.json');
 
     assert.strictEqual(store1.get('foo'), undefined);
     assert.deepStrictEqual(store1.keys(), []);
@@ -56,7 +56,7 @@ async function testBasic() {
 }
 
 async function testReload() {
-    const store2 = new FilePreferences('./test.json');
+    const store2 = new FilePreferences('./testprefs.json');
 
     assert.strictEqual(store2.get('foo'), undefined);
     assert.strictEqual(store2.get('bar'), 'a');

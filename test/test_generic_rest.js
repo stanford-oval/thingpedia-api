@@ -201,6 +201,12 @@ async function startSession(url) {
     return { csrfToken, cookie: cookie.cookieString() };
 }
 
+function delay(ms) {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, ms);
+    });
+}
+
 async function testAlmondOAuth() {
     const metadata = toClassDef(await mockClient.getDeviceCode('edu.stanford.almond-dev'));
 
@@ -261,6 +267,17 @@ async function testAlmondOAuth() {
         model_tag: null,
         timezone: 'America/Los_Angeles'
     }]);
+
+    const accessToken1 = instance.accessToken;
+
+    // wait 1 second to ensure that the token we get is different (has a different expiration time)
+    await delay(1000);
+
+    await instance.refreshCredentials();
+
+    assert.strictEqual(typeof instance.accessToken, 'string');
+    assert.strictEqual(typeof instance.refreshToken, 'string');
+    assert(instance.accessToken !== accessToken1);
 }
 
 async function testBasicAuth() {
