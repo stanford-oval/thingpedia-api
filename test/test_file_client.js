@@ -115,6 +115,19 @@ async function testGetExamples() {
         assert.strictEqual(ex.utterances.length, ex.preprocessed.length);
         ex.preprocessed.forEach((p) => assertNonEmptyString(p));
     }
+
+    const bing = ThingTalk.Grammar.parse(await _fileClient.getExamplesByKinds('com.bing,com.google'));
+    assert(bing.isLibrary);
+    assert.strictEqual(bing.classes.length, 0);
+    assert.strictEqual(bing.datasets.length, 1);
+
+    for (let ex of bing.datasets[0].examples) {
+        assert.deepStrictEqual(typeof ex.id, 'number');
+        assert(ex.utterances.length > 0);
+        ex.utterances.forEach((u) => assertNonEmptyString(u));
+        assert.strictEqual(ex.utterances.length, ex.preprocessed.length);
+        ex.preprocessed.forEach((p) => assertNonEmptyString(p));
+    }
 }
 
 async function testGetEntities() {
