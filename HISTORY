@@ -1,3 +1,9 @@
+2.5.2
+=====
+
+* Fixed referencing abstract classes as subdevices [#36]
+* Fixed semi-custom OAuth (required by Home Assistant) [#35]
+
 2.5.1
 =====
 
