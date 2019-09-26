@@ -36,7 +36,7 @@ function testAtom() {
             if (i > 0)
                 assert(+item.updated_time <= +items[i-1].updated_time);
             assert(!!item.title);
-            assert(item.link.startsWith('https://xkcd.com'));
+            assert(item.link.indexOf('xkcd.com') >= 0);
         });
     });
 }
