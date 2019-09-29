@@ -81,7 +81,7 @@ function main() {
         testRSS1(),
         testAtom(),
         testXkcdWhatIf(),
-        testWashingtonPost(),
+        //testWashingtonPost(),
         testNotRSS()
     ]);
 }
