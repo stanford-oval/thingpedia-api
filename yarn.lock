@@ -1863,10 +1863,10 @@ text-table@^0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
 
-thingtalk@~1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/thingtalk/-/thingtalk-1.8.0.tgz#fb62e486cffa607328664e4886af9e9b4cfb34ef"
-  integrity sha512-kwxKNVRMEVB/2NM2vgxMI1Zc5u4u0z0uv7lmvGk2uEt3fLnzYAWLIoElDcW9HczNqChG5p5YfZAvkziTMsyPNg==
+thingtalk@~1.9.0-alpha.1:
+  version "1.9.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/thingtalk/-/thingtalk-1.9.0-alpha.1.tgz#5aaef6728b3a9b6a0bc254d3e8f0007b32f40c1c"
+  integrity sha512-sUKKYnfZoZHEdxbiiNDJil/KWNzH3XGDAF93qRdSOELefRDPozFGgDHQQIMkrebDhvvKatt93dJIAao9mLcYqQ==
   dependencies:
     adt "~0.7.2"
     byline "^5.0.0"
