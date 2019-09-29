@@ -1,3 +1,12 @@
+2.6.0-alpha.1
+=============
+
+* Added new API to the ThingpediaClient interface, which were assumed
+  present and used by Genie [#32]
+* Added FileThingpediaClient, a ThingpediaClient implementation based
+  on local files [#32, #37, #38]
+* Build and dependency updates [#39, #40]
+
 2.5.2
 =====
 

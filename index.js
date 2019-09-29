@@ -28,8 +28,8 @@ const ThingTalk = require('thingtalk');
 
 const VERSION = {
     major: 2,
-    minor: 5,
-    full: '2.5.2',
+    minor: 6,
+    full: '2.6.0-alpha.1',
     valueOf() {
         return this.major * 100 + this.minor;
     },
