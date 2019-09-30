@@ -23,11 +23,13 @@
   "scripts": {
     "lint": "eslint ./lib",
     "test": "nyc node ./test",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "doc": "jsdoc -c jsdoc.json -r index.js lib/"
   },
   "devDependencies": {
     "coveralls": "^3.0.1",
     "eslint": "^6.0.0",
+    "jsdoc": "^3.6.3",
     "nyc": "^14.0.0",
     "qs": "^6.7.0",
     "tough-cookie": "^3.0.1"
