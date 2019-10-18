@@ -15,6 +15,19 @@ const ThingTalk = require('thingtalk');
 const DeviceFactoryUtils = require('../lib/device_factory_utils');
 
 const TEST_CASES = [
+    [`abstract class @security-camera {}`, {
+        name: 'Security Camera',
+        category: 'physical',
+    }, null],
+
+    [`class @org.thingpedia.builtin.thingengine.builtin {
+        import loader from @org.thingpedia.builtin();
+        import config from @org.thingpedia.config.builtin();
+    }`, {
+        name: 'Security Camera',
+        category: 'physical',
+    }, null],
+
     [`class @com.bing {
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.none();
@@ -43,6 +56,23 @@ const TEST_CASES = [
             { name: 'username', label: 'Username', type: 'text' },
             { name: 'password', label: 'Password', type: 'password' },
             { name: 'serial_number', label: 'serial number', type: 'text' },
+        ]
+    }],
+
+    [`class @com.bodytrace.scale2 {
+        import loader from @org.thingpedia.v2();
+        import config from @org.thingpedia.config.basic_auth();
+    }`, {
+        name: "BodyTrace Scale",
+        category: 'physical',
+    }, {
+        type: 'form',
+        text: "BodyTrace Scale",
+        kind: 'com.bodytrace.scale2',
+        category: 'physical',
+        fields: [
+            { name: 'username', label: 'Username', type: 'text' },
+            { name: 'password', label: 'Password', type: 'password' }
         ]
     }],
 
