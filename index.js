@@ -23,6 +23,7 @@ const DeviceFactory = require('./lib/factory');
 const { ImplementationError, UnsupportedError } = require('./lib/errors');
 const BaseEngine = require('./lib/base_engine');
 const BasePlatform = require('./lib/base_platform');
+const DeviceFactoryUtils = require('./lib/device_factory_utils');
 
 const ThingTalk = require('thingtalk');
 
@@ -86,6 +87,7 @@ module.exports = {
     HttpClient,
     FileClient,
     DeviceFactory,
+    DeviceFactoryUtils,
 
     // expose errors
     ImplementationError,
