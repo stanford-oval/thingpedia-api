@@ -24,7 +24,7 @@
     "lint": "eslint ./lib",
     "test": "nyc node ./test",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "doc": "jsdoc -c jsdoc.json -r index.js lib/"
+    "doc": "jsdoc -c jsdoc.json --readme README.md --package package.json --verbose -r index.js lib/"
   },
   "devDependencies": {
     "coveralls": "^3.0.1",
