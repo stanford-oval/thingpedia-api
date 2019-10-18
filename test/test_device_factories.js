@@ -19,7 +19,6 @@ const TEST_CASES = [
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.none();
     }`, {
-        primary_kind: "com.bing",
         name: "Bing Search",
         category: 'data',
     }, {
@@ -33,7 +32,6 @@ const TEST_CASES = [
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.basic_auth(extra_params=makeArgMap(serial_number : String));
     }`, {
-        primary_kind: "com.bodytrace.scale",
         name: "BodyTrace Scale",
         category: 'physical',
     }, {
@@ -69,7 +67,6 @@ const TEST_CASES = [
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.custom_oauth();
     }`, {
-        primary_kind: "com.twitter",
         name: "Twitter Account",
         category: 'online',
     }, {
@@ -83,7 +80,6 @@ const TEST_CASES = [
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.oauth2(client_id="foo", client_secret="bar");
     }`, {
-        primary_kind: "com.linkedin",
         name: "LinkedIn Account",
         category: 'online',
     }, {
@@ -97,7 +93,6 @@ const TEST_CASES = [
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.discovery.upnp(search_target=['urn:lge:com:service:webos:second-screen-1']);
     }`, {
-        primary_kind: "com.lg.tv.webos2",
         name: "LG TV",
         category: 'physical',
     }, {
@@ -112,7 +107,6 @@ const TEST_CASES = [
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.discovery.bluetooth(uuids=['0000110b-0000-1000-8000-00805f9b34fb']);
     }`, {
-        primary_kind: "org.thingpedia.bluetooth.speaker.a2dp",
         name: "Bluetooth Speaker",
         category: 'physical',
     }, {
