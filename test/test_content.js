@@ -102,7 +102,7 @@ async function testGetFileStream() {
 }
 
 async function testGetFileStream2() {
-    assert.throws(() => Content.getStream(platformWithoutContent,
+    assert.rejects(() => Content.getStream(platformWithoutContent,
         'file://' + path.resolve(path.dirname(module.filename), 'test.txt')));
 }
 
