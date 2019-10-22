@@ -116,7 +116,7 @@ async function testGetExamples() {
         ex.preprocessed.forEach((p) => assertNonEmptyString(p));
     }
 
-    const bing = ThingTalk.Grammar.parse(await _fileClient.getExamplesByKinds('com.bing,com.google'));
+    const bing = ThingTalk.Grammar.parse(await _fileClient.getExamplesByKinds(['com.bing', 'com.google']));
     assert(bing.isLibrary);
     assert.strictEqual(bing.classes.length, 0);
     assert.strictEqual(bing.datasets.length, 1);
