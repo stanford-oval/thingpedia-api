@@ -1,3 +1,11 @@
+2.6.0-alpha.2
+=============
+
+* Fixed bad API in FileThingpediaClient; now the API is consistent
+  with the base class [#43]
+* Added utilities to obtain device configuration info from a ThingTalk class [#42]
+* Added JSDoc-based documentation [#41]
+
 2.6.0-alpha.1
 =============
 
