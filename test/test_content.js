@@ -64,7 +64,17 @@ async function testIsPubliclyAccessible() {
     assert(!Content.isPubliclyAccessible('file:///home/user/foo'));
     assert(!Content.isPubliclyAccessible('http://127.0.0.1/foo'));
     assert(!Content.isPubliclyAccessible('http://192.168.1.1/foo'));
+    assert(Content.isPubliclyAccessible('http://171/foo'));
     assert(!Content.isPubliclyAccessible('http://[::1]/foo'));
+    assert(!Content.isPubliclyAccessible('http://[fe80::1]/foo'));
+    assert(Content.isPubliclyAccessible('http://171.64.72.12/foo'));
+    assert(!Content.isPubliclyAccessible('http://parmesan/foo'));
+    assert(Content.isPubliclyAccessible('http://parmesan.stanford.edu/foo'));
+    assert(!Content.isPubliclyAccessible('http://xxxxxx.onion/foo'));
+    assert(!Content.isPubliclyAccessible('http://localhost/foo'));
+    assert(!Content.isPubliclyAccessible('http://localhost.localdomain/foo'));
+    assert(!Content.isPubliclyAccessible('http://foo.localhost/foo'));
+    assert(!Content.isPubliclyAccessible('http://foo.invalid/foo'));
 }
 
 const CROWDIE = `<!DOCTYPE html>
