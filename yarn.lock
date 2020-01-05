@@ -1877,15 +1877,17 @@ thingtalk-units@^0.1.0:
   resolved "https://registry.yarnpkg.com/thingtalk-units/-/thingtalk-units-0.1.0.tgz#c3b69bc0c7d0a3ba5bfad3ccf02dc1c291d1abc8"
   integrity sha512-rV5/jZw9fBk3OgYi/HrA1LsTmD5w0gYDlsc1US3/ePR5szaUxwMUtN8UAPYaUorOiW0Qcjm1plvssOC97EkedQ==
 
-thingtalk@~1.9.0:
-  version "1.9.2"
-  resolved "https://registry.yarnpkg.com/thingtalk/-/thingtalk-1.9.2.tgz#3e8e5746a6a021134bb5125f39d63aa58f76cd00"
-  integrity sha512-cWWIfyJU7To1khT9i/C2/6r82m7cd+VBwWgDfLu/uAhAdSDXY9jT0M8xzA4Gfh70xKS6e1Tq3G90nxMCvtpdag==
+thingtalk@~1.10.0-alpha.1:
+  version "1.10.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/thingtalk/-/thingtalk-1.10.0-alpha.1.tgz#4961d8051df3f74fd3626b76d0d4c8825993fe4c"
+  integrity sha512-XJulv/APx+Y2EYmh+4kke+tFF4Tp3Avti7egOUIqo4Zg8iXwxBW5wtWq5EjLueLeHuetPxYldMZB5MFeoINKQQ==
   dependencies:
     adt "~0.7.2"
     byline "^5.0.0"
     consumer-queue "^1.0.0"
     smtlib "^0.1.1"
+    string-interp "^0.1.0"
+    thingtalk-units "^0.1.0"
 
 through@^2.3.6:
   version "2.3.8"
