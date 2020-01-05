@@ -16,7 +16,7 @@
     "feedparser": "^2.2.9",
     "ip": "^1.1.0",
     "oauth": "^0.9.14",
-    "string-interp": "git://github.com/stanford-oval/string-interp",
+    "string-interp": "^0.1.0",
     "thingtalk": "~1.9.0",
     "tmp": "^0.1.0",
     "xml2js": "^0.4.17"
