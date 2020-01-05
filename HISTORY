@@ -1,3 +1,22 @@
+2.7.0-alpha.1
+=============
+
+New features:
+* Placeholder interpolation in annotations of generic devices
+  (e.g. in `#[url]`, `#_[name]`) is now using the
+  [string-interp](https://npmjs.com/string-interp) library, which
+  provides a greater set of options for i18n and makes it
+  consistent across all annotations #[46].
+* Placeholder interpolation for device names and descriptions
+  is now applied to all devices, which improves i18n of devices [#46].
+* The Content Helper API is now stricter in recognizing which URLs
+  are publicly accessible, and will reject private IPs or local hostnames [#45].
+* Updated dependencies [#47].
+
+Breaking changes:
+* Node.js 8 is no longer supported, as the new i18n code requires
+  a recent version of the Intl API.
+
 2.6.0
 =====
 

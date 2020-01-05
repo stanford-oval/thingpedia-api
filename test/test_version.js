@@ -17,7 +17,7 @@ function main() {
     assert.strictEqual(String(Tp.version), packageJson.version);
 
     assert.strictEqual(Tp.version.major, 2);
-    assert.strictEqual(Tp.version.minor, 6);
+    assert.strictEqual(Tp.version.minor, 7);
 
     assert(Tp.version.compatible(201));
     assert(Tp.version.compatible(202));
@@ -25,7 +25,8 @@ function main() {
     assert(Tp.version.compatible(204));
     assert(Tp.version.compatible(205));
     assert(Tp.version.compatible(206));
-    assert(!Tp.version.compatible(207));
+    assert(Tp.version.compatible(207));
+    assert(!Tp.version.compatible(208));
     assert(!Tp.version.compatible(300));
     assert(!Tp.version.compatible(100));
     assert(Tp.version.compatible({ major: 2, minor: 1 }));
@@ -34,7 +35,8 @@ function main() {
     assert(Tp.version.compatible({ major: 2, minor: 4 }));
     assert(Tp.version.compatible({ major: 2, minor: 5 }));
     assert(Tp.version.compatible({ major: 2, minor: 6 }));
-    assert(!Tp.version.compatible({ major: 2, minor: 7 }));
+    assert(Tp.version.compatible({ major: 2, minor: 7 }));
+    assert(!Tp.version.compatible({ major: 2, minor: 8 }));
     assert(!Tp.version.compatible({ major: 3, minor: 0 }));
     assert(!Tp.version.compatible({ major: 1, minor: 0 }));
 
