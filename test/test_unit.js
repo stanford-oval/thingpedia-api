@@ -61,15 +61,16 @@ const FORMAT_STRING_TEST_CASES = [
     ['$string\u200cfoo', { string: 'one' }, {}, 'one\u200cfoo'],
     ['foo ${number}', { number: 42 }, {}, `foo 42`],
     ['foo ${number:%}', { number: 0.42 }, {}, `foo 42`],
-    ['foo ${number:C}', { number: 20 }, {}, `foo 20.0`],
-    ['foo ${number:F}', { number: 20 }, {}, `foo 68.0`],
-    ['foo ${number:m}', { number: 20 }, {}, `foo 20.0`],
-    ['foo ${number:mm}', { number: 20 }, {}, `foo 20000.0`],
+    ['foo ${number:C}', { number: 20 }, {}, `foo 20`],
+    ['foo ${number:F}', { number: 20 }, {}, `foo 68`],
+    ['foo ${number:m}', { number: 20 }, {}, `foo 20`],
+    ['foo ${number:mm}', { number: 20 }, {}, `foo 20000`],
 
     ['$$$$', {}, {}, '$$'],
     ['$$foo', {}, {}, '$foo'],
 
-    ['foo${date}', { date: new Date('2018-01-01T10:00:00Z') }, {}, `foo2018-01-01T10:00:00.000Z`],
+    ['foo${date}', { date: new Date('2018-01-01T10:00:00Z') }, {}, `fooMon Jan 01 2018 02:00:00 GMT-0800 (Pacific Standard Time)`],
+    ['foo${date:iso-date}', { date: new Date('2018-01-01T10:00:00Z') }, {}, `foo2018-01-01T10:00:00.000Z`],
 
     ['foo ${string:url}', { string: '~!@#$%^&*()_-`:"[],><' }, {}, `foo ${encodeURIComponent('~!@#$%^&*()_-`:"[],><')}`],
 ];

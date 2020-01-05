@@ -118,7 +118,12 @@ function testChangeState(d) {
 }
 
 async function main() {
-    const e = {};
+    const e = {
+        platform: {
+            locale: 'en-US',
+            timezone: 'America/Los_Angeles'
+        }
+    };
 
     const state = { kind: 'com.foo' };
     const d1 = new MyDevice1(e, state);
