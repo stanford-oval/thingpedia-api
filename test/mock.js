@@ -59,6 +59,7 @@ class MockClient extends BaseClient {
         case 'org.thingpedia.test.bluetooth':
         case 'org.thingpedia.test.interactive':
         case 'org.thingpedia.test.databasequery':
+        case 'org.thingpedia.test.translatable':
         case 'org.thingpedia.test.broken':
         case 'org.thingpedia.test.broken.noquery':
         case 'org.thingpedia.test.broken.noaction':

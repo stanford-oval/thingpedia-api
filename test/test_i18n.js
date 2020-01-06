@@ -12,6 +12,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
+const child_process = require('child_process');
 
 const ModuleDownloader = require('../lib/downloader');
 const BaseDevice = require('../lib/base_device');
@@ -29,7 +30,7 @@ const Builtins = {
     }
 };
 
-async function testBasic() {
+async function testBuiltin() {
     const platform = new MockPlatform('it-IT');
     const engine = new MockEngine(platform);
     const tpClient = platform.getCapability('thingpedia-client');
@@ -61,8 +62,56 @@ async function testBasic() {
     assert.strictEqual(dev.description, 'Descrizione del Predefinito Traducibile');
 }
 
+async function testOnDisk() {
+    // first test English
+    {
+        const platform = new MockPlatform('en-US');
+        const engine = new MockEngine(platform);
+        const tpClient = platform.getCapability('thingpedia-client');
+
+        const downloader = new ModuleDownloader(platform, tpClient, engine.schemas);
+        const module = await downloader.getModule('org.thingpedia.test.translatable');
+
+        const _class = await module.getDeviceClass();
+        const instance = new _class(engine, {
+            kind: 'org.thingpedia.test.translatable'
+        });
+
+        assert.deepStrictEqual(await instance.get_elements(), [
+            { something: 'stuff', author: 'someone' }
+        ]);
+    }
+
+    // now test Italian
+    {
+        const platform = new MockPlatform('it-IT');
+        const engine = new MockEngine(platform);
+        const tpClient = platform.getCapability('thingpedia-client');
+
+        const downloader = new ModuleDownloader(platform, tpClient, engine.schemas);
+        const module = await downloader.getModule('org.thingpedia.test.translatable');
+
+        const _class = await module.getDeviceClass();
+        const instance = new _class(engine, {
+            kind: 'org.thingpedia.test.translatable'
+        });
+
+        assert.deepStrictEqual(await instance.get_elements(), [
+            { something: 'roba', author: 'qualcuno' }
+        ]);
+    }
+}
+
 async function main() {
-    await testBasic();
+    if (!fs.existsSync(path.resolve(path.dirname(module.filename), './po/it.mo'))) {
+        child_process.spawnSync('msgfmt', [
+            '-o', path.resolve(path.dirname(module.filename), './po/it.mo'),
+            path.resolve(path.dirname(module.filename), './po/it.po')
+        ]);
+    }
+
+    await testBuiltin();
+    await testOnDisk();
 }
 module.exports = main;
 if (!module.parent)

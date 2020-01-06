@@ -14,6 +14,7 @@
   "main": "index.js",
   "dependencies": {
     "feedparser": "^2.2.9",
+    "gettext-parser": "^4.0.2",
     "ip": "^1.1.0",
     "oauth": "^0.9.14",
     "string-interp": "^0.1.0",
@@ -30,7 +31,6 @@
   "devDependencies": {
     "coveralls": "^3.0.1",
     "eslint": "^6.0.0",
-    "gettext-parser": "^4.0.2",
     "jsdoc": "^3.6.3",
     "node-gettext": "^2.0.0",
     "nyc": "^15.0.0",
