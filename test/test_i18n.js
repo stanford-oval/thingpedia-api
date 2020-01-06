@@ -40,7 +40,7 @@ async function testBuiltin() {
     });
     const module = await downloader.getModule('org.thingpedia.builtin.translatable');
 
-    assert.strictEqual(module.manifest.prettyprint(), `class @org.thingpedia.builtin.test.invalid
+    assert.strictEqual(module.manifest.prettyprint(), `class @org.thingpedia.builtin.translatable
 #_[name="Predefinito Traducibile"]
 #_[description="Descrizione del Predefinito Traducibile"]
 #[version=0] {

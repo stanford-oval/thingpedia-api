@@ -1,4 +1,4 @@
-class @org.thingpedia.builtin.test.invalid
+class @org.thingpedia.builtin.translatable
 #_[name="Translatable Builtin"]
 #_[description="Translatable Builtin Description"]
 #[version=0]

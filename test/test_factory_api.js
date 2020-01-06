@@ -39,6 +39,7 @@ async function testQuery() {
         { name: 'org.httpbin.form', version: 1 },
         { name: 'org.httpbin.oauth', version: 1 },
         { name: 'org.thingpedia.builtin.test.invalid', version: 0 },
+        { name: 'org.thingpedia.builtin.translatable', version: 0 },
         { name: 'org.thingpedia.test.bluetooth', version: 1 },
         { name: 'org.thingpedia.test.broken', version: 1 },
         { name: 'org.thingpedia.test.broken.databasequery1', version: 1 },
@@ -52,6 +53,7 @@ async function testQuery() {
         { name: 'org.thingpedia.test.mydevice', version: 1 },
         { name: 'org.thingpedia.test.pkgversion', version: 2 },
         { name: 'org.thingpedia.test.subdevice', version: 1 },
+        { name: 'org.thingpedia.test.translatable', version: 0 },
     ]);
 }
 
