@@ -42,7 +42,9 @@ async function testPreloaded() {
 
     const factory = await module.getDeviceClass();
 
+
     assert.strictEqual(factory, MyDevice);
+    assert.strictEqual(factory.manifest, metadata);
     //assert.strictEqual(factory.metadata, metadata);
     assert.deepStrictEqual(factory.require('package.json'), {"name":"org.thingpedia.test.mydevice",
         "main": "index.js",
