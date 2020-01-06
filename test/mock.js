@@ -15,6 +15,8 @@ const child_process = require('child_process');
 const os = require('os');
 const fs = require('fs');
 const util = require('util');
+const Gettext = require('node-gettext');
+const gettextParser = require('gettext-parser');
 
 const ThingTalk = require('thingtalk');
 const BaseClient = require('../lib/base_client');
@@ -84,18 +86,48 @@ class MockClient extends BaseClient {
     }
 }
 
+function loadTextdomainDirectory(gt, locale, domain, podir) {
+    assert(fs.existsSync(podir));
+
+    let split = locale.split(/[-_.@]/);
+    let po = podir + '/' + split.join('_') + '.po';
+
+    while (!fs.existsSync(po) && split.length) {
+        split.pop();
+        po = podir + '/' + split.join('_') + '.po';
+    }
+    if (split.length === 0) {
+        console.error(`No translations found in ${domain} for locale ${locale}`);
+        return;
+    }
+    try {
+        let loaded = gettextParser.po.parse(fs.readFileSync(po), 'utf-8');
+        gt.addTranslations(locale, domain, loaded);
+    } catch(e) {
+        console.log(`Failed to load translations for ${locale}/${domain}: ${e.message}`);
+    }
+}
+
 class MockPlatform extends BasePlatform {
-    constructor() {
+    constructor(locale = 'en-US') {
         super();
 
         this._mockClient = new MockClient(this);
+
+        this._locale = locale;
+        this._gettext = new Gettext();
+        this._gettext.setLocale(locale);
+        if (this._locale !== 'en-US') {
+            let modir = path.resolve(path.dirname(module.filename), './po');//'
+            loadTextdomainDirectory(this._gettext, this._locale, 'thingengine-core', modir);
+        }
     }
 
     get type() {
         return 'server';
     }
     get locale() {
-        return 'en-US';
+        return this._locale;
     }
     get timezone() {
         return 'America/Los_Angeles';
@@ -111,6 +143,7 @@ class MockPlatform extends BasePlatform {
         switch (cap) {
         case 'code-download':
         case 'thingpedia-client':
+        case 'gettext':
             return true;
         default:
             return false;
@@ -122,6 +155,8 @@ class MockPlatform extends BasePlatform {
             return _unzipApi;
         case 'thingpedia-client':
             return this._mockClient;
+        case 'gettext':
+            return this._gettext;
         default:
             return null;
         }
@@ -163,4 +198,4 @@ function toClassDef(classCode) {
     return ThingTalk.Grammar.parse(classCode).classes[0];
 }
 
-module.exports = { toClassDef, mockPlatform, mockClient, mockEngine, State };
+module.exports = { MockPlatform, MockEngine, toClassDef, mockPlatform, mockClient, mockEngine, State };

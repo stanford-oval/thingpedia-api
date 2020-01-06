@@ -34,4 +34,5 @@ seq([
     ('./test_v2_device'),
     ('./test_generic_rest'),
     ('./test_rss_device'),
+    ('./test_i18n'),
 ]);
