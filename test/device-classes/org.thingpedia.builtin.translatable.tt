@@ -1,0 +1,18 @@
+class @org.thingpedia.builtin.translatable
+#_[name="Translatable Builtin"]
+#_[description="Translatable Builtin Description"]
+#[version=0]
+{
+	import loader from @org.thingpedia.builtin();
+	import config from @org.thingpedia.config.builtin();
+
+	monitorable query elements(out something : String #_[canonical="something"],
+	                           out author : Entity(tt:username) #_[canonical={
+	                             npp=["author"],
+	                             pvp=["written by"],
+	                             default="npp"
+	                           }])
+	#_[confirmation="builtin elements inside stuff"]
+	#_[canonical="elements"]
+	#[poll_interval=1ms];
+}

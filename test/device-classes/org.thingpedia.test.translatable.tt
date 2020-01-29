@@ -1,0 +1,19 @@
+class @org.thingpedia.test.translatable
+#_[name="Translatable Device"]
+#_[description="Translatable Device Description"]
+#[version=0]
+#[package_version=1]
+{
+	import loader from @org.thingpedia.v2();
+	import config from @org.thingpedia.config.none();
+
+	monitorable query elements(out something : String #_[canonical="something"],
+	                           out author : Entity(tt:username) #_[canonical={
+	                             npp=["author"],
+	                             pvp=["written by"],
+	                             default="npp"
+	                           }])
+	#_[confirmation="device elements inside stuff"]
+	#_[canonical="elements"]
+	#[poll_interval=1ms];
+}

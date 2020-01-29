@@ -1,0 +1,68 @@
+# Italian translations for thingengine-core package
+# Traduzioni italiane per il pacchetto thingengine-core..
+# Copyright (C) 2020 THE thingengine-core'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the thingengine-core package.
+# Giovanni Campagna <scampa.giovanni@gmail.com>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: thingengine-core 0.0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-01-06 12:39-0800\n"
+"PO-Revision-Date: 2020-01-06 12:39-0800\n"
+"Last-Translator: Giovanni Campagna <scampa.giovanni@gmail.com>\n"
+"Language-Team: Italian <it@li.org>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Generator: Gtranslator 3.34.0\n"
+
+#. name
+#: po/tmp/org.thingpedia.builtin.translatable.js:2
+msgid "Translatable Builtin"
+msgstr "Predefinito Traducibile"
+
+#. description
+#: po/tmp/org.thingpedia.builtin.translatable.js:4
+msgid "Translatable Builtin Description"
+msgstr "Descrizione del Predefinito Traducibile"
+
+#. queries.elements.confirmation
+#: po/tmp/org.thingpedia.builtin.translatable.js:6
+msgid "builtin elements inside stuff"
+msgstr "elementi predefiniti dentro la roba"
+
+#. queries.elements.canonical
+#: po/tmp/org.thingpedia.builtin.translatable.js:8
+msgid "elements"
+msgstr "elementi"
+
+#. queries.elements.args.something.canonical
+#: po/tmp/org.thingpedia.builtin.translatable.js:10
+msgid "something"
+msgstr "qualcosa"
+
+#. queries.elements.args.author.canonical.npp[0]
+#: po/tmp/org.thingpedia.builtin.translatable.js:12
+msgid "author"
+msgstr "autore"
+
+#. queries.elements.args.author.canonical.pvp[0]
+#: po/tmp/org.thingpedia.builtin.translatable.js:14
+msgid "written by"
+msgstr "scritto da"
+
+#. queries.elements.args.author.canonical.default
+#: po/tmp/org.thingpedia.builtin.translatable.js:16
+msgid "npp"
+msgstr "npp"
+
+#: device-classes/org.thingpedia.test.translatable/index.js:19
+msgid "stuff"
+msgstr "roba"
+
+#: device-classes/org.thingpedia.test.translatable/index.js:20
+msgid "someone"
+msgstr "qualcuno"
