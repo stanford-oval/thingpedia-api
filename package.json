@@ -1,6 +1,6 @@
 {
   "name": "thingpedia",
-  "version": "2.7.0-alpha.1",
+  "version": "2.7.0-alpha.2",
   "description": "Thingpedia SDK",
   "license": "BSD-3-Clause",
   "repository": "https://github.com/stanford-oval/thingpedia-api",
@@ -18,7 +18,7 @@
     "ip": "^1.1.0",
     "oauth": "^0.9.14",
     "string-interp": "^0.1.0",
-    "thingtalk": "~1.10.0-alpha.1",
+    "thingtalk": "~1.10.0-alpha.2",
     "tmp": "^0.1.0",
     "xml2js": "^0.4.17"
   },

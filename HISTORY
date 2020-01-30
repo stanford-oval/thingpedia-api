@@ -1,3 +1,14 @@
+2.7.0-alpha.2
+=============
+
+* Internationalization improvements:
+  - Builtin classes are now translated when loading.
+  - Translations are automatically loaded from JS devices, if a `po/`
+    directory containing `.mo` files is includes in the zip file
+* The manifest of Thingpedia devices is now exposed as the `manifest`
+  property on the device class.
+* Updated to thingtalk 1.10.0-alpha.2
+
 2.7.0-alpha.1
 =============
 
