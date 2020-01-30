@@ -124,7 +124,7 @@ function testErrorIgnoreErrors() {
 function testAbsoluteRedirect() {
     return Helpers.Http.get('https://httpbin.org/absolute-redirect/1').then((response) => {
         const parsed = JSON.parse(response);
-        assert.strictEqual(parsed.url, 'https://httpbin.org/get');
+        assert.strictEqual(parsed.url, 'http://httpbin.org/get');
     });
 }
 
