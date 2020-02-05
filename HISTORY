@@ -28,6 +28,12 @@ Breaking changes:
 * Node.js 8 is no longer supported, as the new i18n code requires
   a recent version of the Intl API.
 
+2.6.1
+=====
+
+* The Content Helper API is now stricter in recognizing which URLs
+  are publicly accessible, and will reject private IPs or local hostnames [#45].
+
 2.6.0
 =====
 
