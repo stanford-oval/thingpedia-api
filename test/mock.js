@@ -27,7 +27,7 @@ const _unzipApi = {
     unzip(zipPath, dir) {
         var args = ['-uo', zipPath, '-d', dir];
         return new Promise((resolve, reject) => {
-            child_process.execFile('/usr/bin/unzip', args, { maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
+            child_process.execFile('unzip', args, { maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
                 if (err)
                     reject(err);
                 else
