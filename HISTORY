@@ -1,3 +1,8 @@
+2.7.0-alpha.3
+=============
+
+* Misc bug fixes to help running Almond on Windows [#51].
+
 2.7.0-alpha.2
 =============
 
