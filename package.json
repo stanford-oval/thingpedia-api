@@ -14,7 +14,7 @@
   "main": "index.js",
   "dependencies": {
     "feedparser": "^2.2.9",
-    "gettext-parser": "^4.0.2",
+    "gettext-parser": "^4.0.3",
     "ip": "^1.1.0",
     "oauth": "^0.9.14",
     "string-interp": "^0.1.0",
