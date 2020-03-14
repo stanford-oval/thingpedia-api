@@ -390,6 +390,7 @@ async function testGetExamples() {
 
 async function testLookupLocation() {
     const data = await _httpClient.lookupLocation('seattle');
+    console.log(data);
 
     let found = false;
     for (let loc of data) {
@@ -400,17 +401,10 @@ async function testLookupLocation() {
         assert.strictEqual(typeof loc.rank, 'number');
         assert.strictEqual(typeof loc.importance, 'number');
 
-        if (loc.display === 'Seattle, King County, Washington, USA') {
+        if (loc.display === 'Seattle, Washington') {
             assert(Math.abs(loc.latitude - 47.6038321) < 1e-6);
             assert(Math.abs(loc.longitude - -122.3300624) < 1e-6);
-            assert.strictEqual(loc.canonical, 'seattle king county washington usa');
-            assert.strictEqual(loc.rank, 16);
-            found = true;
-        }
-        if (loc.display === 'Seattle, King County, Washington, United States of America') {
-            assert(Math.abs(loc.latitude - 47.6038321) < 1e-6);
-            assert(Math.abs(loc.longitude - -122.3300624) < 1e-6);
-            assert.strictEqual(loc.canonical, 'seattle king county washington united states of america');
+            assert.strictEqual(loc.canonical, 'seattle washington');
             assert.strictEqual(loc.rank, 16);
             found = true;
         }
