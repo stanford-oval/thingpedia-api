@@ -1,6 +1,6 @@
 {
   "name": "thingpedia",
-  "version": "2.7.0-alpha.3",
+  "version": "2.7.0-alpha.4",
   "description": "Thingpedia SDK",
   "license": "BSD-3-Clause",
   "repository": "https://github.com/stanford-oval/thingpedia-api",
