@@ -18,7 +18,7 @@
     "ip": "^1.1.0",
     "oauth": "^0.9.14",
     "string-interp": "^0.1.0",
-    "thingtalk": "~1.10.0-alpha.5",
+    "thingtalk": "~1.10.0-beta.1",
     "tmp": "^0.1.0",
     "xml2js": "^0.4.17"
   },
