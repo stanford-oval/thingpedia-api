@@ -16,9 +16,17 @@ const ThingTalk = require('thingtalk');
 
 const HttpClient = require('../lib/http_client');
 
+const { MockPreferences } = require('./mock');
+
 const _mockPlatform = {
+    _prefs: new MockPreferences,
+
     getDeveloperKey() {
         return null;
+    },
+
+    getSharedPreferences() {
+        return this._prefs;
     },
 
     get locale() {
@@ -26,9 +34,15 @@ const _mockPlatform = {
     }
 };
 const _mockDeveloperPlatform = {
+    _prefs: new MockPreferences,
+
     getDeveloperKey() {
         // almond-dev developer key
         return '88c03add145ad3a3aa4074ffa828be5a391625f9d4e1d0b034b445f18c595656';
+    },
+
+    getSharedPreferences() {
+        return this._prefs;
     },
 
     get locale() {

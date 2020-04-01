@@ -109,6 +109,21 @@ function loadTextdomainDirectory(gt, locale, domain, podir) {
     }
 }
 
+class MockPreferences {
+    constructor() {
+        this._store = {};
+    }
+
+    get(name) {
+        return this._store[name];
+    }
+
+    set(name, value) {
+        console.log(`preferences set ${name} = ${value}`);
+        this._store[name] = value;
+    }
+}
+
 class MockPlatform extends BasePlatform {
     constructor(locale = 'en-US') {
         super();
@@ -122,6 +137,8 @@ class MockPlatform extends BasePlatform {
             let modir = path.resolve(path.dirname(module.filename), './po');//'
             loadTextdomainDirectory(this._gettext, this._locale, 'thingengine-core', modir);
         }
+
+        this._prefs = new MockPreferences();
     }
 
     get type() {
@@ -134,6 +151,9 @@ class MockPlatform extends BasePlatform {
         return 'America/Los_Angeles';
     }
 
+    getSharedPreferences() {
+        return this._prefs;
+    }
     getCacheDir() {
         return path.dirname(module.filename);
     }
@@ -199,4 +219,13 @@ function toClassDef(classCode) {
     return ThingTalk.Grammar.parse(classCode).classes[0];
 }
 
-module.exports = { MockPlatform, MockEngine, toClassDef, mockPlatform, mockClient, mockEngine, State };
+module.exports = {
+    MockPreferences,
+    MockPlatform,
+    MockEngine,
+    toClassDef,
+    mockPlatform,
+    mockClient,
+    mockEngine,
+    State
+};
