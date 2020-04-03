@@ -1,3 +1,10 @@
+2.7.0-beta.2
+============
+
+* Added the ability to specify a "developer directory", which is a local directory
+  containing Thingpedia devices that overrides the configured remote Thingpedia,
+  for testing [#57].
+
 2.7.0-beta.1
 ============
 
