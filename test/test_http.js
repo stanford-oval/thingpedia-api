@@ -121,17 +121,26 @@ function testErrorIgnoreErrors() {
     }));
 }
 
+function testRedirect() {
+    return Helpers.Http.get('https://httpbin.org/status/301').then((response) => {
+        const parsed = JSON.parse(response);
+        assert.strictEqual(parsed.url, 'https://httpbin.org/get');
+    });
+}
+
+function testRedirectNoFollow() {
+    return Helpers.Http.get('https://httpbin.org/status/301', { followRedirects: false }).then((response) => {
+        assert.fail('expected an error');
+    }, (err) => {
+        assert.strictEqual(err.code, 301);
+        assert.strictEqual(err.redirect, 'https://httpbin.org/redirect/1');
+    });
+}
+
 function testAbsoluteRedirect() {
     return Helpers.Http.get('https://httpbin.org/absolute-redirect/1').then((response) => {
         const parsed = JSON.parse(response);
         assert.strictEqual(parsed.url, 'http://httpbin.org/get');
-    });
-}
-
-function testRedirect() {
-    return Helpers.Http.get('https://httpbin.org/relative-redirect/1').then((response) => {
-        const parsed = JSON.parse(response);
-        assert.strictEqual(parsed.url, 'https://httpbin.org/get');
     });
 }
 
@@ -142,14 +151,6 @@ function testMultiRedirect() {
     });
 }
 
-function testRedirectNoFollow() {
-    return Helpers.Http.get('https://httpbin.org/relative-redirect/1', { followRedirects: false }).then((response) => {
-        assert.fail('expected an error');
-    }, (err) => {
-        assert.strictEqual(err.code, 302);
-        assert.strictEqual(err.redirect, 'https://httpbin.org/get');
-    });
-}
 
 function testRedirectTemporary() {
     return Helpers.Http.get('https://httpbin.org/status/307').then((response) => {
@@ -187,11 +188,11 @@ function main() {
         testError,
         testNetworkError,
         testErrorIgnoreErrors,
-        testAbsoluteRedirect,
-        testRedirect,
-        testMultiRedirect,
+        //testRedirect,
         testRedirectNoFollow,
-        testRedirectTemporary,
+        /*testAbsoluteRedirect,
+        testMultiRedirect,
+        testRedirectTemporary,*/
         testRedirectTemporaryNoFollow
     ]);
 }
