@@ -12,6 +12,8 @@
 require('./mock');
 
 const assert = require('assert');
+const path = require('path');
+const fs = require('fs');
 const ThingTalk = require('thingtalk');
 
 const HttpClient = require('../lib/http_client');
@@ -29,6 +31,10 @@ const _mockPlatform = {
         return this._prefs;
     },
 
+    getCacheDir() {
+        return path.dirname(module.filename);
+    },
+
     get locale() {
         return 'en-US';
     }
@@ -43,6 +49,10 @@ const _mockDeveloperPlatform = {
 
     getSharedPreferences() {
         return this._prefs;
+    },
+
+    getCacheDir() {
+        return path.dirname(module.filename);
     },
 
     get locale() {
@@ -426,6 +436,16 @@ async function testLookupLocation() {
     assert(found);
 }
 
+async function testDeviceNames() {
+    const all = await _httpClient.getAllDeviceNames();
+
+    assert(Array.isArray(all));
+    for (let name of all) {
+        assert(name.kind && typeof name.kind === 'string');
+        assert(name.kind_canonical && typeof name.kind_canonical === 'string');
+    }
+}
+
 async function testGetEntities() {
     const all = await _httpClient.getAllEntityTypes();
 
@@ -441,6 +461,13 @@ async function testGetEntities() {
 }
 
 async function main() {
+    // remove any cached file, if any
+    try {
+        fs.unlinkSync(path.dirname(module.filename) + '/snapshot.tt');
+    } catch(e) {
+        // ignore errors
+    }
+
     await testGetDeviceCode();
     await testGetModuleLocation();
     await testGetSchemas(false);
@@ -467,6 +494,8 @@ async function main() {
     await testLookupLocation();
 
     await testGetEntities();
+
+    await testDeviceNames();
 }
 
 module.exports = main;
