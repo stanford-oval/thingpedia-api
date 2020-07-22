@@ -288,7 +288,7 @@ async function testGetDeviceSetup() {
             kind: 'com.twitter',
             category: 'online',
             type: 'oauth2',
-            text: "Twitter Account"
+            text: "Twitter"
         }
     });
 
