@@ -28,4 +28,4 @@ a client to Thingpedia.
 
 ## License
 
-This package is covered by the 3-clause BSD license.
+This package is covered by the Apache 2.0 license. See [LICENSE](LICENSE) for details.
