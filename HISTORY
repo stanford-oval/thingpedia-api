@@ -1,3 +1,14 @@
+2.8.0-beta.3
+============
+
+* FileThingpediaClient now implements lookupLocation and lookupEntity, which
+  should help when manually annotating dialogues [#89].
+* Fixed OAuth 2.0 helpers with Entity type mixin parameters [#89].
+* The library was relicensed to Apache 2.0. This makes the licensing consistent
+  with other components of Genie and Almond [#86].
+* Updated dependencies [#87, #88, #90].
+
+
 2.8.0-beta.2
 ============
 
