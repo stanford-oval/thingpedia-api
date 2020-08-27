@@ -1859,9 +1859,9 @@ thingtalk-units@^0.1.0:
   integrity sha512-rV5/jZw9fBk3OgYi/HrA1LsTmD5w0gYDlsc1US3/ePR5szaUxwMUtN8UAPYaUorOiW0Qcjm1plvssOC97EkedQ==
 
 thingtalk@~1.11.0-beta.2:
-  version "1.11.0-beta.3"
-  resolved "https://registry.yarnpkg.com/thingtalk/-/thingtalk-1.11.0-beta.3.tgz#f9f4c0c77cdff52c1a0c82ab1e8601ffa4b3a528"
-  integrity sha512-kl3wk2B91dr6jEkWZLZipQs760Qanu9SP3b+NYK8bhWtIrHnZApyo45t9glmvjWlLdtvNjYMOa0V/6J5H/iQbQ==
+  version "1.11.0-beta.4"
+  resolved "https://registry.yarnpkg.com/thingtalk/-/thingtalk-1.11.0-beta.4.tgz#bda69d0d1a54147089b01f0529da201657821d3c"
+  integrity sha512-/0ugEnFfE5wAdpx4cvUi3sk4RlprP2lIEF3y4HEzp2n5rOkaFLq762Q05zcGBfwd5yDCoxcqyHuYsy6H2ap/pQ==
   dependencies:
     adt "~0.7.2"
     byline "^5.0.0"
