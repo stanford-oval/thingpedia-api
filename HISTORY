@@ -1,3 +1,9 @@
+2.8.0-beta.4
+============
+
+* Fix missing qs dependency
+* Updated dependencies [#91]
+
 2.8.0-beta.3
 ============
 
