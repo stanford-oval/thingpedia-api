@@ -17,6 +17,7 @@
     "gettext-parser": "^4.0.2",
     "ip": "^1.1.0",
     "oauth": "^0.9.14",
+    "qs": "^6.7.0",
     "string-interp": "^0.3.1",
     "thingtalk": "~1.11.0-beta.2",
     "tmp": "^0.2.1",
@@ -34,7 +35,6 @@
     "jsdoc": "^3.6.3",
     "node-gettext": "^3.0.0",
     "nyc": "^15.0.0",
-    "qs": "^6.7.0",
     "tough-cookie": "^4.0.0"
   }
 }
