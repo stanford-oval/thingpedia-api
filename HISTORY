@@ -1,3 +1,10 @@
+2.8.0-beta.5
+============
+
+* Added a platform method to specify the OAuth redirect origin separately from
+  the general HTTP origin [#93].
+* Updated dependencies [#92].
+
 2.8.0-beta.4
 ============
 
