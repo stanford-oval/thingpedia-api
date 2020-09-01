@@ -7,9 +7,6 @@ node_js:
 before_install:
 - mkdir -p ../node_modules
 - ln -s -T `pwd` ../node_modules/thingpedia
-- yarn global add greenkeeper-lockfile@1
-before_script: greenkeeper-lockfile-update
-after_script: greenkeeper-lockfile-upload
 script:
 - yarn lint
 - TZ="America/Los_Angeles" yarn test
