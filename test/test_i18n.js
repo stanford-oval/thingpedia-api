@@ -61,7 +61,8 @@ async function testBuiltin() {
                              out author: Entity(tt:username) #_[canonical={npp=["autore"],pvp=["scritto da"],default="npp"}])
   #_[confirmation="elementi predefiniti dentro la roba"]
   #_[canonical="elementi"]
-  #[poll_interval=1ms];
+  #[poll_interval=1ms]
+  #[minimal_projection=[]];
 }
 `);
 
