@@ -57,8 +57,14 @@ async function testBuiltin() {
   import loader from @org.thingpedia.builtin();
   import config from @org.thingpedia.config.builtin();
 
-  monitorable query elements(out something: String #_[canonical="qualcosa"],
-                             out author: Entity(tt:username) #_[canonical={npp=["autore"],pvp=["scritto da"],default="npp"}])
+  monitorable query elements(out something: String
+                             #_[canonical="qualcosa"],
+                             out author: Entity(tt:username)
+                             #_[canonical={
+                               npp=["autore"],
+                               pvp=["scritto da"],
+                               default="npp"
+                             }])
   #_[confirmation="elementi predefiniti dentro la roba"]
   #_[canonical="elementi"]
   #[poll_interval=1ms]
