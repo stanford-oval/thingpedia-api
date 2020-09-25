@@ -17,12 +17,12 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const events = require('events');
-const assert = require('assert');
 
-const ObjectSet = require('../lib/helpers/object_set');
+import * as events from 'events';
+import assert from 'assert';
+
+import * as ObjectSet from '../lib/helpers/object_set';
 
 function timeout(delay) {
     return new Promise((resolve, reject) => {
@@ -184,6 +184,6 @@ function main() {
         testRemoveIf(),
     ]);
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

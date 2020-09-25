@@ -1,0 +1,26 @@
+{
+    "include": [
+        "lib/**/*"
+    ],
+    "compilerOptions": {
+        "target": "es2018",
+        "lib": ["es2018"],
+        "module": "commonjs",
+        "allowJs": true,
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "strict": true,
+        "noUnusedLocals": true,
+        "outDir": "dist",
+        "sourceMap": true,
+        "incremental": true,
+        "declaration": true
+    },
+    "typedocOptions": {
+        "mode": "library",
+        "out": "doc",
+        "name": "ThingTalk",
+        "readme": "README.md"
+    }
+}

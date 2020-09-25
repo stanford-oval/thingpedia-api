@@ -18,13 +18,13 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const Tp = require('..');
-const assert = require('assert');
 
-function main() {
-    const packageJson = require('../package.json');
+import * as Tp from '../lib/index';
+import assert from 'assert';
+
+async function main() {
+    const packageJson = (await import('../package.json')).default;
     assert.strictEqual(String(Tp.version), packageJson.version);
 
     assert.strictEqual(Tp.version.major, 2);
@@ -58,6 +58,6 @@ function main() {
     assert(Tp.version.hasFeature('thingpedia-client'));
     assert(!Tp.version.hasFeature('invalid'));
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

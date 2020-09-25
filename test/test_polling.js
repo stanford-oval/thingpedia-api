@@ -17,12 +17,11 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
-const Stream = require('stream');
 
-const PollingStream = require('../lib/helpers/polling');
+import assert from 'assert';
+
+import PollingStream from '../lib/helpers/polling';
 
 class State {
     constructor() {
@@ -84,6 +83,6 @@ function main() {
         testSimple(),
     ]);
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

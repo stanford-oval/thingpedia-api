@@ -17,13 +17,12 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
-
-const assert = require('assert');
-const events = require('events');
 
 
-const RefCounted = require('../lib/helpers/ref_counted');
+import assert from 'assert';
+import * as events from 'events';
+
+import RefCounted from '../lib/helpers/ref_counted';
 
 function timeout(delay) {
     return new Promise((resolve, reject) => {
@@ -161,6 +160,6 @@ function main() {
         test4()
     ]);
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

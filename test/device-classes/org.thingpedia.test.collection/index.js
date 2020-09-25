@@ -18,10 +18,10 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
-const Tp = require('thingpedia');
+
+import assert from 'assert';
+import * as Tp from 'thingpedia';
 
 class MySubDevice extends Tp.BaseDevice {
     get_get_data() {
@@ -32,7 +32,7 @@ class MySubDevice extends Tp.BaseDevice {
     }
 }
 
-module.exports = class MyCollectionDevice extends Tp.BaseDevice {
+export default class MyCollectionDevice extends Tp.BaseDevice {
     static get subdevices() {
         return {
             'org.thingpedia.test.subdevice': MySubDevice
@@ -43,4 +43,4 @@ module.exports = class MyCollectionDevice extends Tp.BaseDevice {
         super(engine, state);
         this.uniqueId = 'org.thingpedia.test.collection';
     }
-};
+}

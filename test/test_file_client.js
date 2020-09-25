@@ -18,15 +18,15 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-require('./mock');
 
-const assert = require('assert');
-const ThingTalk = require('thingtalk');
-const path = require('path');
+import './mock';
 
-const FileClient = require('../lib/file_thingpedia_client');
+import assert from 'assert';
+import * as ThingTalk from 'thingtalk';
+import * as path from 'path';
+
+import FileClient from '../lib/file_thingpedia_client';
 
 const _fileClient = new FileClient({
     locale: 'en-US',
@@ -164,6 +164,6 @@ async function main() {
     await testGetEntities();
 }
 
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

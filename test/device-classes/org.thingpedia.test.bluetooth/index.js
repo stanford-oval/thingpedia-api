@@ -17,12 +17,12 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const Tp = require('thingpedia');
-const assert = require('assert');
 
-module.exports = class BluetoothTestDevice extends Tp.BaseDevice {
+import * as Tp from 'thingpedia';
+import assert from 'assert';
+
+export default class BluetoothTestDevice extends Tp.BaseDevice {
     constructor(engine, state) {
         super(engine, state);
 
@@ -52,4 +52,4 @@ module.exports = class BluetoothTestDevice extends Tp.BaseDevice {
         assert.strictEqual(pin, "1234");
         return this;
     }
-};
+}

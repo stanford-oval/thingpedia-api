@@ -17,11 +17,11 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const Tp = require('thingpedia');
 
-module.exports = class TranslatableDevice extends Tp.BaseDevice {
+import * as Tp from 'thingpedia';
+
+export default class TranslatableDevice extends Tp.BaseDevice {
     get_elements() {
         const _ = TranslatableDevice.gettext.gettext;
 
@@ -30,4 +30,4 @@ module.exports = class TranslatableDevice extends Tp.BaseDevice {
             author: _("someone")
         }];
     }
-};
+}

@@ -17,7 +17,8 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
+
+/* eslint-disable @typescript-eslint/no-var-requires */
 
 const ThingTalk = require('thingtalk');
 const fs = require('fs');

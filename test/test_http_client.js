@@ -18,18 +18,18 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-require('./mock');
 
-const assert = require('assert');
-const path = require('path');
-const fs = require('fs');
-const ThingTalk = require('thingtalk');
+import './mock';
 
-const HttpClient = require('../lib/http_client');
+import assert from 'assert';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as ThingTalk from 'thingtalk';
 
-const { MockPreferences } = require('./mock');
+import HttpClient from '../lib/http_client';
+
+import { MockPreferences } from './mock';
 
 const _mockPlatform = {
     _prefs: new MockPreferences,
@@ -509,6 +509,6 @@ async function main() {
     await testDeviceNames();
 }
 
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

@@ -17,12 +17,13 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
-const stream = require('stream');
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
-const Helpers = require('../lib/helpers');
+import assert from 'assert';
+import * as stream from 'stream';
+
+import * as Helpers from '../lib/helpers';
 
 // test http helpers using some of the best nanoservices on the web
 
@@ -42,7 +43,7 @@ function testUserAgent() {
 
 function testGetRaw() {
     return Helpers.Http.get('http://www.foaas.com/because/Me', { accept: 'application/json', raw: true }).then(([data, contentType]) => {
-        var parsed = JSON.parse(data);
+        let parsed = JSON.parse(data);
         assert.equal(parsed.message, 'Why? Because fuck you, that\'s why.');
         assert.equal(parsed.subtitle, '- Me');
     });
@@ -57,7 +58,7 @@ function testGetStream() {
             data += chunk;
         });
         str.on('end', () => {
-            var parsed = JSON.parse(data);
+            let parsed = JSON.parse(data);
             assert.equal(parsed.message, 'Why? Because fuck you, that\'s why.');
             assert.equal(parsed.subtitle, '- Me');
         });
@@ -66,7 +67,7 @@ function testGetStream() {
 
 function testGet() {
     return Helpers.Http.get('http://www.foaas.com/because/Me', { accept: 'application/json' }).then((data) => {
-        var parsed = JSON.parse(data);
+        let parsed = JSON.parse(data);
         assert.equal(parsed.message, 'Why? Because fuck you, that\'s why.');
         assert.equal(parsed.subtitle, '- Me');
     });
@@ -78,7 +79,7 @@ function testPost() {
                       { accept: 'application/json',
                         dataContentType: 'application/json' })
         .then((data) => {
-            var parsed = JSON.parse(data);
+            let parsed = JSON.parse(data);
             assert.equal(parsed.INPUT, 'all caps');
             assert.equal(parsed.OUTPUT, 'ALL CAPS');
         });
@@ -93,7 +94,7 @@ function testPostStream() {
                                             { accept: 'application/json',
                                               dataContentType: 'application/json' })
         .then((data) => {
-            var parsed = JSON.parse(data);
+            let parsed = JSON.parse(data);
             assert.equal(parsed.INPUT, 'all caps');
             assert.equal(parsed.OUTPUT, 'ALL CAPS');
         });
@@ -206,6 +207,6 @@ function main() {
         testRedirectTemporaryNoFollow
     ]);
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();
