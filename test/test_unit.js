@@ -18,12 +18,12 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const TT = require('thingtalk');
-const assert = require('assert');
 
-const Utils = require('../lib/utils');
+import * as TT from 'thingtalk';
+import assert from 'assert';
+
+import * as Utils from '../lib/utils';
 
 const PROPCHAIN_TEST_CASES = [
     // simple
@@ -261,6 +261,6 @@ async function main() {
     console.log('testParseGenericResponse');
     testParseGenericResponse();
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

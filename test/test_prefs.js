@@ -17,12 +17,12 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
-const fs = require('fs');
 
-const FilePreferences = require('../lib/helpers').FilePreferences;
+import assert from 'assert';
+import * as fs from 'fs';
+
+import { FilePreferences } from '../lib/helpers';
 
 function safeUnlinkSync(filename) {
     try {
@@ -77,6 +77,6 @@ async function main() {
     await testBasic();
     await testReload();
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

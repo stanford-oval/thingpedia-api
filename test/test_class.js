@@ -17,11 +17,11 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
 
-const BaseDevice = require('../lib/base_device');
+import assert from 'assert';
+
+import BaseDevice from '../lib/base_device';
 
 class MyDevice1 extends BaseDevice {
     constructor(engine, state) {
@@ -159,6 +159,6 @@ async function main() {
     });
     testBasic(d3, e, 'com.baz');
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

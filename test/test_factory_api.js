@@ -18,16 +18,16 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
 
-const DeviceFactory = require('../lib/factory');
+import assert from 'assert';
 
-const { mockClient, mockEngine } = require('./mock');
+import DeviceFactory from '../lib/factory';
+
+import { mockClient, mockEngine } from './mock';
 const factory = new DeviceFactory(mockEngine, mockClient);
 
-const MyDevice = require('./device-classes/org.thingpedia.test.mydevice');
+import MyDevice from './device-classes/org.thingpedia.test.mydevice';
 
 async function testBasic() {
     const deviceFactory = await factory.getDeviceClass('org.thingpedia.test.mydevice');
@@ -79,6 +79,6 @@ async function main() {
     await testQuery();
     await testConfigure();
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

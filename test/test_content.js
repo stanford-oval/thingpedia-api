@@ -18,17 +18,16 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
-require('./assert_rejects');
 
-const http = require('http');
-const Stream = require('stream');
-const fs = require('fs');
-const path = require('path');
+import assert from 'assert';
 
-const Content = require('../lib/helpers/content');
+import * as http from 'http';
+import * as Stream from 'stream';
+import * as fs from 'fs';
+import * as path from 'path';
+
+import * as Content from '../lib/helpers/content';
 
 const fileContentApi = {
     getStream(url) {
@@ -148,6 +147,6 @@ async function main() {
     await testGetData(platformWithoutContent);
     await testGetDataThrows(platformWithContent);
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

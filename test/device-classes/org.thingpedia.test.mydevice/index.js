@@ -17,13 +17,13 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
-const Stream = require('stream');
-const Tp = require('thingpedia');
 
-module.exports = class MyDevice extends Tp.BaseDevice {
+import assert from 'assert';
+import * as Stream from 'stream';
+import * as Tp from 'thingpedia';
+
+export default class MyDevice extends Tp.BaseDevice {
     constructor(engine, state) {
         super(engine, state);
         this.uniqueId = 'org.thingpedia.test.mydevice';
@@ -52,4 +52,4 @@ module.exports = class MyDevice extends Tp.BaseDevice {
     do_something_else({ v3 }) {
         assert.strictEqual(v3, 'bar');
     }
-};
+}

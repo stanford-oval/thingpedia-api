@@ -17,25 +17,25 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
-const path = require('path');
-const child_process = require('child_process');
-const os = require('os');
-const fs = require('fs');
-const util = require('util');
-const Gettext = require('node-gettext');
-const gettextParser = require('gettext-parser');
 
-const ThingTalk = require('thingtalk');
-const BaseClient = require('../lib/base_client');
-const BasePlatform = require('../lib/base_platform');
-const BaseEngine = require('../lib/base_engine');
+import assert from 'assert';
+import * as path from 'path';
+import * as child_process from 'child_process';
+import * as os from 'os';
+import * as fs from 'fs';
+import * as util from 'util';
+import Gettext from 'node-gettext';
+import * as gettextParser from 'gettext-parser';
+
+import * as ThingTalk from 'thingtalk';
+import BaseClient from '../lib/base_client';
+import BasePlatform from '../lib/base_platform';
+import BaseEngine from '../lib/base_engine';
 
 const _unzipApi = {
     unzip(zipPath, dir) {
-        var args = ['-uo', zipPath, '-d', dir];
+        let args = ['-uo', zipPath, '-d', dir];
         return new Promise((resolve, reject) => {
             child_process.execFile('unzip', args, { maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
                 if (err)
@@ -229,7 +229,7 @@ function toClassDef(classCode) {
     return ThingTalk.Grammar.parse(classCode).classes[0];
 }
 
-module.exports = {
+export {
     MockPreferences,
     MockPlatform,
     MockEngine,

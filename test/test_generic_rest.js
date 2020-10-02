@@ -18,20 +18,20 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
-const qs = require('qs');
-const tough = require('tough-cookie');
-const ThingTalk = require('thingtalk');
 
-const { toClassDef, mockClient, mockPlatform, mockEngine, State } = require('./mock');
-const { ImplementationError } = require('../lib/errors');
-const Helpers = require('../lib/helpers');
-const BaseDevice = require('../lib/base_device');
+import assert from 'assert';
+import * as qs from 'qs';
+import * as tough from 'tough-cookie';
+import * as ThingTalk from 'thingtalk';
 
-const Modules = require('../lib/loaders');
-const ModuleDownloader = require('../lib/downloader');
+import { toClassDef, mockClient, mockPlatform, mockEngine, State } from './mock';
+import { ImplementationError } from '../lib/errors';
+import * as Helpers from '../lib/helpers';
+import BaseDevice from '../lib/base_device';
+
+import Modules from '../lib/loaders';
+import ModuleDownloader from '../lib/downloader';
 
 async function testPoll(instance, fn) {
     await new Promise((resolve, reject) => {
@@ -351,6 +351,6 @@ async function main() {
     await testForm();
 }
 
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

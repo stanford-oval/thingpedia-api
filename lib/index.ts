@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of ThingEngine
 //
@@ -7,25 +7,31 @@
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 //
 // See LICENSE for details
-"use strict";
 
-require('./lib/string_format');
-const Messaging = require('./lib/messaging');
-const Preferences = require('./lib/prefs');
-const BaseDevice = require('./lib/base_device');
-const Helpers = require('./lib/helpers');
-const ConfigDelegate = require('./lib/config_delegate');
-const { OAuthError } = require('./lib/errors');
-const BaseClient = require('./lib/base_client');
-const HttpClient = require('./lib/http_client');
-const FileClient = require('./lib/file_thingpedia_client');
-const DeviceFactory = require('./lib/factory');
-const { ImplementationError, UnsupportedError } = require('./lib/errors');
-const BaseEngine = require('./lib/base_engine');
-const BasePlatform = require('./lib/base_platform');
-const DeviceConfigUtils = require('./lib/device_factory_utils');
 
-const ThingTalk = require('thingtalk');
+import './string_format';
+
+import Messaging from './messaging';
+import Preferences from './prefs';
+import BaseDevice from './base_device';
+import * as Helpers from './helpers';
+import ConfigDelegate from './config_delegate';
+import { OAuthError } from './errors';
+import BaseClient from './base_client';
+import HttpClient from './http_client';
+import FileClient from './file_thingpedia_client';
+import DeviceFactory from './factory';
+import { ImplementationError, UnsupportedError } from './errors';
+import BaseEngine from './base_engine';
+import BasePlatform from './base_platform';
+import * as DeviceConfigUtils from './device_factory_utils';
+
+import * as ThingTalk from 'thingtalk';
+
+interface Version {
+    major : number;
+    minor : number;
+}
 
 /**
  * Versioning information for the library.
@@ -47,10 +53,10 @@ const VERSION = {
     /** Full version string, in semantic version format */
     full: '2.8.0',
     /** Convert the version number to a number (for comparisons) */
-    valueOf() {
+    valueOf() : number {
         return this.major * 100 + this.minor;
     },
-    toString() {
+    toString() : string {
         return this.full;
     },
     /**
@@ -60,7 +66,7 @@ const VERSION = {
      *                             and minor properties
      * @return {Boolean}
      */
-    compatible(v) {
+    compatible(v : number|Version) : boolean {
         if (typeof v === 'number')
             return this.valueOf() >= v && Math.floor(v/100) === this.major;
         else
@@ -80,7 +86,7 @@ const VERSION = {
      * @param {String} f - a feature name
      * @return {Boolean} whether the named feature is supported.
      */
-    hasFeature(f) {
+    hasFeature(f : string) : boolean {
         switch (f) {
         case 'rss':
         case 'value-types':
@@ -92,22 +98,27 @@ const VERSION = {
     }
 };
 
-module.exports = {
-    version: VERSION,
+const Value = {
+    Entity: ThingTalk.Builtin.Entity,
+    Currency: ThingTalk.Builtin.Currency,
+    Location: ThingTalk.Builtin.Location,
+    Time: ThingTalk.Builtin.Time
+};
+const Availability = BaseDevice.Availability;
+const Tier = BaseDevice.Tier;
+const ObjectSet = Helpers.ObjectSet;
+
+export {
+    VERSION as version,
 
     // APIs for implementers of Thingpedia interfaces
     BaseDevice,
-    Availability: BaseDevice.Availability,
-    Tier: BaseDevice.Tier,
+    Availability,
+    Tier,
 
     // helper libraries and portions of ThingTalk API that are public/stable
     Helpers,
-    Value: {
-        Entity: ThingTalk.Builtin.Entity,
-        Currency: ThingTalk.Builtin.Currency,
-        Location: ThingTalk.Builtin.Location,
-        Time: ThingTalk.Builtin.Time
-    },
+    Value,
 
     // interfaces (for documentation/type-checking only)
     Messaging,
@@ -115,7 +126,7 @@ module.exports = {
     Preferences,
 
     // compatibility export
-    ObjectSet: Helpers.ObjectSet,
+    ObjectSet,
 
     // APIs for users of Thingpedia interfaces
     BaseEngine,

@@ -17,17 +17,17 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
-const child_process = require('child_process');
 
-const Modules = require('../lib/loaders');
-const ModuleDownloader = require('../lib/downloader');
-const { ImplementationError } = require('../lib/errors');
+import assert from 'assert';
+import child_process from 'child_process';
 
-const MyDevice = require('./device-classes/org.thingpedia.test.mydevice');
-const { toClassDef, mockClient, mockPlatform, mockEngine, State } = require('./mock');
+import Modules from '../lib/loaders';
+import ModuleDownloader from '../lib/downloader';
+import { ImplementationError } from '../lib/errors';
+
+import MyDevice from './device-classes/org.thingpedia.test.mydevice';
+import { toClassDef, mockClient, mockPlatform, mockEngine, State } from './mock';
 
 async function testDownloader() {
     const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.mydevice'));
@@ -327,6 +327,6 @@ async function main() {
     await testInteractive();
     await testDatabase();
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

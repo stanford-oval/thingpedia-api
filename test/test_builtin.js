@@ -17,14 +17,14 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
 
-const ModuleDownloader = require('../lib/downloader');
-const BaseDevice = require('../lib/base_device');
+import assert from 'assert';
 
-const { mockClient, mockPlatform, mockEngine } = require('./mock');
+import ModuleDownloader from '../lib/downloader';
+import BaseDevice from '../lib/base_device';
+
+import { mockClient, mockPlatform, mockEngine } from './mock';
 
 const Builtins = {
     'org.thingpedia.builtin.foo': {
@@ -142,6 +142,6 @@ async function main() {
     await testCollection();
     await testUnsupported();
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

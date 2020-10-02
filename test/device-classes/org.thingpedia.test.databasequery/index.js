@@ -17,12 +17,12 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const Tp = require('thingpedia');
 
-module.exports = class DatabaseQueryTestDevice extends Tp.BaseDevice {
-    query () {
+import * as Tp from 'thingpedia';
+
+export default class DatabaseQueryTestDevice extends Tp.BaseDevice {
+    query() {
         return [];
     }
-};
+}

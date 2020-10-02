@@ -17,12 +17,12 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const Tp = require('thingpedia');
-const assert = require('assert');
 
-module.exports = class InteractiveTestDevice extends Tp.BaseDevice {
+import * as Tp from 'thingpedia';
+import assert from 'assert';
+
+export default class InteractiveTestDevice extends Tp.BaseDevice {
     static async loadInteractively(engine, delegate) {
         const pw = await delegate.requestCode("Please insert the Password");
         assert.strictEqual(pw, "12345678");
@@ -36,4 +36,4 @@ module.exports = class InteractiveTestDevice extends Tp.BaseDevice {
 
         return this;
     }
-};
+}

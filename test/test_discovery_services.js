@@ -17,12 +17,12 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
-const ThingTalk = require('thingtalk');
 
-const DeviceFactoryUtils = require('../lib/device_factory_utils');
+import assert from 'assert';
+import * as ThingTalk from 'thingtalk';
+
+import * as DeviceFactoryUtils from '../lib/device_factory_utils';
 
 const TEST_CASES = [
     [`abstract class @security-camera {}`, []],
@@ -68,6 +68,6 @@ async function main() {
     for (let i = 0; i < TEST_CASES.length; i++)
         await testCase(i);
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

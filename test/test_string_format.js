@@ -16,7 +16,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-"use strict";
+
 
 // Copied from gjs
 //
@@ -41,11 +41,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-const assert = require('assert');
+import assert from 'assert';
 
-require('../lib/string_format');
+import '../lib/string_format';
 
-async function test() {
+export default async function test() {
     assert.strictEqual('%d%%'.format(10), '10%');
     assert.strictEqual('%s'.format('Foo'), 'Foo');
     assert.strictEqual('%s %s'.format('Foo', 'Bar'), 'Foo Bar');
@@ -71,6 +71,5 @@ async function test() {
 
     assert.throws(() => '%2$d %d %1$d'.format(1, 2, 3));
 }
-module.exports = test;
 if (!module.parent)
     test();

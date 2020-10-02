@@ -16,10 +16,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-"use strict";
+
 
 // load everything in process so we have a global view of code coverage
-require('..');
+import '../lib/index';
 
 process.on('unhandledRejection', (up) => { throw up; });
 process.env.TEST_MODE = '1';
@@ -27,16 +27,16 @@ process.env.TEST_MODE = '1';
 async function seq(array) {
     for (let el of array) {
         console.log(`Running tests for ${el}`);
-        await require(el)();
+        await (await import(el)).default();
     }
 }
 
 seq([
+    ('./test_version'),
     ('./test_unit'),
     ('./test_device_factories'),
     ('./test_discovery_services'),
     ('./test_string_format'),
-    ('./test_version'),
     ('./test_class'),
     ('./test_object_set'),
     ('./test_prefs'),

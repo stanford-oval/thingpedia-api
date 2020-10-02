@@ -18,16 +18,16 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
 
-const { toClassDef, mockClient, mockPlatform, mockEngine, State } = require('./mock');
-const { ImplementationError } = require('../lib/errors');
-const BaseDevice = require('../lib/base_device');
+import assert from 'assert';
 
-const Modules = require('../lib/loaders');
-const ModuleDownloader = require('../lib/downloader');
+import { toClassDef, mockClient, mockPlatform, mockEngine, State } from './mock';
+import { ImplementationError } from '../lib/errors';
+import BaseDevice from '../lib/base_device';
+
+import Modules from '../lib/loaders';
+import ModuleDownloader from '../lib/downloader';
 
 async function testBasic() {
     const metadata = toClassDef(await mockClient.getDeviceCode('com.herokuapp.lorem-rss'));
@@ -124,6 +124,6 @@ async function main() {
     await testBroken();
 }
 
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

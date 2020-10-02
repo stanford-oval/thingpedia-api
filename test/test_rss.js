@@ -17,12 +17,12 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const assert = require('assert');
-require('./assert_rejects');
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
-const RSS = require('../lib/helpers/rss');
+import assert from 'assert';
+
+import * as RSS from '../lib/helpers/rss';
 
 function testRSS1() {
     return RSS.get('http://lorem-rss.herokuapp.com/feed?unit=day').then((items) => {
@@ -95,6 +95,6 @@ function main() {
         testNotRSS()
     ]);
 }
-module.exports = main;
+export default main;
 if (!module.parent)
     main();

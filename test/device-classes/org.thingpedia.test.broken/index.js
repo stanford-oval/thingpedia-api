@@ -17,11 +17,11 @@
 // limitations under the License.
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
-"use strict";
 
-const Tp = require('thingpedia');
 
-module.exports = class MyDevice extends Tp.BaseDevice {
+import * as Tp from 'thingpedia';
+
+export default class MyDevice extends Tp.BaseDevice {
     constructor(engine, state) {
         super(engine, state);
         this.uniqueId = 'org.thingpedia.test.broken';
@@ -46,4 +46,4 @@ module.exports = class MyDevice extends Tp.BaseDevice {
     get_something_poll4() {
         return 'foo';
     }
-};
+}
