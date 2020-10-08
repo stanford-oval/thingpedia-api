@@ -20,20 +20,22 @@
     "oauth": "^0.9.14",
     "qs": "^6.7.0",
     "string-interp": "^0.3.5",
-    "thingtalk": "https://github.com/stanford-oval/thingtalk#next",
     "tmp": "^0.2.1",
     "xml2js": "^0.4.17"
+  },
+  "peerDependencies": {
+    "thingtalk": "github:stanford-oval/thingtalk#next"
   },
   "scripts": {
     "lint": "eslint --ext .js,.jsx,.ts,.tsx ./lib ./test",
     "test": "nyc ts-node ./test",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "prepare": "tsc --build tsconfig.json",
+    "prepare": "tsc --build tsconfig.json && find dist/ -name \\*.d.ts | xargs sed -i 's|from \"node/|from \"|g'",
     "doc": "typedoc lib/index.ts"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
-    "@types/node": "^14.11.1",
+    "@types/node": "^14.11.7",
     "@typescript-eslint/eslint-plugin": "^4.2.0",
     "@typescript-eslint/parser": "^4.2.0",
     "coveralls": "^3.0.0",
@@ -42,6 +44,7 @@
     "nyc": "^15.0.0",
     "pegjs": "^0.10.0",
     "source-map-support": "^0.5.19",
+    "thingtalk": "github:stanford-oval/thingtalk#next",
     "tough-cookie": "^4.0.0",
     "ts-node": "^9.0.0",
     "typedoc": "^0.19.2",

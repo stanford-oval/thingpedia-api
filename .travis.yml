@@ -8,9 +8,9 @@ before_install:
 - mkdir -p ../node_modules
 - ln -s -T `pwd` ../node_modules/thingpedia
 script:
-- yarn lint
-- TZ="America/Los_Angeles" yarn test
-after_success: yarn run coverage
+- npm run lint
+- TZ="America/Los_Angeles" npm run test
+after_success: npm run coverage
 env:
   global:
   - COVERALLS_PARALLEL=true
