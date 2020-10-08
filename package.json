@@ -14,6 +14,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@types/qs": "^6.9.5",
     "feedparser": "^2.2.9",
     "gettext-parser": "^4.0.2",
     "ip": "^1.1.0",

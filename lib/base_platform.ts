@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,13 +18,21 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
+import BaseClient from './base_client';
+import Preferences from './prefs';
+
+type CapabilityMap = {
+    [key : string] : null;
+} & {
+    'thingpedia-client' : BaseClient|null;
+};
 
 /**
  * The base class of the Almond platform layers.
  *
  * All platform specific APIs should be accessed through an instance of this class.
  */
-export default class BasePlatform {
+export default abstract class BasePlatform {
     /**
      * @protected
      */
@@ -33,30 +41,24 @@ export default class BasePlatform {
     /* istanbul ignore next */
     /**
      * A semi-opaque identifier of the type of platform.
-     *
-     * @type {string}
      */
-    get type() {
+    get type() : string {
         throw new Error('not implemented');
     }
 
     /* istanbul ignore next */
     /**
      * Retrieve the locale of the current user, as a BCP 47 tag.
-     *
-     * @type {string}
      */
-    get locale() {
+    get locale() : string {
         throw new Error('not implemented');
     }
 
     /* istanbul ignore next */
     /**
      * Retrieve the preferred timezone of the current user.
-     *
-     * @type {string}
      */
-    get timezone() {
+    get timezone() : string {
         throw new Error('not implemented');
     }
 
@@ -69,7 +71,7 @@ export default class BasePlatform {
      * @param {string} cap - the capability name
      * @return {boolean} true if the capability name is known and supported, false otherwise
     */
-    hasCapability(cap) {
+    hasCapability(cap : keyof CapabilityMap) : boolean {
         throw new Error('not implemented');
     }
 
@@ -83,7 +85,7 @@ export default class BasePlatform {
      * @param {string} cap - the capability name
      * @return {any|null} an interface implementing the given capability
      */
-    getCapability(cap) {
+    getCapability<T extends keyof CapabilityMap>(cap : T) : CapabilityMap[T]|null {
         throw new Error('not implemented');
     }
 
@@ -96,7 +98,7 @@ export default class BasePlatform {
      *
      * @return {Preferences} the shared preference store.
      */
-    getSharedPreferences() {
+    getSharedPreferences() : Preferences {
         throw new Error('not implemented');
     }
 
@@ -107,7 +109,7 @@ export default class BasePlatform {
      *
      * @return {string} a directory path
      */
-    getWritableDir() {
+    getWritableDir() : string {
         throw new Error('not implemented');
     }
 
@@ -121,7 +123,7 @@ export default class BasePlatform {
      *
      * @return {string} a directory path
      */
-    getTmpDir() {
+    getTmpDir() : string {
         throw new Error('not implemented');
     }
 
@@ -132,7 +134,7 @@ export default class BasePlatform {
      *
      * @return {string} a directory path
      */
-    getCacheDir() {
+    getCacheDir() : string {
         throw new Error('not implemented');
     }
 
@@ -142,7 +144,7 @@ export default class BasePlatform {
      *
      * @return {string|null} the configured developer key, or null
      */
-    getDeveloperKey() {
+    getDeveloperKey() : string|null {
         throw new Error('not implemented');
     }
 
@@ -154,7 +156,7 @@ export default class BasePlatform {
      *
      * @return {string} an HTTP origin (protocol, hostname and port)
      */
-    getOAuthRedirect() {
+    getOAuthRedirect() : string {
         return this.getOrigin();
     }
 
@@ -164,7 +166,7 @@ export default class BasePlatform {
      *
      * @return {string} an HTTP origin (protocol, hostname and port)
      */
-    getOrigin() {
+    getOrigin() : string {
         throw new Error('not implemented');
     }
 
@@ -177,7 +179,7 @@ export default class BasePlatform {
      *
      * @return {string|null} an opaque unique ID
      */
-    getCloudId() {
+    getCloudId() : string|null {
         throw new Error('not implemented');
     }
 }
