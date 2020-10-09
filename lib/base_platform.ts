@@ -18,14 +18,8 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-import BaseClient from './base_client';
 import Preferences from './prefs';
-
-type CapabilityMap = {
-    [key : string] : null;
-} & {
-    'thingpedia-client' : BaseClient|null;
-};
+import { CapabilityMap } from './capabilities';
 
 /**
  * The base class of the Almond platform layers.

@@ -41,7 +41,7 @@ interface UseOAuth2 {
     queryInterface<T extends string>(x : T) : T extends 'oauth2' ? OAuth2Interface : unknown;
 }
 
-interface HTTPRequestOptions {
+export interface HTTPRequestOptions {
     dataContentType ?: string;
     auth ?: string;
     accept ?: string;

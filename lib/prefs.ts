@@ -71,7 +71,7 @@ export default abstract class Preferences extends events.EventEmitter {
      * @param {any} value - the value
      * @abstract
     */
-    set(name : string, value : unknown) : void {
+    set<T>(name : string, value : T) : T {
         throw new Error('Abstract method');
     }
 

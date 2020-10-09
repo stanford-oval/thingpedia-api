@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -26,7 +26,7 @@ import * as events from 'events';
  *
  * @memberof! Helpers.ObjectSet
  */
-class Base extends events.EventEmitter {
+class Base<T> extends events.EventEmitter {
     /**
      * Notifies that an object was to this set.
      *
@@ -43,7 +43,7 @@ class Base extends events.EventEmitter {
     /**
      * @protected
      */
-    constructor() {
+    protected constructor() {
         super();
         this.setMaxListeners(Infinity);
     }
@@ -55,7 +55,7 @@ class Base extends events.EventEmitter {
      * @fires Helpers.ObjectSet.Base#object-added
      * @protected
      */
-    objectAdded(o) {
+    protected objectAdded(o : T) : void {
         this.emit('object-added', o);
     }
 
@@ -66,7 +66,7 @@ class Base extends events.EventEmitter {
      * @fires Helpers.ObjectSet.Base#object-removed
      * @protected
      */
-    objectRemoved(o) {
+    protected objectRemoved(o : T) : void {
         this.emit('object-removed', o);
     }
 
@@ -77,7 +77,7 @@ class Base extends events.EventEmitter {
      * @return {Object[]} - the objects in the set
      * @abstract
      */
-    values() {
+    values() : T[] {
         throw new Error('Not Implemented');
     }
 
@@ -89,7 +89,7 @@ class Base extends events.EventEmitter {
      * changes dynamically.
      * @abstract
      */
-    async start() {
+    async start() : Promise<void> {
         throw new Error('Not Implemented');
     }
 
@@ -101,9 +101,13 @@ class Base extends events.EventEmitter {
      * changes dynamically.
      * @abstract
      */
-    async stop() {
+    async stop() : Promise<void> {
         throw new Error('Not Implemented');
     }
+}
+
+interface HasUniqueId {
+    uniqueId : string;
 }
 
 /**
@@ -112,36 +116,39 @@ class Base extends events.EventEmitter {
  * @extends Helpers.ObjectSet.Base
  * @memberof! Helpers.ObjectSet
  */
-class Simple extends Base {
+class Simple<T extends HasUniqueId> extends Base<T> {
+    private _objects : Map<string, T>;
+
     constructor() {
         super();
 
         this._objects = new Map();
     }
 
-    values() {
+    values() : T[] {
         return Array.from(this._objects.values());
     }
 
     /* istanbul ignore next */
-    start() {
+    async start() : Promise<void> {
     }
     /* istanbul ignore next */
-    stop() {
+    async stop() : Promise<void> {
     }
 
-    addOne(o) {
+    addOne(o : T|PromiseLike<T>|null) : Promise<void> {
         if (o === null)
             return Promise.resolve();
-        if (typeof o.then !== 'function') {
-            if (this._objects.has(o.uniqueId))
+        if (!('then' in o) || typeof o.then !== 'function') {
+            const ot = o as T;
+            if (this._objects.has(ot.uniqueId))
                 return Promise.resolve();
-            this._objects.set(o.uniqueId, o);
-            this.objectAdded(o);
+            this._objects.set(ot.uniqueId, ot);
+            this.objectAdded(ot);
             return Promise.resolve();
         }
 
-        return o.then((o) => {
+        return Promise.resolve(o).then((o) => {
             if (o === null)
                 return;
             if (this._objects.has(o.uniqueId))
@@ -151,34 +158,34 @@ class Simple extends Base {
         });
     }
 
-    addMany(objs) {
-        return Promise.all(objs.map((o) => this.addOne(o)));
+    async addMany(objs : Array<T|null>) : Promise<void> {
+        await Promise.all(objs.map((o) => this.addOne(o)));
     }
 
-    removeOne(o) {
+    removeOne(o : T) : void {
         if (!this._objects.has(o.uniqueId))
             return;
         this._objects.delete(o.uniqueId);
         this.objectRemoved(o);
     }
 
-    getById(id) {
+    getById(id : string) : T|undefined {
         return this._objects.get(id);
     }
 
-    removeById(id) {
-        if (!this._objects.has(id))
+    removeById(id : string) : void {
+        const old = this._objects.get(id);
+        if (old === undefined)
             return;
-        let old = this._objects.get(id);
         this._objects.delete(id);
         this.objectRemoved(old);
     }
 
-    removeIf(predicate) {
-        let removed = [];
-        for (let entry of this._objects) {
-            let key = entry[0];
-            let value = entry[1];
+    removeIf(predicate : (x : T) => boolean) : T[] {
+        const removed = [];
+        for (const entry of this._objects) {
+            const key = entry[0];
+            const value = entry[1];
             if (predicate(value)) {
                 removed.push(value);
                 this._objects.delete(key);
@@ -189,10 +196,10 @@ class Simple extends Base {
         return removed;
     }
 
-    removeAll() {
-        let removed = this.values();
+    removeAll() : T[] {
+        const removed = this.values();
         this._objects.clear();
-        for (let o of removed)
+        for (const o of removed)
             this.objectRemoved(o);
         return removed;
     }

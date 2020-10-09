@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -25,10 +25,8 @@
  *
  * This class exists mostly for documentation, it's not actually used
  * because JS does not have interfaces or multiple inheritance.
- *
- * @interface
  */
-export default class ConfigDelegate {
+export default abstract class ConfigDelegate {
     /**
      * @protected
      */
@@ -41,7 +39,7 @@ export default class ConfigDelegate {
      * @deprecated returning successfully from {@link BaseDevice#completeDiscovery} or
      *             {@link BaseDevice.loadInteractively} is enough to report success.
      */
-    async configDone() {
+    async configDone() : Promise<void> {
         throw new Error('Not Implemented');
     }
 
@@ -54,7 +52,7 @@ export default class ConfigDelegate {
      * @deprecated throwing an exception from {@link BaseDevice#completeDiscovery}
      *             {@link BaseDevice.loadInteractively} is enough to report failure.
      */
-    configFailed(error) {
+    configFailed(error : Error) : Promise<void> {
         throw new Error('Not Implemented');
     }
 
@@ -65,7 +63,7 @@ export default class ConfigDelegate {
      * @param {string} question - the question to ask
      * @result {boolean} true if the user says yes, false if the user says no, or an error
      */
-    async confirm(question) {
+    async confirm(question : string) : Promise<boolean> {
         throw new Error('Not Implemented');
     }
 
@@ -77,7 +75,7 @@ export default class ConfigDelegate {
      * @param {boolean} [secret] - true if the question is secret (the answer should be masked)
      * @result {string} the answer from the user
      */
-    async requestCode(question, secret = false) {
+    async requestCode(question : string, secret = false) : Promise<string> {
         throw new Error('Not Implemented');
     }
 }

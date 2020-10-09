@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -23,41 +23,120 @@ import * as events from 'events';
 import * as Url from 'url';
 import interpolate from 'string-interp';
 
+import type * as ObjectSet from './helpers/object_set';
+
+import type Messaging from './messaging';
+import type ConfigDelegate from './config_delegate';
+import type BaseEngine from './base_engine';
+import type BasePlatform from './base_platform';
+
 /**
  * The coarse grain classification of the currently running Almond platform.
  *
  * Tiers are used to inform how synchronization of device database occurs.
  *
  * @alias BaseDevice.Tier
- * @enum {string}
  */
-export const Tier = {
-    GLOBAL: 'global',
-    PHONE: 'phone',
-    SERVER: 'server',
-    DESKTOP: 'desktop',
-    CLOUD: 'cloud'
-};
+export enum Tier {
+    GLOBAL = 'global',
+    PHONE = 'phone',
+    SERVER = 'server',
+    DESKTOP = 'desktop',
+    CLOUD = 'cloud'
+}
 
 /**
  * Whether a device is available (power on and accessible).
  *
  * @alias BaseDevice.Availability
- * @enum {number}
  */
-export const Availability = {
-    UNAVAILABLE: 0,
-    AVAILABLE: 1,
-    OWNER_UNAVAILABLE: 2,
-    UNKNOWN: -1
-};
+export enum Availability {
+    UNAVAILABLE = 0,
+    AVAILABLE = 1,
+    OWNER_UNAVAILABLE = 2,
+    UNKNOWN = -1
+}
+
+export interface DeviceState {
+    kind : string;
+    accessToken ?: string;
+    refreshToken ?: string;
+    [key : string] : unknown;
+}
+
+type URLQuery = { [key : string] : string|string[]|undefined };
+type SessionMap = { [key : string] : string };
+
+// deprecated interface for legacy OAuth configuration paths
+interface HTTPRequest {
+    query : URLQuery;
+    session : SessionMap;
+    httpVersion : string;
+    headers : string[],
+    rawHeaders : string[],
+    method : 'GET';
+    url : string;
+}
+
+export interface LegacyRunOAuth2 {
+    (this : typeof BaseDevice, engine : BaseEngine, req : null) : [string, SessionMap];
+    (this : typeof BaseDevice, engine : BaseEngine, req : HTTPRequest) : Promise<BaseDevice|null>;
+}
+
+/**
+ * @deprecated
+ */
+export interface DeviceMetadata {
+    kind : string;
+    name : string;
+    description : string;
+    category : 'online'|'physical'|'data'|'system';
+    types : string[];
+    params : { [key : string] : unknown };
+    auth : {
+        type : string;
+        client_id ?: string;
+        client_secret ?: string;
+    };
+}
+
+interface OAuth2Interface {
+    accessToken : string;
+    refreshToken ?: string;
+    refreshCredentials() : Promise<void>;
+}
+
+export interface QueryInterfaceMap {
+    'subdevices' : ObjectSet.Base<BaseDevice>;
+    'messaging' : Messaging;
+    'oauth2' : OAuth2Interface;
+    [key : string] : unknown;
+}
 
 /**
  * The base class of all Thingpedia device implementations.
  *
  * @extends events.EventEmitter
  */
-export default class BaseDevice extends events.EventEmitter {
+export default abstract class BaseDevice extends events.EventEmitter {
+    // legacy interface
+    static runOAuth2 ?: LegacyRunOAuth2;
+    static metadata : DeviceMetadata;
+
+    static Tier = Tier;
+    static Availability = Availability;
+
+    // RPC access
+    $rpcMethods ! : string[];
+
+    protected _engine : BaseEngine;
+    state : DeviceState;
+    uniqueId : string|undefined;
+    name : string;
+    description : string;
+    descriptors : string[];
+    isTransient : boolean;
+
     /**
      * Construct a new Thingpedia device.
      *
@@ -68,14 +147,12 @@ export default class BaseDevice extends events.EventEmitter {
      * @param {Object} state - arbitrary JSON data associated with this device
      * @protected
      */
-    constructor(engine, state) {
+    constructor(engine : BaseEngine, state : DeviceState) {
         super();
         this._engine = engine;
 
         /**
          * The current device state.
-         *
-         * @type {Object}
          */
         this.state = state;
 
@@ -125,7 +202,7 @@ export default class BaseDevice extends events.EventEmitter {
             this.name = interpolate(ast.name, this.state, {
                 locale: this.platform.locale,
                 timezone: this.platform.timezone
-            });
+            })||'';
         }
 
         /**
@@ -142,7 +219,7 @@ export default class BaseDevice extends events.EventEmitter {
             this.description = interpolate(ast.description, this.state, {
                 locale: this.platform.locale,
                 timezone: this.platform.timezone
-            });
+            })||'';
         }
 
         /**
@@ -166,8 +243,6 @@ export default class BaseDevice extends events.EventEmitter {
          * @type {boolean}
          */
         this.isTransient = false;
-
-        this._ownerTier = undefined;
     }
 
     // configuration interfaces
@@ -189,11 +264,11 @@ export default class BaseDevice extends events.EventEmitter {
      * @return {Array} tuple of redirect URI and session data
      * @abstract
     */
-    static async loadFromCustomOAuth(engine) {
+    static async loadFromCustomOAuth(engine : BaseEngine) : Promise<[string, SessionMap]> {
         // if not overridden, call the compatibility method using the legacy interface
         // (req === null to mean phase1, req !== null for phase2)
         // NOTE: we're in a static method, so "this" refers to the class, not the instance!
-        return this.runOAuth2(engine, null);
+        return this.runOAuth2!(engine, null);
     }
 
     /**
@@ -209,9 +284,9 @@ export default class BaseDevice extends events.EventEmitter {
      * @return {BaseDevice} the fully configured device instance
      * @abstract
     */
-    static async completeCustomOAuth(engine, url, session) {
+    static async completeCustomOAuth(engine : BaseEngine, url : string, session : SessionMap) : Promise<BaseDevice|null> {
         // if not overridden, call the compatibility method with a made-up `req` object
-        const req = {
+        const req : HTTPRequest = {
             httpVersion: '1.0',
             headers: [],
             rawHeaders: [],
@@ -220,7 +295,7 @@ export default class BaseDevice extends events.EventEmitter {
             query: Url.parse(url, true).query,
             session: session
         };
-        return this.runOAuth2(engine, req);
+        return this.runOAuth2!(engine, req);
     }
 
     /* istanbul ignore next */
@@ -236,7 +311,10 @@ export default class BaseDevice extends events.EventEmitter {
      * @param {Object} extraData - the whole response to the OAuth token request
      * @abstract
     */
-    static async loadFromOAuth2(engine, accessToken, refreshToken, extraData) {
+    static async loadFromOAuth2(engine : BaseEngine,
+                                accessToken : string,
+                                refreshToken : string,
+                                extraData : { [key : string] : unknown }) : Promise<BaseDevice> {
         throw new Error('not implemented');
     }
 
@@ -255,7 +333,9 @@ export default class BaseDevice extends events.EventEmitter {
      * @return {BaseDevice} the new, partially initialized device instance
      * @abstract
     */
-    static async loadFromDiscovery(engine, publicData, privateData) {
+    static async loadFromDiscovery(engine : BaseEngine,
+                                   publicData : { [key : string] : unknown },
+                                   privateData : { [key : string] : unknown }) : Promise<BaseDevice> {
         throw new Error('not implemented');
     }
 
@@ -275,7 +355,7 @@ export default class BaseDevice extends events.EventEmitter {
      * @return {BaseDevice} the device instance itself (`this`)
      * @abstract
     */
-    async completeDiscovery(delegate) {
+    async completeDiscovery(delegate : ConfigDelegate) : Promise<this> {
         throw new Error('not implemented');
     }
 
@@ -286,7 +366,7 @@ export default class BaseDevice extends events.EventEmitter {
      * @param {Object} privateData - protocol specific data that is specific to the device and
      *                               private to the user (e.g. Bluetooth HW address)
      */
-    async updateFromDiscovery(privateData) {
+    async updateFromDiscovery(privateData : { [key : string] : unknown }) : Promise<void> {
         // nothing to do here, subclasses can override if they support discovery
     }
 
@@ -300,7 +380,7 @@ export default class BaseDevice extends events.EventEmitter {
      * @param {string} refreshToken - the new refresh token, if one is provided
      * @param {Object} extraData - the whole response to the OAuth token request
      */
-    async updateOAuth2Token(accessToken, refreshToken, extraData) {
+    async updateOAuth2Token(accessToken : string, refreshToken : string, extraData : { [key : string] : unknown }) : Promise<void> {
         this.state.accessToken = accessToken;
         // if the refresh token is single use, we will get a new one when we use it
         if (refreshToken)
@@ -321,10 +401,17 @@ export default class BaseDevice extends events.EventEmitter {
      * @return {BaseDevice} the fully configured device instance
      * @abstract
      */
-    static async loadInteractively(engine, delegate) {
+    static async loadInteractively(engine : BaseEngine, delegate : ConfigDelegate) : Promise<BaseDevice> {
         // if not overridden, call the compatibility method
         // NOTE: we're in a static method, so "this" refers to the class, not the instance!
         return this.configureFromAlmond(engine, delegate);
+    }
+
+    /**
+     * @deprecated
+     */
+    static async configureFromAlmond(engine : BaseEngine, delegate : ConfigDelegate) : Promise<BaseDevice> {
+        throw new Error('not implemented');
     }
 
     /**
@@ -332,13 +419,14 @@ export default class BaseDevice extends events.EventEmitter {
      *
      * @type string
      */
-    get kind() {
+    get kind() : string {
         return this.state.kind;
     }
 
     // obsolete, do not use
-    get metadata() {
-        return this.constructor.metadata;
+    get metadata() : DeviceMetadata {
+        const constructor = this.constructor as typeof BaseDevice;
+        return constructor.metadata;
     }
 
     /**
@@ -346,7 +434,7 @@ export default class BaseDevice extends events.EventEmitter {
      *
      * @type {BasePlatform}
      */
-    get platform() {
+    get platform() : BasePlatform {
         return this._engine.platform;
     }
 
@@ -356,7 +444,7 @@ export default class BaseDevice extends events.EventEmitter {
      * @type {BaseEngine}
      * @deprecated It is recommended to avoid using the {@link BaseEngine} API as it can change without notice.
      */
-    get engine() {
+    get engine() : BaseEngine {
         console.log('BaseDevice.engine is deprecated and should not be used in new code.');
         return this._engine;
     }
@@ -370,7 +458,7 @@ export default class BaseDevice extends events.EventEmitter {
      * @fires BaseDevice#state-changed
      * @protected
      */
-    stateChanged() {
+    protected stateChanged() : void {
         /**
          * Reports a change in device state.
          *
@@ -387,7 +475,7 @@ export default class BaseDevice extends events.EventEmitter {
      *
      * @param {Object} state - the new state
      */
-    updateState(state) {
+    updateState(state : DeviceState) : void {
         // nothing to do here by default, except for updating the state
         // pointer
         // subclasses can override if they need to do anything about it
@@ -399,7 +487,7 @@ export default class BaseDevice extends events.EventEmitter {
      *
      * @return {Object} the serialized device representation
      */
-    serialize() {
+    serialize() : DeviceState {
         if (!this.state)
             throw new Error('Device lost state, cannot serialize');
         return this.state;
@@ -412,7 +500,7 @@ export default class BaseDevice extends events.EventEmitter {
      * This method will be called when the device is loaded (after configuration
      * or when the engine is restarted).
      */
-    async start() {
+    async start() : Promise<void> {
         // nothing to do here, subclasses can override if they need to
     }
 
@@ -423,13 +511,13 @@ export default class BaseDevice extends events.EventEmitter {
      * This method will be called when the device is unloaded, either because the
      * user removed it or because the engine is terminating.
      */
-    async stop() {
+    async stop() : Promise<void> {
         // nothing to do here, subclasses can override if they need to
     }
 
 
     // Obsolete, ignore
-    get ownerTier() {
+    get ownerTier() : Tier {
         return Tier.GLOBAL;
     }
 
@@ -439,7 +527,7 @@ export default class BaseDevice extends events.EventEmitter {
      *
      * @returns {BaseDevice.Availability} whether the device is available or not.
      */
-    async checkAvailable() {
+    async checkAvailable() : Promise<Availability> {
         return Availability.UNKNOWN;
     }
 
@@ -455,16 +543,17 @@ export default class BaseDevice extends events.EventEmitter {
      * @param {string} kind - the Thingpedia kind to check
      * @return {boolean} whether the device implements this interface or not
      */
-    hasKind(kind) {
+    hasKind(kind : string) : boolean {
+        const constructor = this.constructor as typeof BaseDevice;
         if (kind === 'data-source')
-            return this.constructor.metadata.category === 'data';
+            return constructor.metadata.category === 'data';
         if (kind === 'online-account')
-            return this.constructor.metadata.category === 'online';
+            return constructor.metadata.category === 'online';
         if (kind === 'thingengine-system')
-            return this.constructor.metadata.category === 'system';
+            return constructor.metadata.category === 'system';
 
         return kind === this.kind ||
-            (this.constructor.metadata.types.indexOf(kind) >= 0);
+            (constructor.metadata.types.indexOf(kind) >= 0);
     }
 
     /* istanbul ignore next */
@@ -488,7 +577,7 @@ export default class BaseDevice extends events.EventEmitter {
      * @param {string} name - the interface name
      * @return {any} the extension implementation
      */
-    queryInterface(name) {
+    queryInterface<T extends keyof QueryInterfaceMap>(name : T) : QueryInterfaceMap[T]|null {
         // no extension interfaces for this device class
         return null;
     }
@@ -498,5 +587,3 @@ BaseDevice.prototype.$rpcMethods = [
     'get name', 'get uniqueId', 'get description',
     'get ownerTier', 'get kind', 'get isTransient',
     'checkAvailable', 'hasKind'];
-BaseDevice.Tier = Tier;
-BaseDevice.Availability = Availability;

@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -21,7 +21,7 @@
 
 import * as events from 'events';
 
-async function pFinally(promise, finallyClause) {
+async function pFinally<T>(promise : Promise<T>, finallyClause : () => void) : Promise<T> {
     try {
         return await promise;
     } finally {
@@ -39,6 +39,10 @@ async function pFinally(promise, finallyClause) {
  * @alias Helpers.RefCounted
  */
 export default class RefCounted extends events.EventEmitter {
+    private _useCount : number;
+    private _openPromise : Promise<void>|null;
+    private _closePromise : Promise<void>|null;
+
     /**
      * Construct a new reference counted object.
      *
@@ -63,7 +67,7 @@ export default class RefCounted extends events.EventEmitter {
      * @abstract
      * @protected
      */
-    async _doOpen() {
+    protected async _doOpen() : Promise<void> {
     }
 
     /**
@@ -74,7 +78,7 @@ export default class RefCounted extends events.EventEmitter {
      * @abstract
      * @protected
      */
-    async _doClose() {
+    protected async _doClose() : Promise<void> {
     }
 
     /**
@@ -85,7 +89,7 @@ export default class RefCounted extends events.EventEmitter {
      *
      * @async
      */
-    open() {
+    open() : Promise<void> {
         // if closing, wait to fully close then reopen
         if (this._closePromise) {
             return this._closePromise.then(() => {
@@ -117,7 +121,7 @@ export default class RefCounted extends events.EventEmitter {
      *
      * @async
      */
-    close() {
+    close() : Promise<void> {
         // if opening, wait to fully open then close
         if (this._openPromise) {
             return this._openPromise.then(() => {

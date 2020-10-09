@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -31,16 +31,23 @@ import Preferences from '../prefs';
  * @extends Preferences
  */
 export default class FilePreferences extends Preferences {
+    private _file : string;
+    private _writeTimeout : number;
+    private _prefs : { [key : string] : unknown };
+    private _dirty : boolean;
+    private _writeScheduled : boolean;
+
     /**
      * Construct a new FilePreferences object.
      *
      * @param {string} file - the file to write to
      * @param {number} [writeTimeout=100] - timeout after which writes will be persisted on disk (in ms)
      */
-    constructor(file, writeTimeout = 100) {
+    constructor(file : string, writeTimeout = 100) {
         super();
         this._file = file;
         this._writeTimeout = writeTimeout;
+        this._prefs = {};
         try {
             this._prefs = JSON.parse(fs.readFileSync(file, 'utf8'));
         } catch(e) {
@@ -57,16 +64,16 @@ export default class FilePreferences extends Preferences {
         this._writeScheduled = false;
     }
 
-    keys() {
+    keys() : string[] {
         return Object.keys(this._prefs);
     }
 
-    get(name) {
+    get(name : string) : unknown {
         return this._prefs[name];
     }
 
-    set(name, value) {
-        let changed = this._prefs[name] !== value;
+    set<T>(name : string, value : T) : T {
+        const changed = this._prefs[name] !== value;
         this._prefs[name] = value;
         this._scheduleWrite();
         if (changed)
@@ -74,28 +81,28 @@ export default class FilePreferences extends Preferences {
         return value;
     }
 
-    delete(name) {
+    delete(name : string) : void {
         delete this._prefs[name];
         this.emit('changed', name);
         this._scheduleWrite();
     }
 
-    changed() {
+    changed() : void {
         this._scheduleWrite();
         this.emit('changed', null);
     }
 
-    flush() {
+    flush() : Promise<void> {
         if (!this._dirty)
             return Promise.resolve();
         return util.promisify(fs.writeFile)(this._file, JSON.stringify(this._prefs));
     }
 
-    saveCopy(to) {
+    saveCopy(to : string) : Promise<void> {
         return util.promisify(fs.writeFile)(to, JSON.stringify(this._prefs));
     }
 
-    _scheduleWrite() {
+    private _scheduleWrite() {
         this._dirty = true;
         if (this._writeScheduled)
             return;

@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -30,13 +30,33 @@ import * as stream from 'stream';
  * @return {Object[]} the current list of results
  */
 
+export type PollCallback<T> = () => T[];
+
+interface TriggerStateBinder {
+    get(k : 'last-poll') : number|undefined;
+    get(k : string) : unknown|undefined;
+
+    set(k : 'last-poll', v : number) : void;
+    set(k : string, v : unknown) : void;
+}
+
+interface EventResult {
+    __timestamp ?: number;
+}
+
 /**
  * A stream.Readable implementation that emits new values at specific interval.
  *
  * @extends stream.Readable
  * @alias Helpers.PollingStream
  */
-export default class PollingStream extends stream.Readable {
+export default class PollingStream<EventType extends EventResult> extends stream.Readable {
+    private _timeout : NodeJS.Timeout|null;
+    readonly state : TriggerStateBinder;
+    readonly interval : number;
+    private _callback : PollCallback<EventType>;
+    private _destroyed : boolean;
+
     /**
      * Construct a new polling stream.
      *
@@ -44,7 +64,9 @@ export default class PollingStream extends stream.Readable {
      * @param {number} interval - polling interval, in milliseconds
      * @param {Helpers~PollCallback} callback - function to call every poll interval
      */
-    constructor(state, interval, callback) {
+    constructor(state : TriggerStateBinder,
+                interval : number,
+                callback : PollCallback<EventType>) {
         super({ objectMode: true });
 
         this._timeout = null;
@@ -57,7 +79,7 @@ export default class PollingStream extends stream.Readable {
     /**
      * Destroy the current stream (stop polling).
      */
-    destroy() {
+    destroy() : void {
         if (this._timeout === null)
             return;
         clearTimeout(this._timeout);
@@ -65,9 +87,9 @@ export default class PollingStream extends stream.Readable {
         this._destroyed = true;
     }
 
-    _nextTick() {
-        let lastPoll = this.state.get('last-poll');
-        let now = Date.now();
+    private _nextTick() {
+        const lastPoll = this.state.get('last-poll');
+        const now = Date.now();
         let nextPoll;
         if (lastPoll === undefined)
             nextPoll = now;
@@ -76,27 +98,27 @@ export default class PollingStream extends stream.Readable {
         return Math.max(1, nextPoll - now);
     }
 
-    _nextTimeout() {
+    private _nextTimeout() {
         if (this._destroyed)
             return;
         this._timeout = setTimeout(() => {
-            let now = Date.now();
+            const now = Date.now();
             this.state.set('last-poll', now);
             Promise.resolve(this._onTick(now)).catch((e) => this.emit('error', e));
             this._nextTimeout();
         }, this._nextTick());
     }
 
-    _onTick(now) {
+    private _onTick(now : number) {
         return Promise.resolve().then(() => this._callback()).then((results) => {
-            for (let item of results) {
+            for (const item of results) {
                 item.__timestamp = now;
                 this.push(item);
             }
         });
     }
 
-    _read() {
+    _read() : void {
         if (this._timeout === null)
             this._nextTimeout();
     }
