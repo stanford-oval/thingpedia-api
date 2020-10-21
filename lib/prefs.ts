@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -33,7 +33,7 @@ import * as events from 'events';
  *
  * @extends events.EventEmitter
  */
-export default class Preferences extends events.EventEmitter {
+export default abstract class Preferences extends events.EventEmitter {
     constructor() {
         super();
     }
@@ -45,7 +45,7 @@ export default class Preferences extends events.EventEmitter {
      * @return {String[]}
      * @abstract
      */
-    keys() {
+    keys() : string[] {
         return [];
     }
 
@@ -57,7 +57,7 @@ export default class Preferences extends events.EventEmitter {
      * @return {any} - the value, or `undefined`
      * @abstract
      */
-    get(name) {
+    get(name : string) : unknown {
         return undefined;
     }
 
@@ -71,7 +71,7 @@ export default class Preferences extends events.EventEmitter {
      * @param {any} value - the value
      * @abstract
     */
-    set(name, value) {
+    set<T>(name : string, value : T) : T {
         throw new Error('Abstract method');
     }
 
@@ -82,7 +82,7 @@ export default class Preferences extends events.EventEmitter {
      * @param {string} name - the preference key to delete
      * @abstract
      */
-    delete(name) {
+    delete(name : string) : void {
         throw new Error('Abstract method');
     }
 
@@ -97,7 +97,7 @@ export default class Preferences extends events.EventEmitter {
      *                          be considered changed
      * @abstract
      */
-    changed(name) {
+    changed(name : string) : void {
         throw new Error('Abstract method');
     }
 }

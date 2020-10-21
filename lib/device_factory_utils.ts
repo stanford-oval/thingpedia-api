@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,14 +18,21 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
+import assert from 'assert';
+import { Ast, Type } from 'thingtalk';
+import {
+    DeviceFactory,
+    DeviceCategory,
+    FormField,
+} from './base_client';
 
-function clean(name) {
+function clean(name : string) : string {
     if (/^[vwgp]_/.test(name))
         name = name.substr(2);
     return name.replace(/_/g, ' ').replace(/([^A-Z ])([A-Z])/g, '$1 $2').toLowerCase();
 }
 
-function entityTypeToHTMLType(type) {
+function entityTypeToHTMLType(type : string) : string {
     switch (type) {
     case 'tt:password':
         return 'password';
@@ -40,27 +47,35 @@ function entityTypeToHTMLType(type) {
     }
 }
 
-function getInputParam(config, name) {
-    for (let inParam of config.in_params) {
+function getInputParam(config : Ast.MixinImportStmt, name : string) : unknown {
+    for (const inParam of config.in_params) {
         if (inParam.name === name)
             return inParam.value.toJS();
     }
     return undefined;
 }
 
-function makeDeviceFactory(classDef, device) {
+type TypeMap = { [key : string] : Type };
+
+interface DeviceRecordLike {
+    name : string;
+    category : DeviceCategory;
+}
+
+function makeDeviceFactory(classDef : Ast.ClassDef, device : DeviceRecordLike) : DeviceFactory|null {
     if (classDef.is_abstract)
         return null;
 
     const config = classDef.config;
+    assert(config);
 
-    function toFields(argMap) {
+    function toFields(argMap : TypeMap) : FormField[] {
         if (!argMap)
             return [];
-        return Object.keys(argMap).map((k) => {
+        return Object.keys(argMap).map((k : string) : FormField => {
             const type = argMap[k];
             let htmlType;
-            if (type.isEntity)
+            if (type instanceof Type.Entity)
                 htmlType = entityTypeToHTMLType(type.type);
             else if (type.isNumber || type.isMeasure)
                 htmlType = 'number';
@@ -124,7 +139,7 @@ function makeDeviceFactory(classDef, device) {
             category: device.category,
             kind: classDef.kind,
             text: device.name,
-            fields: toFields(getInputParam(config, 'params'))
+            fields: toFields(getInputParam(config, 'params') as TypeMap)
         };
 
     case 'org.thingpedia.config.basic_auth':
@@ -136,7 +151,7 @@ function makeDeviceFactory(classDef, device) {
             fields: [
                 { name: 'username', label: 'Username', type: 'text' },
                 { name: 'password', label: 'Password', type: 'password' }
-            ].concat(toFields(getInputParam(config, 'extra_params')))
+            ].concat(toFields(getInputParam(config, 'extra_params') as TypeMap))
         };
 
     default:
@@ -144,17 +159,23 @@ function makeDeviceFactory(classDef, device) {
     }
 }
 
-function getDiscoveryServices(classDef) {
+interface DiscoveryService {
+    discovery_type : 'bluetooth'|'upnp';
+    service : string;
+}
+
+function getDiscoveryServices(classDef : Ast.ClassDef) : DiscoveryService[] {
     if (classDef.is_abstract)
         return [];
 
     const config = classDef.config;
+    assert(config);
     switch (config.module) {
     case 'org.thingpedia.config.discovery.bluetooth': {
-        const uuids = getInputParam(config, 'uuids');
-        const deviceClass = getInputParam(config, 'device_class');
+        const uuids = getInputParam(config, 'uuids') as string[];
+        const deviceClass = getInputParam(config, 'device_class') as string;
 
-        const services = uuids.map((u) => {
+        const services : DiscoveryService[] = uuids.map((u : string) => {
             return {
                 discovery_type: 'bluetooth',
                 service: 'uuid-' + u.toLowerCase()
@@ -169,7 +190,7 @@ function getDiscoveryServices(classDef) {
         return services;
     }
     case 'org.thingpedia.config.discovery.upnp':
-        return getInputParam(config, 'search_target').map((st) => {
+        return (getInputParam(config, 'search_target') as string[]).map((st) => {
             return {
                 discovery_type: 'upnp',
                 service: st.toLowerCase().replace(/^urn:/, '').replace(/:/g, '-')

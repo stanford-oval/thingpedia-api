@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -22,6 +22,12 @@
 import * as ThingTalk from 'thingtalk';
 
 import ThingpediaHttpClient from './http_client';
+import BaseClient from './base_client';
+import BasePlatform from './base_platform';
+
+interface EngineOptions {
+    thingpediaUrl ?: string;
+}
 
 /**
  * The base Almond engine class.
@@ -29,7 +35,11 @@ import ThingpediaHttpClient from './http_client';
  * This contains the only API that should be considered stable in the Engine.
  * All other APIs are a private implementation detail.
  */
-export default class BaseEngine {
+export default abstract class BaseEngine {
+    protected _platform : BasePlatform;
+    protected _thingpedia : BaseClient;
+    protected _schemas : ThingTalk.SchemaRetriever;
+
     /**
      * Construct an engine instance.
      *
@@ -39,11 +49,11 @@ export default class BaseEngine {
      *                                           does not provide a {@link BaseClient})
      * @protected
      */
-    constructor(platform, options = {}) {
+    constructor(platform : BasePlatform, options : EngineOptions = {}) {
         this._platform = platform;
 
         if (platform.hasCapability('thingpedia-client'))
-            this._thingpedia = platform.getCapability('thingpedia-client');
+            this._thingpedia = platform.getCapability('thingpedia-client')!;
         else
             this._thingpedia = new ThingpediaHttpClient(platform, options.thingpediaUrl);
 
@@ -54,37 +64,29 @@ export default class BaseEngine {
      * The current tier of the engine.
      *
      * See {@link BaseDevice.Tier} for an explanation.
-     *
-     * @type {BaseDevice.Tier}
      */
-    get ownTier() {
+    get ownTier() : string {
         return 'desktop';
     }
 
     /**
      * The platform associated with the engine.
-     *
-     * @type {BasePlatform}
      */
-    get platform() {
+    get platform() : BasePlatform {
         return this._platform;
     }
 
     /**
      * The Thingpedia Client associated with the engine.
-     *
-     * @type {BaseClient}
      */
-    get thingpedia() {
+    get thingpedia() : BaseClient {
         return this._thingpedia;
     }
 
     /**
      * The ThingTalk SchemaRetriever associated with the engine.
-     *
-     * @type {ThingTalk.SchemaRetriever}
      */
-    get schemas() {
+    get schemas() : ThingTalk.SchemaRetriever {
         return this._schemas;
     }
 }

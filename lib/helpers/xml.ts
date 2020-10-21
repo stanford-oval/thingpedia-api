@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -19,34 +19,24 @@
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
 
+import * as xml2js from 'xml2js';
+import * as util from 'util';
+
 /**
- * A collection of useful helper libraries bundled with the SDK.
+ * XML parsing helpers.
  *
- * It is recommended, although not required, to use the following libraries
- * instead of custom bundled libraries.
+ * This module exists to expose the bundled  [xml2js](https://www.npmjs.com/package/xml2js)
+ * dependency to Thingpedia interfaces, so that they don't need to bundle it themselves.
  *
  * @namespace
- * @name Helpers
+ * @alias Helpers.Xml
  */
 
-import * as Content from './content';
-import * as Http from './http';
-import OAuth2 from './oauth2';
-import PollingStream from './polling';
-import * as Rss from './rss';
-import * as Xml from './xml';
-import RefCounted from './ref_counted';
-import * as ObjectSet from './object_set';
-import FilePreferences from './file_prefs';
-
-export {
-    Content,
-    Http,
-    OAuth2,
-    PollingStream,
-    Rss,
-    Xml,
-    RefCounted,
-    ObjectSet,
-    FilePreferences,
-};
+/**
+ * Parse the given XML document using xml2js.
+ *
+ * @param {string} xml - the XML to parse
+ * @return {Object} the parsed document
+ * @async
+ */
+export const parseString = util.promisify(xml2js.parseString);

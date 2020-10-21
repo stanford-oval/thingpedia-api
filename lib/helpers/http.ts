@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,25 +18,81 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-
+import assert from 'assert';
+import * as stream from 'stream';
 import * as http from 'http';
 import * as https from 'https';
 import * as Url from 'url';
 
-function getModule(parsed) {
+function getModule(parsed : http.ClientRequestArgs) {
     if (parsed.protocol === 'https:')
         return https;
     else
         return http;
 }
 
-function httpRequestStream(url, method, data, options, uploadStream, downloadStream, attemptedOAuth2) {
-    if (!options)
-        options = {};
+interface OAuth2Interface {
+    accessToken : string;
+    refreshToken ?: string;
+    refreshCredentials() : Promise<void>;
+}
 
-    let parsed = Url.parse(url);
-    let proxy = process.env.THINGENGINE_PROXY;
-    if (proxy && (!parsed.port || parsed.port === 80 || parsed.port === 443)) {
+interface UseOAuth2 {
+    queryInterface<T extends string>(x : T) : T extends 'oauth2' ? OAuth2Interface : unknown;
+}
+
+export interface HTTPRequestOptions {
+    dataContentType ?: string;
+    auth ?: string;
+    accept ?: string;
+    useOAuth2 ?: UseOAuth2;
+    authMethod ?: string;
+    'user-agent' ?: string;
+    extraHeaders ?: { [key : string] : string };
+    ignoreErrors ?: boolean;
+    followRedirects ?: boolean;
+    raw ?: boolean;
+    debug ?: boolean;
+}
+interface RawHTTPRequestOptions extends HTTPRequestOptions {
+    raw : true;
+}
+
+export class HTTPError extends Error {
+    code : number;
+    detail : string;
+    redirect ?: string;
+
+    constructor(statusCode : number, data : string) {
+        super('Unexpected HTTP error ' + statusCode);
+        this.code = statusCode;
+        this.detail = data;
+    }
+}
+
+type NonStreamResult<DownloadRawT extends boolean> =
+    DownloadRawT extends true ? [Buffer, string] :
+    DownloadRawT extends false ? string :
+    [Buffer, string]|string;
+
+type RequestResult<DownloadStreamT extends boolean, DownloadRawT extends boolean> =
+    DownloadStreamT extends true ? http.IncomingMessage :
+    DownloadStreamT extends false ? NonStreamResult<DownloadRawT> :
+    http.IncomingMessage|NonStreamResult<DownloadRawT>;
+
+function httpRequestStream<UploadStreamT extends boolean, DownloadStreamT extends boolean, DownloadRawT extends boolean>(url : string,
+     method : string,
+     data : UploadStreamT extends true ? stream.Readable : string|Buffer|null,
+     options_ : HTTPRequestOptions|undefined,
+     uploadStream : UploadStreamT,
+     downloadStream : DownloadStreamT,
+     downloadRaw : DownloadRawT,
+     attemptedOAuth2 = false) : Promise<RequestResult<DownloadStreamT, DownloadRawT>> {
+    const options : HTTPRequestOptions = options_ || {};
+
+    let parsed : http.ClientRequestArgs = Url.parse(url);
+    const proxy = process.env.THINGENGINE_PROXY;
+    if (proxy && (!parsed.port || parsed.port === '80' || parsed.port === '443')) {
         parsed = Url.parse(proxy);
         parsed.path = url;
     }
@@ -44,16 +100,14 @@ function httpRequestStream(url, method, data, options, uploadStream, downloadStr
     parsed.method = method;
     parsed.headers = {};
 
-    let oauth2 = null;
+    let oauth2 : OAuth2Interface|null = null;
     if (options.auth) {
         parsed.headers['Authorization'] = options.auth;
     } else if (options.useOAuth2) {
-        oauth2 = options.useOAuth2;
-        if (oauth2.queryInterface)
-            oauth2 = oauth2.queryInterface('oauth2');
+        oauth2 = options.useOAuth2.queryInterface('oauth2');
 
         if (oauth2 !== null) {
-            let authMethod = options.authMethod || 'Bearer';
+            const authMethod : string = options.authMethod || 'Bearer';
             parsed.headers['Authorization'] = authMethod + ' ' + oauth2.accessToken;
         }
     }
@@ -70,35 +124,39 @@ function httpRequestStream(url, method, data, options, uploadStream, downloadStr
     if (options.debug === undefined)
         options.debug = true;
 
-    let ignoreErrors = !!options.ignoreErrors;
+    const ignoreErrors = !!options.ignoreErrors;
 
     return new Promise((callback, errback) => {
-        let req = getModule(parsed).request(parsed, (res) => {
+        const req = getModule(parsed).request(parsed, (res : http.IncomingMessage) => {
             if ((options.followRedirects === true || options.followRedirects === undefined) &&
                 (res.statusCode === 302 || res.statusCode === 301 ||
                  res.statusCode === 308 || res.statusCode === 307)) {
                 res.resume();
-                const redirect = Url.resolve(url, res.headers['location']);
+                const location = res.headers['location'];
+                assert(location);
+                const redirect = Url.resolve(url, location);
                 callback(httpRequestStream(redirect, method, data, options,
-                                           uploadStream, downloadStream));
+                                           uploadStream, downloadStream, downloadRaw));
                 return;
             }
             if ((options.followRedirects === true || options.followRedirects === undefined) &&
                 res.statusCode === 303) {
                 res.resume();
-                const redirect = Url.resolve(url, res.headers['location']);
+                const location = res.headers['location'];
+                assert(location);
+                const redirect = Url.resolve(url, location);
                 callback(httpRequestStream(redirect, 'GET', null, options,
-                                           false, downloadStream));
+                                           false, downloadStream, downloadRaw));
                 return;
             }
             if (!ignoreErrors && res.statusCode === 401 && oauth2 !== null && !attemptedOAuth2 && oauth2.refreshToken) {
                 res.resume();
                 console.log('Refreshing OAuth 2 credentials for failure in request to ' + url);
                 callback(oauth2.refreshCredentials().then(() =>
-                    httpRequestStream(url, method, data, options, uploadStream, downloadStream, true)));
+                    httpRequestStream(url, method, data, options, uploadStream, downloadStream, downloadRaw, true)));
                 return;
             }
-            if (!ignoreErrors && res.statusCode >= 300) {
+            if (!ignoreErrors && res.statusCode! >= 300) {
                 let data = '';
                 res.setEncoding('utf8');
                 res.on('data', (chunk) => {
@@ -108,28 +166,29 @@ function httpRequestStream(url, method, data, options, uploadStream, downloadStr
                     if (options.debug && (res.statusCode !== 301 && res.statusCode !== 302 && res.statusCode !== 303))
                         console.log('HTTP request failed: ' + data);
 
-                    let error = new Error('Unexpected HTTP error ' + res.statusCode);
-                    error.detail = data;
-                    error.code = res.statusCode;
-                    if (res.statusCode >= 300 && res.statusCode < 400)
-                        error.redirect = Url.resolve(url, res.headers['location']);
+                    const error = new HTTPError(res.statusCode!, data);
+                    if (res.statusCode! >= 300 && res.statusCode! < 400) {
+                        const location = res.headers['location'];
+                        assert(location);
+                        error.redirect = Url.resolve(url, location);
+                    }
                     errback(error);
                 });
                 return;
             }
 
             if (downloadStream) {
-                callback(res);
+                callback(res as RequestResult<DownloadStreamT, DownloadRawT>);
             } else {
-                if (options.raw) {
-                    let data = [];
+                if (downloadRaw) {
+                    const data : Buffer[] = [];
                     let len = 0;
                     res.on('data', (chunk) => {
                         data.push(chunk);
                         len += chunk.length;
                     });
                     res.on('end', () => {
-                        callback([Buffer.concat(data, len), res.headers['content-type']]);
+                        callback([Buffer.concat(data, len), res.headers['content-type']] as RequestResult<DownloadStreamT, DownloadRawT>);
                     });
                 } else {
                     let data = '';
@@ -138,7 +197,7 @@ function httpRequestStream(url, method, data, options, uploadStream, downloadStr
                         data += chunk;
                     });
                     res.on('end', () => {
-                        callback(data);
+                        callback(data as RequestResult<DownloadStreamT, DownloadRawT>);
                     });
                 }
             }
@@ -148,7 +207,7 @@ function httpRequestStream(url, method, data, options, uploadStream, downloadStr
         });
         if (data) {
             if (uploadStream)
-                data.pipe(req);
+                (data as stream.Readable).pipe(req);
             else
                 req.end(data);
         } else {
@@ -157,16 +216,26 @@ function httpRequestStream(url, method, data, options, uploadStream, downloadStr
     });
 }
 
-function httpRequest(url, method, data, options) {
-    return httpRequestStream(url, method, data, options, false, false);
+function httpRequest(url : string,
+                     method : string,
+                     data : string|Buffer|null,
+                     options : RawHTTPRequestOptions) : Promise<[Buffer, string]>;
+function httpRequest(url : string,
+                     method : string,
+                     data : string|Buffer|null,
+                     options ?: HTTPRequestOptions) : Promise<string>;
+function httpRequest(url : string,
+                     method : string,
+                     data : string|Buffer|null,
+                     options : HTTPRequestOptions = {}) : Promise<[Buffer, string]|string> {
+    return httpRequestStream(url, method, data, options, false, false, !!options.raw);
 }
 
-function httpUploadStream(url, method, data, options) {
-    return httpRequestStream(url, method, data, options, true, false);
-}
-
-function httpDownloadStream(url, method, data, options) {
-    return httpRequestStream(url, method, data, options, false, true);
+function httpDownloadStream(url : string,
+                            method : string,
+                            data : string|Buffer|null,
+                            options ?: HTTPRequestOptions) : Promise<http.IncomingMessage> {
+    return httpRequestStream(url, method, data, options, false, true, false);
 }
 
 /**
@@ -197,7 +266,7 @@ export {
      * @param {boolean} [options.ignoreErrors=false] - set to `true` to ignore errors (HTTP statuses 300 and higher)
      * @param {boolean} [options.followRedirects=true] - set to `false` to disable automatic handling of HTTP redirects (status 301, 302 and 303)
      * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
-     * @return {string|Array} either the string response body, or a tuple with {@link Buffer} and content type.
+     * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with {@link Buffer} and content type.
      * @function
      * @async
      */
@@ -229,11 +298,13 @@ export {
  * @param {boolean} [options.ignoreErrors=false] - set to `true` to ignore errors (HTTP statuses 300 and higher)
  * @param {boolean} [options.followRedirects=true] - set to `false` to disable automatic handling of HTTP redirects (status 301, 302 and 303)
  * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
- * @return {string|Array} either the string response body, or a tuple with {@link Buffer} and content type.
+ * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with {@link Buffer} and content type.
  * @async
  */
-export function get(url, options) {
-    return httpRequest(url, 'GET', null, options);
+export function get(url : string, options : RawHTTPRequestOptions) : Promise<[Buffer, string]>;
+export function get(url : string, options ?: HTTPRequestOptions) : Promise<string>;
+export function get(url : string, options : HTTPRequestOptions = {}) : Promise<[Buffer, string]|string> {
+    return httpRequestStream(url, 'GET', null, options, false, false, !!options.raw);
 }
 
 /**
@@ -256,11 +327,13 @@ export function get(url, options) {
  * @param {boolean} [options.ignoreErrors=false] - set to `true` to ignore errors (HTTP statuses 300 and higher)
  * @param {boolean} [options.followRedirects=true] - set to `false` to disable automatic handling of HTTP redirects (status 301, 302 and 303)
  * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
- * @return {string|Array} either the string response body, or a tuple with {@link Buffer} and content type.
+ * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with {@link Buffer} and content type.
  * @async
  */
-export function post(url, data, options) {
-    return httpRequest(url, 'POST', data, options);
+export function post(url : string, data : string|Buffer, options : RawHTTPRequestOptions) : Promise<[Buffer, string]>;
+export function post(url : string, data : string|Buffer, options ?: HTTPRequestOptions) : Promise<string>;
+export function post(url : string, data : string|Buffer, options : HTTPRequestOptions = {}) : Promise<[Buffer, string]|string> {
+    return httpRequestStream(url, 'POST', data, options, false, false, !!options.raw);
 }
 
 /**
@@ -285,11 +358,13 @@ export function post(url, data, options) {
  * @param {boolean} [options.ignoreErrors=false] - set to `true` to ignore errors (HTTP statuses 300 and higher)
  * @param {boolean} [options.followRedirects=true] - set to `false` to disable automatic handling of HTTP redirects (status 301, 302 and 303)
  * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
- * @return {string|Array} either the string response body, or a tuple with {@link Buffer} and content type.
+ * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with {@link Buffer} and content type.
  * @async
  */
-export function postStream(url, data, options) {
-    return httpUploadStream(url, 'POST', data, options);
+export function postStream(url : string, data : stream.Readable, options : RawHTTPRequestOptions) : Promise<[Buffer, string]>;
+export function postStream(url : string, data : stream.Readable, options ?: HTTPRequestOptions) : Promise<string>;
+export function postStream(url : string, data : stream.Readable, options : HTTPRequestOptions = {}) : Promise<[Buffer, string]|string> {
+    return httpRequestStream(url, 'POST', data, options, true, false, !!options.raw);
 }
 
 /**
@@ -313,9 +388,9 @@ export function postStream(url, data, options) {
  * @param {Object.<string,string>} [options.extraHeaders] - other request headers to set
  * @param {boolean} [options.ignoreErrors=false] - set to `true` to ignore errors (HTTP statuses 300 and higher)
  * @param {boolean} [options.followRedirects=true] - set to `false` to disable automatic handling of HTTP redirects (status 301, 302 and 303)
- * @return {http.IncomingMessage} the server response
+ * @return {Promise<http.IncomingMessage>} the server response
  * @async
  */
-export function getStream(url, options) {
+export function getStream(url : string, options ?: HTTPRequestOptions) : Promise<http.IncomingMessage> {
     return httpDownloadStream(url, 'GET', null, options);
 }

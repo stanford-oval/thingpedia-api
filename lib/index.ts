@@ -25,6 +25,7 @@ import { ImplementationError, UnsupportedError } from './errors';
 import BaseEngine from './base_engine';
 import BasePlatform from './base_platform';
 import * as DeviceConfigUtils from './device_factory_utils';
+import * as Capabilities from './capabilities';
 
 import * as ThingTalk from 'thingtalk';
 
@@ -124,6 +125,7 @@ export {
     Messaging,
     ConfigDelegate,
     Preferences,
+    Capabilities,
 
     // compatibility export
     ObjectSet,
