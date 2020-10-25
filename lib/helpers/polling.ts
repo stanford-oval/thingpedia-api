@@ -40,7 +40,7 @@ interface TriggerStateBinder {
     set(k : string, v : unknown) : void;
 }
 
-interface EventResult {
+export interface EventResult {
     __timestamp ?: number;
 }
 
