@@ -53,7 +53,7 @@ async function testCase(i) {
     console.log(`Test Case #${i+1}`);
     const [classCode, expectedServices] = TEST_CASES[i];
 
-    const classDef = ThingTalk.Grammar.parse(classCode).classes[0];
+    const classDef = ThingTalk.Syntax.parse(classCode).classes[0];
     const generatedServices = DeviceFactoryUtils.getDiscoveryServices(classDef);
 
     try {

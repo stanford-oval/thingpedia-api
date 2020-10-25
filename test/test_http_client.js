@@ -78,8 +78,8 @@ const _developerHttpClient = new HttpClient(_mockDeveloperPlatform, THINGPEDIA_U
 //const _developerSchemaRetriever = new ThingTalk.SchemaRetriever(_developerHttpClient, null, true);
 
 async function checkValidManifest(manifest, moduleType) {
-    const parsed = await ThingTalk.Grammar.parseAndTypecheck(manifest, _schemaRetriever);
-    assert(parsed.isMeta);
+    const parsed = await ThingTalk.Syntax.parse(manifest).typecheck(_schemaRetriever);
+    assert(parsed.isLibrary);
     assert.strictEqual(parsed.classes.length, 1);
     assert.strictEqual(parsed.datasets.length, 0);
 
@@ -130,14 +130,14 @@ async function testGetModuleLocation() {
 
 async function testGetSchemas(withMetadata) {
     const bing = await _httpClient.getSchemas(['com.bing'], withMetadata);
-    const bingparsed = ThingTalk.Grammar.parse(bing);
-    assert(bingparsed.isMeta);
+    const bingparsed = ThingTalk.Syntax.parse(bing);
+    assert(bingparsed.isLibrary);
     assert.strictEqual(bingparsed.classes.length, 1);
     assert.strictEqual(bingparsed.classes[0].kind, 'com.bing');
 
     const multiple = await _httpClient.getSchemas(['com.bing', 'com.twitter'], withMetadata);
-    const mparsed = ThingTalk.Grammar.parse(multiple);
-    assert(mparsed.isMeta);
+    const mparsed = ThingTalk.Syntax.parse(multiple);
+    assert(mparsed.isLibrary);
     assert.strictEqual(mparsed.classes.length, 2);
     assert.strictEqual(mparsed.classes[0].kind, 'com.bing');
     assert.strictEqual(mparsed.classes[1].kind, 'com.twitter');
@@ -148,8 +148,8 @@ async function testGetSchemas(withMetadata) {
     assert.deepStrictEqual(invisible, ``);
 
     const invisible2 = await _developerHttpClient.getSchemas(['org.thingpedia.builtin.test.invisible'], withMetadata);
-    const invparsed = ThingTalk.Grammar.parse(invisible2);
-    assert(invparsed.isMeta);
+    const invparsed = ThingTalk.Syntax.parse(invisible2);
+    assert(invparsed.isLibrary);
     assert.strictEqual(invparsed.classes.length, 1);
     assert.strictEqual(invparsed.classes[0].kind, 'org.thingpedia.builtin.test.invisible');
 
@@ -381,8 +381,8 @@ async function testGetExamples() {
         }
     }
 
-    const byKey = ThingTalk.Grammar.parse(await _httpClient.getExamplesByKey('twitter'));
-    assert(byKey.isMeta);
+    const byKey = ThingTalk.Syntax.parse(await _httpClient.getExamplesByKey('twitter'));
+    assert(byKey.isLibrary);
     assert.strictEqual(byKey.classes.length, 0);
     assert.strictEqual(byKey.datasets.length, 1);
 
@@ -394,8 +394,8 @@ async function testGetExamples() {
         ex.preprocessed.forEach((p) => assertNonEmptyString(p));
     }
 
-    const byKindsSingle = ThingTalk.Grammar.parse(await _httpClient.getExamplesByKinds(['com.twitter']));
-    assert(byKindsSingle.isMeta);
+    const byKindsSingle = ThingTalk.Syntax.parse(await _httpClient.getExamplesByKinds(['com.twitter']));
+    assert(byKindsSingle.isLibrary);
     assert.strictEqual(byKindsSingle.classes.length, 0);
     assert.strictEqual(byKindsSingle.datasets.length, 1);
 
@@ -408,8 +408,8 @@ async function testGetExamples() {
         checkKinds(ex.value, ['com.twitter']);
     }
 
-    const byKindsMultiple = ThingTalk.Grammar.parse(await _httpClient.getExamplesByKinds(['com.twitter', 'com.bing']));
-    assert(byKindsMultiple.isMeta);
+    const byKindsMultiple = ThingTalk.Syntax.parse(await _httpClient.getExamplesByKinds(['com.twitter', 'com.bing']));
+    assert(byKindsMultiple.isLibrary);
     assert.strictEqual(byKindsMultiple.classes.length, 0);
     assert.strictEqual(byKindsMultiple.datasets.length, 1);
 

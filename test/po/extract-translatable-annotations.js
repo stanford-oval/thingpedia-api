@@ -52,7 +52,7 @@ function extract(key, str) {
 
 async function main() {
     const code = (await util.promisify(fs.readFile)(process.argv[2])).toString();
-    const parsed = ThingTalk.Grammar.parse(code);
+    const parsed = ThingTalk.Syntax.parse(code);
 
     for (let _class of parsed.classes) {
         for (let key in _class.metadata)

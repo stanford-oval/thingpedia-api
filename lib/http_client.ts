@@ -90,7 +90,7 @@ export default class HttpClient extends ClientBase {
 
     private async _getLocalDeviceManifest(manifestPath : string, deviceKind : string) {
         const ourMetadata = (await util.promisify(fs.readFile)(manifestPath)).toString();
-        const ourParsed = ThingTalk.Grammar.parse(ourMetadata);
+        const ourParsed = ThingTalk.Syntax.parse(ourMetadata);
         assert(ourParsed instanceof Ast.Library);
         ourParsed.classes[0].annotations.version = new Ast.Value.Number(-1);
 
@@ -106,7 +106,7 @@ export default class HttpClient extends ClientBase {
                 // for that reason we fetch the metadata for thingpedia as well,
                 // and fill in any missing parameter
                 const officialMetadata = await this._getDeviceCodeHttp(deviceKind);
-                const officialParsed = ThingTalk.Grammar.parse(officialMetadata);
+                const officialParsed = ThingTalk.Syntax.parse(officialMetadata);
                 assert(officialParsed instanceof Ast.Library);
 
                 ourConfig.in_params = ourConfig.in_params.filter((ip) => !ip.value.isUndefined);
@@ -440,7 +440,7 @@ export default class HttpClient extends ClientBase {
         if (!snapshot)
             snapshot = await this._cacheSnapshot();
 
-        const parsed = ThingTalk.Grammar.parse(snapshot);
+        const parsed = ThingTalk.Syntax.parse(snapshot);
         assert(parsed instanceof Ast.Library);
         for (const classDef of parsed.classes) {
             names.push({

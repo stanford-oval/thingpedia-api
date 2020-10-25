@@ -55,11 +55,12 @@ async function testBuiltin() {
 #_[description="Descrizione del Predefinito Traducibile"]
 #[version=0] {
   import loader from @org.thingpedia.builtin();
+
   import config from @org.thingpedia.config.builtin();
 
-  monitorable query elements(out something: String
+  monitorable query elements(out something : String
                              #_[canonical="qualcosa"],
-                             out author: Entity(tt:username)
+                             out author : Entity(tt:username)
                              #_[canonical={
                                npp=["autore"],
                                pvp=["scritto da"],
@@ -69,8 +70,7 @@ async function testBuiltin() {
   #_[canonical="elementi"]
   #[poll_interval=1ms]
   #[minimal_projection=[]];
-}
-`);
+}`);
 
     const _class = await module.getDeviceClass();
     const dev = new _class(engine, { kind: 'org.thingpedia.builtin.translatable' });

@@ -245,7 +245,7 @@ const PARSE_GENERIC_RESPONSE_TEST_CASES = [
 
 function testParseGenericResponse() {
     PARSE_GENERIC_RESPONSE_TEST_CASES.forEach(([classcode, response, expected], i) => {
-        const fndef = TT.Grammar.parse(classcode).classes[0].queries.test;
+        const fndef = TT.Syntax.parse(classcode).classes[0].queries.test;
 
         console.log('Test Case #' + (i+1));
         const generated = Utils.parseGenericResponse(response, fndef);
