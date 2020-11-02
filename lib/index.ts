@@ -13,8 +13,9 @@ import './string_format';
 
 import Messaging from './messaging';
 import Preferences from './prefs';
-import BaseDevice from './base_device';
+import BaseDevice, { Availability, Tier } from './base_device';
 import * as Helpers from './helpers';
+import * as ObjectSet from './helpers/object_set';
 import ConfigDelegate from './config_delegate';
 import { OAuthError } from './errors';
 import BaseClient from './base_client';
@@ -99,15 +100,18 @@ const VERSION = {
     }
 };
 
-const Value = {
-    Entity: ThingTalk.Builtin.Entity,
-    Currency: ThingTalk.Builtin.Currency,
-    Location: ThingTalk.Builtin.Location,
-    Time: ThingTalk.Builtin.Time
-};
-const Availability = BaseDevice.Availability;
-const Tier = BaseDevice.Tier;
-const ObjectSet = Helpers.ObjectSet;
+namespace Value {
+    // export both as type and as value
+    export type Entity = ThingTalk.Builtin.Entity;
+    export type Currency = ThingTalk.Builtin.Currency;
+    export type Location = ThingTalk.Builtin.Location;
+    export type Time = ThingTalk.Builtin.Time;
+
+    export const Entity = ThingTalk.Builtin.Entity;
+    export const Currency = ThingTalk.Builtin.Currency;
+    export const Location = ThingTalk.Builtin.Location;
+    export const Time = ThingTalk.Builtin.Time;
+}
 
 export {
     VERSION as version,
