@@ -90,6 +90,7 @@ export interface DeviceMetadata {
     kind : string;
     name : string;
     description : string;
+    version : number;
     category : 'online'|'physical'|'data'|'system';
     types : string[];
     params : { [key : string] : unknown };
