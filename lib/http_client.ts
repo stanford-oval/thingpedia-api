@@ -32,6 +32,7 @@ import ClientBase, {
     DeviceFactory,
     EntityLookupResult,
     EntityTypeRecord,
+    LocationInput,
     LocationRecord,
     DeviceNameRecord,
 } from './base_client';
@@ -420,9 +421,14 @@ export default class HttpClient extends ClientBase {
             { q: searchTerm }, 'application/json', { extractData: false });
     }
 
-    lookupLocation(searchTerm : string) : Promise<LocationRecord[]> {
-        return this._simpleRequest('/locations/lookup',
-            { q: searchTerm }, 'application/json');
+    lookupLocation(searchTerm : string, around ?: LocationInput) : Promise<LocationRecord[]> {
+        if (around) {
+            return this._simpleRequest('/locations/lookup',
+                { q: searchTerm, latitude: String(around.latitude), longitude: String(around.longitude) }, 'application/json');
+        } else {
+            return this._simpleRequest('/locations/lookup',
+                { q: searchTerm }, 'application/json');
+        }
     }
 
     getAllExamples() : Promise<string> {
