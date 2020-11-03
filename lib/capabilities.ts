@@ -115,6 +115,7 @@ interface Location {
     altitude ?: number;
     bearing ?: number;
     speed ?: number;
+    display ?: string;
 }
 
 export interface GpsApi {
