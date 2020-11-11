@@ -38,7 +38,7 @@
     "lint": "eslint --ext .js,.jsx,.ts,.tsx ./lib ./test",
     "test": "nyc ts-node ./test",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "prepare": "tsc --build tsconfig.json && find dist/ -name \\*.d.ts | xargs sed -i 's|from \"node/|from \"|g'",
+    "prepare": "tsc --build tsconfig.json && find dist/ -name \\*.d.ts | xargs sed -i -e 's|from \"node/|from \"|g'",
     "doc": "typedoc lib/index.ts"
   },
   "devDependencies": {
