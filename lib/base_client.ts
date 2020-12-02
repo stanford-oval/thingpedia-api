@@ -107,6 +107,11 @@ export interface EntityTypeRecord {
     has_ner_support : boolean|number;
 }
 
+export interface LocationInput {
+    latitude : number;
+    longitude : number;
+}
+
 export interface LocationRecord {
     latitude : number;
     longitude : number;
@@ -212,7 +217,7 @@ export default abstract class BaseClient {
     }
 
     /* istanbul ignore next */
-    lookupLocation(searchTerm : string) : Promise<LocationRecord[]> {
+    lookupLocation(searchTerm : string, around ?: LocationInput) : Promise<LocationRecord[]> {
         throw new Error('not implemented');
     }
 

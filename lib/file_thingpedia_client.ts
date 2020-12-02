@@ -31,6 +31,7 @@ import * as Helpers from './helpers';
 import BaseClient, {
     EntityLookupResult,
     EntityTypeRecord,
+    LocationInput,
     LocationRecord,
     DeviceNameRecord,
 } from './base_client';
@@ -217,8 +218,13 @@ export default class FileClient extends BaseClient {
             { q: searchTerm }, 'application/json', { extractData: false });
     }
 
-    lookupLocation(searchTerm : string) : Promise<LocationRecord[]> {
-        return this._httpRequest('/locations/lookup',
-            { q: searchTerm }, 'application/json');
+    lookupLocation(searchTerm : string, around ?: LocationInput) : Promise<LocationRecord[]> {
+        if (around) {
+            return this._httpRequest('/locations/lookup',
+                { q: searchTerm, latitude: String(around.latitude), longitude: String(around.longitude) }, 'application/json');
+        } else {
+            return this._httpRequest('/locations/lookup',
+                { q: searchTerm }, 'application/json');
+        }
     }
 }

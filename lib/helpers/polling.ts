@@ -42,6 +42,7 @@ interface TriggerStateBinder {
 
 export interface EventResult {
     __timestamp ?: number;
+    [key : string] : unknown;
 }
 
 /**

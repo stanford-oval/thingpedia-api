@@ -176,4 +176,11 @@ export default abstract class BasePlatform {
     getCloudId() : string|null {
         throw new Error('not implemented');
     }
+
+    getAuthToken() : string|undefined {
+        return undefined;
+    }
+    setAuthToken(token : string|undefined) : boolean {
+        return false;
+    }
 }
