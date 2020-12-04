@@ -108,7 +108,14 @@ export default class FileClient extends BaseClient {
 
         if (this._datasetfilename) {
             this._dataset = await util.promisify(fs.readFile)(this._datasetfilename, { encoding: 'utf8' });
-            const parsed = await ThingTalk.Syntax.parse(this._dataset);
+            let parsed;
+            try {
+                parsed = await ThingTalk.Syntax.parse(this._dataset);
+            } catch(e) {
+                if (e.name !== 'SyntaxError')
+                    throw e;
+                parsed = await ThingTalk.Syntax.parse(this._dataset, ThingTalk.Syntax.SyntaxType.Legacy);
+            }
             assert(parsed instanceof Ast.Library);
 
             for (const dataset of parsed.datasets) {
