@@ -34,6 +34,8 @@ const Builtins = {
 
             query get(out something : String);
         }`,
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         module: class FooBuiltin extends BaseDevice {
             constructor(engine, state) {
                 super(engine, state);
@@ -54,6 +56,8 @@ const Builtins = {
             import loader from @org.thingpedia.builtin();
             import config from @org.thingpedia.config.none();
         }`,
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         module: class CollectionBuiltin extends BaseDevice {
             constructor(engine, state) {
                 super(engine, state);
@@ -71,6 +75,8 @@ const Builtins = {
 
             query bla(out something : String);
         }`,
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         module: class SubdeviceBuiltin extends BaseDevice {
             constructor(engine, state) {
                 super(engine, state);

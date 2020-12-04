@@ -32,6 +32,8 @@ import { MockPlatform, MockEngine } from './mock';
 const Builtins = {
     'org.thingpedia.builtin.translatable': {
         class: fs.readFileSync(path.resolve(path.dirname(module.filename), './device-classes/org.thingpedia.builtin.translatable.tt'), { encoding: 'utf8' }),
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         module: class TranslatableBuiltin extends BaseDevice {
             get_elements() {
                 return [];
