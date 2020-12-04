@@ -1,7 +1,7 @@
 class @org.httpbin.basicauth
 #[version=1] {
   import loader from @org.thingpedia.generic_rest.v1();
-  import config from @org.thingpedia.config.basic_auth(extra_params=makeArgMap(username:String,password:String));
+  import config from @org.thingpedia.config.basic_auth(extra_params=new ArgMap(username:String,password:String));
 
   query get(in req input: String,
             out authenticated: Boolean,

@@ -108,7 +108,14 @@ export default class FileClient extends BaseClient {
 
         if (this._datasetfilename) {
             this._dataset = await util.promisify(fs.readFile)(this._datasetfilename, { encoding: 'utf8' });
-            const parsed = await ThingTalk.Grammar.parse(this._dataset);
+            let parsed;
+            try {
+                parsed = await ThingTalk.Syntax.parse(this._dataset);
+            } catch(e) {
+                if (e.name !== 'SyntaxError')
+                    throw e;
+                parsed = await ThingTalk.Syntax.parse(this._dataset, ThingTalk.Syntax.SyntaxType.Legacy);
+            }
             assert(parsed instanceof Ast.Library);
 
             for (const dataset of parsed.datasets) {
@@ -149,7 +156,7 @@ export default class FileClient extends BaseClient {
         // we don't have the full class, so we just return the meta info
         await this._ensureLoaded();
 
-        const parsed = ThingTalk.Grammar.parse(this._devices!);
+        const parsed = ThingTalk.Syntax.parse(this._devices!);
         assert(parsed instanceof Ast.Library);
         for (const classDef of parsed.classes) {
             if (classDef.kind === kind)
@@ -173,8 +180,8 @@ export default class FileClient extends BaseClient {
                 examples = examples.concat(this._examples[device]);
         }
 
-        const name = `@org.thingpedia.dynamic.by_kinds.${kinds.join('__')}`;
-        const dataset = new Ast.Dataset(null, name, 'en', examples, {});
+        const name = `org.thingpedia.dynamic.by_kinds.${kinds.join('__')}`;
+        const dataset = new Ast.Dataset(null, name, examples);
         const library = new Ast.Input.Library(null, [], [dataset]);
         return library.prettyprint();
     }
@@ -182,7 +189,7 @@ export default class FileClient extends BaseClient {
     async getAllDeviceNames() : Promise<DeviceNameRecord[]> {
         await this._ensureLoaded();
 
-        const parsed = ThingTalk.Grammar.parse(this._devices!);
+        const parsed = ThingTalk.Syntax.parse(this._devices!);
         assert(parsed instanceof Ast.Library);
         const names = [];
         for (const classDef of parsed.classes) {

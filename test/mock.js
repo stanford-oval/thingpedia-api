@@ -226,7 +226,7 @@ class State {
 }
 
 function toClassDef(classCode) {
-    return ThingTalk.Grammar.parse(classCode).classes[0];
+    return ThingTalk.Syntax.parse(classCode).classes[0];
 }
 
 export {

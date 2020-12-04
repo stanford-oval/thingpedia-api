@@ -38,7 +38,7 @@ const _fileClient = new FileClient({
 const _schemaRetriever = new ThingTalk.SchemaRetriever(_fileClient, null, true);
 
 async function checkValidManifest(manifest, moduleType) {
-    const parsed = await ThingTalk.Grammar.parseAndTypecheck(manifest, _schemaRetriever);
+    const parsed = await ThingTalk.Syntax.parse(manifest).typecheck(_schemaRetriever);
     assert(parsed.isLibrary);
     assert.strictEqual(parsed.classes.length, 1);
     assert.strictEqual(parsed.datasets.length, 0);
@@ -57,14 +57,14 @@ async function testGetDeviceCode() {
 
 async function testGetSchemas(withMetadata) {
     const bing = await _fileClient.getSchemas(['com.bing'], withMetadata);
-    const bingparsed = ThingTalk.Grammar.parse(bing);
-    assert(bingparsed.isMeta);
+    const bingparsed = ThingTalk.Syntax.parse(bing);
+    assert(bingparsed.isLibrary);
     assert(bingparsed.classes.length >= 1);
     assert(bingparsed.classes.find((c) => c.kind === 'com.bing'));
 
     const multiple = await _fileClient.getSchemas(['com.bing', 'com.twitter'], withMetadata);
-    const mparsed = ThingTalk.Grammar.parse(multiple);
-    assert(mparsed.isMeta);
+    const mparsed = ThingTalk.Syntax.parse(multiple);
+    assert(mparsed.isLibrary);
     assert(mparsed.classes.length >= 2);
     assert(mparsed.classes.find((c) => c.kind === 'com.bing'));
     assert(mparsed.classes.find((c) => c.kind === 'com.twitter'));
@@ -114,7 +114,7 @@ function arrayEqual(a1, a2) {
 }
 
 async function testGetExamples() {
-    const all = ThingTalk.Grammar.parse(await _fileClient.getAllExamples());
+    const all = ThingTalk.Syntax.parse(await _fileClient.getAllExamples());
     assert(all.isLibrary);
     assert.strictEqual(all.classes.length, 0);
     assert.strictEqual(all.datasets.length, 1);
@@ -127,7 +127,7 @@ async function testGetExamples() {
         ex.preprocessed.forEach((p) => assertNonEmptyString(p));
     }
 
-    const bing = ThingTalk.Grammar.parse(await _fileClient.getExamplesByKinds(['com.bing', 'com.google']));
+    const bing = ThingTalk.Syntax.parse(await _fileClient.getExamplesByKinds(['com.bing', 'com.google']));
     assert(bing.isLibrary);
     assert.strictEqual(bing.classes.length, 0);
     assert.strictEqual(bing.datasets.length, 1);
