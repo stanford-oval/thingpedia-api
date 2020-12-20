@@ -1,3 +1,13 @@
+2.9.0-alpha.1
+=============
+
+* This is the first version of the Thingpedia SDK to support ThingTalk 2.0 [#106].
+* The library was partially rewritten in TypeScript. All major public interfaces
+  now are typed, and we expect the rewrite will continue over the course of the
+  2.9.0 development cycle [#100, #104].
+* The preferred package manager is now NPM instead of Yarn [#103].
+* Updated dependencies [#94, #96, #97, #98, #99, #101, #102, #105, #108, #109].
+
 2.8.0
 =====
 

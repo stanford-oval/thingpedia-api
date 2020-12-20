@@ -51,9 +51,9 @@ const VERSION = {
     /** Major version number (incremented on incompatible changes) */
     major: 2,
     /** Minor version number (incremented on feature additions) */
-    minor: 8,
+    minor: 9,
     /** Full version string, in semantic version format */
-    full: '2.8.0',
+    full: '2.9.0-alpha.1',
     /** Convert the version number to a number (for comparisons) */
     valueOf() : number {
         return this.major * 100 + this.minor;
