@@ -98,8 +98,7 @@ export default class HttpClient extends ClientBase {
         if (!ourParsed.classes[0].is_abstract) {
             try {
                 const ourConfig = ourParsed.classes[0].config;
-                assert(ourConfig);
-                if (!ourConfig.in_params.some((v) => v.value.isUndefined))
+                if (!ourConfig || !ourConfig.in_params.some((v) => v.value.isUndefined))
                     return ourParsed.classes[0];
 
                 // ourMetadata might lack some of the fields that are in the
