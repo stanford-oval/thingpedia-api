@@ -7,24 +7,25 @@
 Thingpedia is the open repository of API used by the [Almond Virtual Assistant](https://almond.stanford.edu).
 Anyone can contribute the interface code to access any device or web service, and publish it on Thingpedia.
 
-This package contains the public API and set of JS interfaces
-that any package published in Thingpedia should implement.
-It also contains a various helpers that are available to Thingpedia packages,
-and the client side libraries to retrieve and
+This package contains the software development kit (SDK) used to develop new
+interfaces in Thingpedia. This includes both the abstract classes that any
+Thingpedia interface must subclass, as well as various helpers that are available
+to Thingpedia packages, to ease interaction with web APIs.
+This package also contains the client side libraries to retrieve and
 instantiate the interface code from a public Thingpedia instance.
 
-Thingpedia and Almond are research projects led by prof. Monica Lam,
-from Stanford University.  You can find more information at
-<https://almond.stanford.edu>.
+Thingpedia is developed by the Stanford Open Virtual Assistant Lab, a research
+initiative led by prof. Monica Lam, from Stanford University. 
+You can find more information at <https://oval.cs.stanford.edu>
 
 ## Documentation
 
-Documentation for this package is hosted on the [Almond website](https://almond.stanford.edu/thingpedia/developers).
+Documentation for this package is hosted on the [Almond wiki](https://wiki.almond.stanford.edu/thingpedia).
 
 **NOTE**: if you are writing an interface for Thingpedia, you should not install this package separately from npm.
 The correct version of this module is already available in the environment and you can just `require('thingpedia')`.
 The only case where it is useful to install this module separately is when you're developing
-a client to Thingpedia.
+a client to Thingpedia (i.e. a custom virtual assistant).
 
 ## License
 
