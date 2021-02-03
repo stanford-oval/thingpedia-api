@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,14 +18,22 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
+import * as ThingTalk from 'thingtalk';
 
 import * as Utils from '../utils';
 import { makeBaseDeviceMetadata } from '../compat';
 import * as ConfigMixins from '../config';
-import BaseDevice from '../base_device';
+import BaseDevice, { DeviceState } from '../base_device';
+
+import type BaseEngine from '../base_engine';
 
 export default class BaseGenericModule {
-    constructor(kind, ast) {
+    private _id : string;
+    private _manifest : ThingTalk.Ast.ClassDef;
+    private _loaded : (typeof BaseDevice)|null;
+    private _config : ConfigMixins.Base|null;
+
+    constructor(kind : string, ast : ThingTalk.Ast.ClassDef) {
         this._id = kind;
         this._manifest = ast;
         this._loaded = null;
@@ -33,29 +41,32 @@ export default class BaseGenericModule {
         this._config = ConfigMixins.get(this._manifest);
     }
 
-    _loadModule() {
-        let params = [];
-        if (this._config.module === 'org.thingpedia.config.form')
-            params = Object.keys(Utils.findMixinArg(this._config.mixin, 'params'));
-        else if (this._config.module === 'org.thingpedia.config.oauth2')
-            params = Utils.findMixinArg(this._config.mixin, 'profile') || [];
+    private _loadModule() {
+        let params : string[] = [];
+        if (this._config) {
+            if (this._config.module === 'org.thingpedia.config.form')
+                params = Object.keys(Utils.findMixinArg(this._config.mixin, 'params'));
+            else if (this._config.module === 'org.thingpedia.config.oauth2')
+                params = Utils.findMixinArg(this._config.mixin, 'profile') || [];
+        }
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        this._loaded = class GenericDevice extends BaseDevice {
-            constructor(engine, state) {
+        const newClass = class GenericDevice extends BaseDevice {
+            params : unknown[];
+
+            constructor(engine : BaseEngine, state : DeviceState) {
                 super(engine, state);
                 this.params = params.map((k) => state[k]);
             }
 
-            checkAvailable() {
+            async checkAvailable() {
                 return BaseDevice.Availability.AVAILABLE;
             }
         };
         if (this._config)
-            this._config.install(this._loaded);
-
-        this._loaded.manifest = this._manifest;
-        this._loaded.metadata = makeBaseDeviceMetadata(this._manifest);
+            this._config.install(newClass);
+        newClass.manifest = this._manifest;
+        newClass.metadata = makeBaseDeviceMetadata(this._manifest);
+        this._loaded = newClass;
     }
 
     get id() {
@@ -65,7 +76,7 @@ export default class BaseGenericModule {
         return this._manifest;
     }
     get version() {
-        return this._manifest.annotations.version.toJS();
+        return this._manifest.getImplementationAnnotation<number>('version')!;
     }
 
     clearCache() {

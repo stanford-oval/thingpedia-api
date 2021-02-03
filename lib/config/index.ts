@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,12 +18,14 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
+import * as ThingTalk from 'thingtalk';
 
 import OAuth from './oauth2';
 import BasicAuth from './basic_auth';
 import Base from './base';
+export { Base };
 
-const modules = {
+const modules : Record<string, typeof Base> = {
     'org.thingpedia.config.oauth2': OAuth,
     'org.thingpedia.config.basic_auth': BasicAuth,
 
@@ -31,11 +33,11 @@ const modules = {
     'org.thingpedia.config.*': Base,
 };
 
-export function get(classdef) {
+export function get(classdef : ThingTalk.Ast.ClassDef) : Base|null {
     if (classdef.is_abstract)
         return null;
 
-    const config = classdef.config;
+    const config = classdef.config!;
     const mixinclass = modules[config.module] || modules['org.thingpedia.config.*'];
     return new mixinclass(classdef);
 }

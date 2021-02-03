@@ -89,7 +89,7 @@ async function checkValidManifest(manifest, moduleType) {
 }
 
 async function testGetDeviceCode() {
-    const nytimes = await _httpClient.getDeviceCode('com.nytimes');
+    const nytimes = await _httpClient.getDeviceCode('org.thingpedia.rss');
     await checkValidManifest(nytimes, 'org.thingpedia.rss');
 
     const bing = await _httpClient.getDeviceCode('com.bing');
