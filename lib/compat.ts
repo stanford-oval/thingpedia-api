@@ -1,8 +1,8 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
-// Copyright 2019 The Board of Trustees of the Leland Stanford Junior University
+// Copyright 2019-2021 The Board of Trustees of the Leland Stanford Junior University
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,19 +19,20 @@
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 //         Silei Xu <silei@cs.stanford.edu>
 
+import type * as ThingTalk from 'thingtalk';
 
-function getParams(classDef) {
-    let params = {};
+function getParams(classDef : ThingTalk.Ast.ClassDef) {
+    const params : Record<string, null> = {};
     if (classDef.is_abstract)
         return params;
 
-    const config = classDef.config;
+    const config = classDef.config!;
     switch (config.module) {
     case 'org.thingpedia.config.form':
     case 'org.thingpedia.config.basic_auth':
         if (config.in_params.length === 1) {
-            let argMap = config.in_params[0].value;
-            Object.entries(argMap.value).forEach(([name, type]) => {
+            const argMap = config.in_params[0].value;
+            Object.entries((argMap as ThingTalk.Ast.ObjectValue).value).forEach(([name, type]) => {
                 // the value does not matter, only the fact that the parameter is present matters
                 params[name] = null;
             });
@@ -40,14 +41,22 @@ function getParams(classDef) {
     return params;
 }
 
-function getAuth(classDef) {
-    let auth = {};
-    let extraTypes = [];
+interface AuthMetadata {
+    type : string;
+    discoveryType ?: string;
+    [key : string] : unknown;
+}
+
+function getAuth(classDef : ThingTalk.Ast.ClassDef) : [AuthMetadata, string[]] {
+    const auth : AuthMetadata = {
+        type: 'none'
+    };
+    const extraTypes : string[] = [];
 
     if (classDef.is_abstract)
         return [auth, extraTypes];
 
-    const config = classDef.config;
+    const config = classDef.config!;
     config.in_params.forEach((param) => {
         if (param.value.isArgMap)
             return;
@@ -56,11 +65,11 @@ function getAuth(classDef) {
             extraTypes.push('bluetooth-class-' + param.value.toJS());
             break;
         case 'uuids':
-            for (let uuid of param.value.toJS())
+            for (const uuid of param.value.toJS() as string[])
                 extraTypes.push('bluetooth-uuid-' + uuid.toLowerCase());
             break;
         case 'search_target':
-            for (let st of param.value.toJS())
+            for (const st of param.value.toJS() as string[])
                 extraTypes.push('upnp-' + st.toLowerCase().replace(/^urn:/, '').replace(/:/g, '-'));
             break;
 
@@ -92,14 +101,12 @@ function getAuth(classDef) {
     case 'org.thingpedia.config.builtin':
         auth.type = 'builtin';
         break;
-    default:
-        auth.type = 'none';
     }
     return [auth, extraTypes];
 }
 
-function getCategory(classDef) {
-    if (classDef.annotations.system && classDef.annotations.system.toJS())
+function getCategory(classDef : ThingTalk.Ast.ClassDef) : 'system'|'data'|'physical'|'online' {
+    if (classDef.getImplementationAnnotation<boolean>('system'))
         return 'system';
     const config = classDef.config;
     if (!config)
@@ -117,11 +124,11 @@ function getCategory(classDef) {
     }
 }
 
-function makeBaseDeviceMetadata(classDef) {
+function makeBaseDeviceMetadata(classDef : ThingTalk.Ast.ClassDef) {
     const [auth, extraTypes] = getAuth(classDef);
     return {
         kind: classDef.kind,
-        version: classDef.annotations.version.toJS(),
+        version: classDef.getImplementationAnnotation<number>('version')!,
         name: classDef.metadata.name,
         description: classDef.metadata.description,
         types: (classDef.extends || []).concat(extraTypes),

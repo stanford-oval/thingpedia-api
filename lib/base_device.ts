@@ -18,7 +18,7 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-
+import * as ThingTalk from 'thingtalk';
 import * as events from 'events';
 import * as Url from 'url';
 import interpolate from 'string-interp';
@@ -122,7 +122,10 @@ export interface QueryInterfaceMap {
 export default abstract class BaseDevice extends events.EventEmitter {
     // legacy interface
     static runOAuth2 ?: LegacyRunOAuth2;
+
+    // access ThingTalk metadata at runtime
     static metadata : DeviceMetadata;
+    static manifest : ThingTalk.Ast.ClassDef;
 
     static Tier = Tier;
     static Availability = Availability;

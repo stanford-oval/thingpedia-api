@@ -1,8 +1,8 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
-// Copyright 2019-2020 The Board of Trustees of the Leland Stanford Junior University
+// Copyright 2019-2021 The Board of Trustees of the Leland Stanford Junior University
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-
 import assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -27,7 +26,11 @@ import * as ThingTalk from 'thingtalk';
 
 import Modules from './loaders';
 
-function safeMkdir(dir) {
+import type BaseDevice from './base_device';
+import type BasePlatform from './base_platform';
+import type BaseClient from './base_client';
+
+function safeMkdir(dir : string) {
     try {
         fs.mkdirSync(dir);
     } catch(e) {
@@ -36,7 +39,7 @@ function safeMkdir(dir) {
     }
 }
 
-function safeSymlinkSync(from, to) {
+function safeSymlinkSync(from : string, to : string) {
     try {
         fs.symlinkSync(from, to, 'dir');
     } catch(e) {
@@ -45,8 +48,33 @@ function safeSymlinkSync(from, to) {
     }
 }
 
+type BuiltinRegistry = Record<string, { class : string, module : typeof BaseDevice }>;
+
+interface ModuleDownloaderOptions {
+    builtinGettextDomain ?: string;
+}
+
+interface Module {
+    id : string;
+    version : unknown; // FIXME
+
+    clearCache() : void;
+}
+
 export default class ModuleDownloader {
-    constructor(platform, client, schemas, builtins = {}, options = {}) {
+    private _platform : BasePlatform;
+    private _client : BaseClient;
+    private _schemas : ThingTalk.SchemaRetriever;
+    private _builtins : BuiltinRegistry;
+    private _builtinGettextDomain : string|undefined;
+    private _cacheDir : string;
+    private _moduleRequests : Map<string, Promise<Module>>;
+
+    constructor(platform : BasePlatform,
+                client : BaseClient,
+                schemas : ThingTalk.SchemaRetriever,
+                builtins : BuiltinRegistry = {},
+                options : ModuleDownloaderOptions = {}) {
         this._platform = platform;
         this._client = client;
 
@@ -71,7 +99,7 @@ export default class ModuleDownloader {
 
             const developerDirs = this._getDeveloperDirs();
             if (developerDirs) {
-                for (let dir of developerDirs) {
+                for (const dir of developerDirs) {
                     safeMkdir(dir + '/node_modules');
                     safeSymlinkSync(ownPath, dir + '/node_modules/thingpedia');
                     safeSymlinkSync(path.dirname(require.resolve('thingtalk')), dir + '/node_modules/thingtalk');
@@ -94,13 +122,15 @@ export default class ModuleDownloader {
             try {
                 if (name === 'node_modules')
                     return null;
-                let file = path.resolve(this._cacheDir, name);
+                const file = path.resolve(this._cacheDir, name);
                 if (name.endsWith('.tt')) {
                     const buffer = await util.promisify(fs.readFile)(file);
-                    const parsed = ThingTalk.Syntax.parse(buffer.toString('utf8')).classes[0];
+                    const parsed = ThingTalk.Syntax.parse(buffer.toString('utf8'));
+                    assert(parsed instanceof ThingTalk.Ast.Library);
+                    const classDef = parsed.classes[0];
 
-                    return ({ name: parsed.kind,
-                              version: parsed.annotations.version.toJS() });
+                    return ({ name: classDef.kind,
+                              version: classDef.getImplementationAnnotation<number>('version')! });
                 } else {
                     return null;
                 }
@@ -112,44 +142,37 @@ export default class ModuleDownloader {
         return objs.filter((o) => o !== null);
     }
 
-    updateModule(id) {
-        return Promise.resolve().then(() => {
-            if (!this._moduleRequests.has(id))
-                return null;
+    async updateModule(id : string) {
+        let module;
+        try {
+            module = await this._moduleRequests.get(id);
+        } catch(e) {
+            // ignore errors
+        }
+        this._moduleRequests.delete(id);
 
-            return this._moduleRequests.get(id).catch((e) => {
-                // ignore errors
-                return null;
-            });
-        }).then((module) => {
-            this._moduleRequests.delete(id);
-            return module;
-        }).then((module) => {
-            if (!module)
-                return Promise.resolve();
+        if (module)
+            await module.clearCache();
 
-            return module.clearCache();
-        }).then(() => {
-            return this.loadClass(id, false);
-        });
+        await this.loadClass(id, false);
     }
 
-    getModule(id) {
+    getModule(id : string) {
         this._ensureModuleRequest(id);
         return this._moduleRequests.get(id);
     }
 
-    _getDeveloperDirs() {
+    private _getDeveloperDirs() : string[]|undefined {
         const prefs = this.platform.getSharedPreferences();
         let developerDirs = prefs.get('developer-dir');
         if (!developerDirs)
             return undefined;
         if (!Array.isArray(developerDirs))
             developerDirs = [developerDirs];
-        return developerDirs;
+        return developerDirs as string[];
     }
 
-    async _loadClassCode(id, canUseCache) {
+    async _loadClassCode(id : string, canUseCache : boolean) {
         if (!this._platform.hasCapability('code-download'))
             return Promise.reject(new Error('Code download is not allowed on this platform'));
 
@@ -159,11 +182,16 @@ export default class ModuleDownloader {
         // if there is a developer directory, and it contains a manifest for the current device, load
         // it directly, bypassing the cache logic
         const developerDirs = this._getDeveloperDirs();
-        if (developerDirs && this._client._getLocalDeviceManifest) {
-            for (let dir of developerDirs) {
+
+        // moderate HACK to access HttpClient internal interface
+        const client : BaseClient & ({
+            _getLocalDeviceManifest ?: (localPath : string, id : string) => Promise<ThingTalk.Ast.ClassDef>
+        }) = this._client;
+        if (developerDirs && client._getLocalDeviceManifest) {
+            for (const dir of developerDirs) {
                 const localPath = path.resolve(dir, id, 'manifest.tt');
                 if (await util.promisify(fs.exists)(localPath))
-                    return (await this._client._getLocalDeviceManifest(localPath, id)).prettyprint();
+                    return (await client._getLocalDeviceManifest(localPath, id)).prettyprint();
             }
         }
 
@@ -172,11 +200,11 @@ export default class ModuleDownloader {
 
         let useCached = false;
 
-        let classCode;
+        let classCode : string;
         if (canUseCache) {
             try {
                 const stat = await util.promisify(fs.stat)(manifestPath);
-                let now = new Date;
+                const now = new Date;
                 if (now.getTime() - stat.mtime.getTime() > 7 * 24 * 3600 * 1000)
                     useCached = false;
                 else
@@ -202,24 +230,24 @@ export default class ModuleDownloader {
         return classCode;
     }
 
-    async loadClass(id, canUseCache) {
+    async loadClass(id : string, canUseCache : boolean) {
         const classCode = await this._loadClassCode(id, canUseCache);
         const parsed = await ThingTalk.Syntax.parse(classCode).typecheck(this._schemas);
 
-        assert(parsed.isLibrary && parsed.classes.length === 1);
+        assert(parsed instanceof ThingTalk.Ast.Library && parsed.classes.length === 1);
         const classdef = parsed.classes[0];
         this._schemas.injectClass(classdef);
         return classdef;
     }
 
-    injectModule(id, module) {
+    injectModule(id : string, module : Module) {
         this._moduleRequests.set(id, Promise.resolve(module));
     }
 
-    async _doLoadModule(id) {
+    private async _doLoadModule(id : string) {
         try {
             const classdef = await this.loadClass(id, true);
-            const module = classdef.loader.module;
+            const module = classdef.loader!.module as keyof typeof Modules;
 
             if (module === 'org.thingpedia.builtin') {
                 if (this._builtins[id]) {
@@ -240,7 +268,7 @@ export default class ModuleDownloader {
         }
     }
 
-    _ensureModuleRequest(id) {
+    private _ensureModuleRequest(id : string) {
         if (this._moduleRequests.has(id))
             return;
 

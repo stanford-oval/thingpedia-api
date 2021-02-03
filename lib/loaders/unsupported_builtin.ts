@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,15 +18,23 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-
 import * as ThingTalk from 'thingtalk';
 
 import { makeBaseDeviceMetadata } from '../compat';
 import { UnsupportedError } from '../errors';
-import BaseDevice from '../base_device';
+import BaseDevice, { DeviceState } from '../base_device';
+
+import type BaseEngine from '../base_engine';
+import type ModuleDownloader from '../downloader';
 
 export default class UnsupportedBuiltinModule {
-    constructor(id, manifest, loader) {
+    private _id : string;
+    private _manifest : ThingTalk.Ast.ClassDef;
+    private _loaded : typeof BaseDevice;
+
+    constructor(id : string,
+                manifest : ThingTalk.Ast.ClassDef,
+                loader : ModuleDownloader) {
         // version does not matter for builtin modules
         manifest.annotations.version = new ThingTalk.Ast.Value.Number(0);
         this._id = id;
@@ -34,34 +42,28 @@ export default class UnsupportedBuiltinModule {
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         this._loaded = class UnsupportedDevice extends BaseDevice {
-            constructor(engine, state) {
+            constructor(engine : BaseEngine, state : DeviceState) {
                 super(engine, state);
 
                 this.uniqueId = this.kind;
             }
 
-            checkAvailable() {
+            async checkAvailable() {
                 return BaseDevice.Availability.OWNER_UNAVAILABLE;
             }
         };
 
-        for (let action in manifest.actions) {
-            this._loaded.prototype['do_' + action] = function(params) {
+        for (const action in manifest.actions) {
+            (this._loaded.prototype as any)['do_' + action] = function() {
                 throw new UnsupportedError();
             };
         }
-        for (let query in manifest.queries) {
-            this._loaded.prototype['get_' + query] = function(params, filter, count) {
+        for (const query in manifest.queries) {
+            (this._loaded.prototype as any)['get_' + query] = function() {
                 throw new UnsupportedError();
             };
-            this._loaded.prototype['subscribe_' + query] = function(params, state, filter) {
+            (this._loaded.prototype as any)['subscribe_' + query] = function() {
                 throw new UnsupportedError();
-            };
-            this._loaded.prototype['history_' + query] = function(params, base, delta, filters) {
-                return null; // no history
-            };
-            this._loaded.prototype['sequence_' + query] = function(params, base, limit, filters) {
-                return null; // no sequence history
             };
         }
 
@@ -75,7 +77,7 @@ export default class UnsupportedBuiltinModule {
         return this._manifest;
     }
     get version() {
-        return this._manifest.annotations.version.toJS();
+        return this._manifest.getImplementationAnnotation<number>('version')!;
     }
 
     clearCache() {
