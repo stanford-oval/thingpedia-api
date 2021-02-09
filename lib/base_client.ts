@@ -83,6 +83,11 @@ export type DeviceFactory =
     InteractiveDeviceFactory |
     DiscoveryDeviceFactory |
     FormDeviceFactory;
+interface MultipleDeviceFactory {
+    type : 'multiple';
+    text : string;
+    choices : DeviceFactory[];
+}
 
 export interface EntityRecord {
     type : string;
@@ -187,7 +192,7 @@ export default abstract class BaseClient {
     }
 
     /* istanbul ignore next */
-    getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : DeviceFactory|null }> {
+    getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : DeviceFactory|MultipleDeviceFactory|null }> {
         throw new Error('not implemented');
     }
 
