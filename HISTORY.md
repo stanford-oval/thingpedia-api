@@ -1,3 +1,10 @@
+2.9.0-alpha.2
+=============
+
+* The minimum supported version of node is now 12.* [#126].
+* Misc type definition fixes [#125].
+* Update dependencies [#110, #111, #112, #113, #114, #119, #124].
+
 2.9.0-alpha.1
 =============
 

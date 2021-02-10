@@ -1,6 +1,6 @@
 {
   "name": "thingpedia",
-  "version": "2.9.0-alpha.1",
+  "version": "2.9.0-alpha.2",
   "description": "Thingpedia SDK",
   "license": "Apache-2.0",
   "repository": "https://github.com/stanford-oval/thingpedia-api",
@@ -51,7 +51,7 @@
     "nyc": "^15.0.0",
     "pegjs": "^0.10.0",
     "source-map-support": "^0.5.19",
-    "thingtalk": "^2.0.0-alpha.2",
+    "thingtalk": "^2.0.0-alpha.3",
     "tough-cookie": "^4.0.0",
     "ts-node": "^9.1.1",
     "typedoc": "^0.20.23",
