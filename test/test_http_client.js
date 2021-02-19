@@ -70,7 +70,7 @@ const _mockDeveloperPlatform = {
         return 'en-US';
     }
 };
-const THINGPEDIA_URL = process.env.THINGPEDIA_URL || 'https://almond-dev.stanford.edu/thingpedia';
+const THINGPEDIA_URL = process.env.THINGPEDIA_URL || 'https://dev.almond.stanford.edu/thingpedia';
 
 const _httpClient = new HttpClient(_mockPlatform, THINGPEDIA_URL);
 const _schemaRetriever = new ThingTalk.SchemaRetriever(_httpClient, null, true);
