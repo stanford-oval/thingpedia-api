@@ -241,12 +241,12 @@ async function testAlmondOAuth() {
     const [redirectToAlmond, oauthSession] = await factory.loadFromCustomOAuth(mockEngine);
 
     assert.strictEqual(typeof oauthSession['oauth2-state-edu.stanford.almond-dev'], 'string');
-    assert.strictEqual(redirectToAlmond, `https://almond-dev.stanford.edu/me/api/oauth2/authorize?response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fdevices%2Foauth2%2Fcallback%2Fedu.stanford.almond-dev&state=${oauthSession['oauth2-state-edu.stanford.almond-dev']}&scope=profile&client_id=5524304f0ce9cb5c`);
+    assert.strictEqual(redirectToAlmond, `https://dev.almond.stanford.edu/me/api/oauth2/authorize?response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fdevices%2Foauth2%2Fcallback%2Fedu.stanford.almond-dev&state=${oauthSession['oauth2-state-edu.stanford.almond-dev']}&scope=profile&client_id=5524304f0ce9cb5c`);
 
     console.log('login + authorize');
     // login to almond-dev
-    const browserSession = await startSession('https://almond-dev.stanford.edu/user/login');
-    await browserRequest('https://almond-dev.stanford.edu/user/login', 'POST', {
+    const browserSession = await startSession('https://dev.almond.stanford.edu/user/login');
+    await browserRequest('https://dev.almond.stanford.edu/user/login', 'POST', {
         username: 'testuser',
         password: '12345678',
     }, browserSession);
