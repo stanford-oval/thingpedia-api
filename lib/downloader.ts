@@ -21,7 +21,6 @@
 import assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as util from 'util';
 import * as ThingTalk from 'thingtalk';
 
 import Modules from './loaders';
@@ -117,29 +116,16 @@ export default class ModuleDownloader {
     }
 
     async getCachedMetas() {
-        const files = await util.promisify(fs.readdir)(this._cacheDir);
-        const objs = await Promise.all(files.map(async (name) => {
+        const cached = [];
+        for (const promise of this._moduleRequests.values()) {
             try {
-                if (name === 'node_modules')
-                    return null;
-                const file = path.resolve(this._cacheDir, name);
-                if (name.endsWith('.tt')) {
-                    const buffer = await util.promisify(fs.readFile)(file);
-                    const parsed = ThingTalk.Syntax.parse(buffer.toString('utf8'));
-                    assert(parsed instanceof ThingTalk.Ast.Library);
-                    const classDef = parsed.classes[0];
-
-                    return ({ name: classDef.kind,
-                              version: classDef.getImplementationAnnotation<number>('version')! });
-                } else {
-                    return null;
-                }
+                const module = await promise;
+                cached.push({ name: module.id, version: module.version });
             } catch(e) {
-                return ({ name: name,
-                          version: 'Error: ' + e.message });
+                // ignore error if the module fails to load
             }
-        }));
-        return objs.filter((o) => o !== null);
+        }
+        return cached;
     }
 
     async updateModule(id : string) {
