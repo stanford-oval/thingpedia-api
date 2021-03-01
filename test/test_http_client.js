@@ -328,31 +328,24 @@ async function testGetDeviceSetup() {
 
 async function testGetKindByDiscovery() {
     // malformed requests
-    await assert.rejects(() => _httpClient.getKindByDiscovery({}));
-    await assert.rejects(() => _httpClient.getKindByDiscovery({
+    await assert.rejects(() => _developerHttpClient.getKindByDiscovery({}));
+    await assert.rejects(() => _developerHttpClient.getKindByDiscovery({
         kind: 'invalid'
     }));
-    await assert.rejects(() => _httpClient.getKindByDiscovery({
+    await assert.rejects(() => _developerHttpClient.getKindByDiscovery({
         kind: 'bluetooth',
         uuids: null,
         class: null
     }));
 
-    const bluetoothSpeaker = await _httpClient.getKindByDiscovery({
+    const bluetoothSpeaker = await _developerHttpClient.getKindByDiscovery({
         kind: 'bluetooth',
         uuids: ['0000110b-0000-1000-8000-00805f9b34fb'],
         class: 0
     });
     assert.deepStrictEqual(bluetoothSpeaker, 'org.thingpedia.bluetooth.speaker.a2dp');
 
-    const genericBluetooth = await _httpClient.getKindByDiscovery({
-        kind: 'bluetooth',
-        uuids: [],
-        class: 0
-    });
-    assert.deepStrictEqual(genericBluetooth, 'org.thingpedia.builtin.bluetooth.generic');
-
-    const lgTv = await _httpClient.getKindByDiscovery({
+    const lgTv = await _developerHttpClient.getKindByDiscovery({
         kind: 'upnp',
         name: '',
         deviceType: '',
@@ -362,7 +355,7 @@ async function testGetKindByDiscovery() {
     });
     assert.deepStrictEqual(lgTv, 'com.lg.tv.webos2');
 
-    assert.rejects(() => _httpClient.getKindByDiscovery({
+    assert.rejects(() => _developerHttpClient.getKindByDiscovery({
         kind: 'upnp',
         name: '',
         deviceType: '',

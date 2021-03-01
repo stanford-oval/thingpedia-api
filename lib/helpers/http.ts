@@ -61,11 +61,13 @@ interface RawHTTPRequestOptions extends HTTPRequestOptions {
 export class HTTPError extends Error {
     code : number;
     detail : string;
+    url : string;
     redirect ?: string;
 
-    constructor(statusCode : number, data : string) {
-        super('Unexpected HTTP error ' + statusCode);
+    constructor(statusCode : number, url : string, data : string) {
+        super('Unexpected HTTP error ' + statusCode + ' in request to ' + url);
         this.code = statusCode;
+        this.url = url;
         this.detail = data;
     }
 }
@@ -166,7 +168,7 @@ function httpRequestStream<UploadStreamT extends boolean, DownloadStreamT extend
                     if (options.debug && (res.statusCode !== 301 && res.statusCode !== 302 && res.statusCode !== 303))
                         console.log('HTTP request failed: ' + data);
 
-                    const error = new HTTPError(res.statusCode!, data);
+                    const error = new HTTPError(res.statusCode!, url, data);
                     if (res.statusCode! >= 300 && res.statusCode! < 400) {
                         const location = res.headers['location'];
                         assert(location);

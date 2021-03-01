@@ -21,7 +21,6 @@
 import assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as util from 'util';
 import * as ThingTalk from 'thingtalk';
 
 import Modules from './loaders';
@@ -117,49 +116,45 @@ export default class ModuleDownloader {
     }
 
     async getCachedMetas() {
-        const files = await util.promisify(fs.readdir)(this._cacheDir);
-        const objs = await Promise.all(files.map(async (name) => {
+        const cached = [];
+        for (const promise of this._moduleRequests.values()) {
             try {
-                if (name === 'node_modules')
-                    return null;
-                const file = path.resolve(this._cacheDir, name);
-                if (name.endsWith('.tt')) {
-                    const buffer = await util.promisify(fs.readFile)(file);
-                    const parsed = ThingTalk.Syntax.parse(buffer.toString('utf8'));
-                    assert(parsed instanceof ThingTalk.Ast.Library);
-                    const classDef = parsed.classes[0];
-
-                    return ({ name: classDef.kind,
-                              version: classDef.getImplementationAnnotation<number>('version')! });
-                } else {
-                    return null;
-                }
+                const module = await promise;
+                cached.push({ name: module.id, version: module.version });
             } catch(e) {
-                return ({ name: name,
-                          version: 'Error: ' + e.message });
+                // ignore error if the module fails to load
             }
-        }));
-        return objs.filter((o) => o !== null);
+        }
+        return cached;
     }
 
     async updateModule(id : string) {
-        let module;
+        let oldModule;
         try {
-            module = await this._moduleRequests.get(id);
+            oldModule = await this._moduleRequests.get(id);
         } catch(e) {
             // ignore errors
         }
         this._moduleRequests.delete(id);
 
-        if (module)
-            await module.clearCache();
+        const newModule = await this.getModule(id);
 
-        await this.loadClass(id, false);
+        if (oldModule) {
+            if (oldModule.version === newModule.version) {
+                // keep the old module we had already loaded
+                // this avoids reloading the JS code multiple times
+                // unnecessarily
+                this._moduleRequests.set(id, Promise.resolve(oldModule));
+            } else {
+                // remove any remnant of the old module
+                await oldModule.clearCache();
+            }
+        }
     }
 
     getModule(id : string) {
         this._ensureModuleRequest(id);
-        return this._moduleRequests.get(id);
+        return this._moduleRequests.get(id)!;
     }
 
     private _getDeveloperDirs() : string[]|undefined {
@@ -173,61 +168,10 @@ export default class ModuleDownloader {
     }
 
     async _loadClassCode(id : string, canUseCache : boolean) {
-        if (!this._platform.hasCapability('code-download'))
-            return Promise.reject(new Error('Code download is not allowed on this platform'));
-
         if (this._builtins[id])
             return this._builtins[id].class;
 
-        // if there is a developer directory, and it contains a manifest for the current device, load
-        // it directly, bypassing the cache logic
-        const developerDirs = this._getDeveloperDirs();
-
-        // moderate HACK to access HttpClient internal interface
-        const client : BaseClient & ({
-            _getLocalDeviceManifest ?: (localPath : string, id : string) => Promise<ThingTalk.Ast.ClassDef>
-        }) = this._client;
-        if (developerDirs && client._getLocalDeviceManifest) {
-            for (const dir of developerDirs) {
-                const localPath = path.resolve(dir, id, 'manifest.tt');
-                if (await util.promisify(fs.exists)(localPath))
-                    return (await client._getLocalDeviceManifest(localPath, id)).prettyprint();
-            }
-        }
-
-        const manifestTmpPath = this._cacheDir + '/' + id + '.tt.tmp';
-        const manifestPath = this._cacheDir + '/' + id + '.tt';
-
-        let useCached = false;
-
-        let classCode : string;
-        if (canUseCache) {
-            try {
-                const stat = await util.promisify(fs.stat)(manifestPath);
-                const now = new Date;
-                if (now.getTime() - stat.mtime.getTime() > 7 * 24 * 3600 * 1000)
-                    useCached = false;
-                else
-                    useCached = true;
-            } catch(e) {
-                if (e.code !== 'ENOENT')
-                    throw e;
-                useCached = false;
-            }
-        }
-        if (useCached)
-            classCode = (await util.promisify(fs.readFile)(manifestPath)).toString('utf8');
-        else
-            classCode = await this._client.getDeviceCode(id);
-        const stream = fs.createWriteStream(manifestTmpPath, { flags: 'w', mode: 0o600 });
-        await new Promise((callback, errback) => {
-            stream.write(classCode);
-            stream.end();
-            stream.on('finish', callback);
-            stream.on('error', errback);
-        });
-        fs.renameSync(manifestTmpPath, manifestPath);
-        return classCode;
+        return this._client.getDeviceCode(id);
     }
 
     async loadClass(id : string, canUseCache : boolean) {
