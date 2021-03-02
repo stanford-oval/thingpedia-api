@@ -1,3 +1,14 @@
+2.9.0-alpha.3
+=============
+
+* The caching logic for downloading skills was made simpler and more robust
+  to repeated checks for updates, at a small cost in performance [#135].
+* Query functions are now allowed to be implemented as async iterable functions
+  (`async *get_foo`) instead of async functions that return a regular iterable.
+  This allows easily implementing lazy queries that return as many results as
+  needed by ThingTalk code [#83].
+* Misc build system fixes [#127].
+
 2.9.0-alpha.2
 =============
 
