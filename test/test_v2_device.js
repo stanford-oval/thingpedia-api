@@ -202,6 +202,9 @@ async function testBrokenDevices() {
     await assert.rejects(() => instance.get_something_poll3(), ImplementationError);
     await assert.rejects(() => instance.get_something_poll4(), ImplementationError);
     await assert.throws(() => instance.subscribe_something(), ImplementationError);
+
+    // this one doesn't return an iterable (it returns an async-iterable), but it's ok anyway
+    await instance.get_something_lazy();
 }
 
 async function testThingpedia() {

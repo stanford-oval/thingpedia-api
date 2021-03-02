@@ -46,4 +46,9 @@ export default class MyDevice extends Tp.BaseDevice {
     get_something_poll4() {
         return 'foo';
     }
+
+    async *get_something_lazy() {
+        yield 1;
+        yield 2;
+    }
 }
