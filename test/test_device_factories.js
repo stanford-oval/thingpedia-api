@@ -25,43 +25,31 @@ import * as ThingTalk from 'thingtalk';
 import * as DeviceFactoryUtils from '../lib/device_factory_utils';
 
 const TEST_CASES = [
-    [`abstract class @security-camera {}`, {
-        name: 'Security Camera',
-        category: 'physical',
-    }, null],
+    [`abstract class @security-camera {}`, null],
 
     [`class @org.thingpedia.builtin.thingengine.builtin {
         import loader from @org.thingpedia.builtin();
         import config from @org.thingpedia.config.builtin();
-    }`, {
-        name: 'Security Camera',
-        category: 'physical',
-    }, null],
+    }`, null],
 
-    [`class @com.bing {
+    [`class @com.bing #_[thingpedia_name="Bing Search"] {
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.none();
     }`, {
-        name: "Bing Search",
-        category: 'data',
-    }, {
         type: 'none',
         text: "Bing Search",
         kind: 'com.bing',
         category: 'data'
     }],
 
-    [`class @com.bodytrace.scale {
+    [`class @com.bodytrace.scale #_[thingpedia_name="BodyTrace Scale"] {
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.basic_auth(extra_params=new ArgMap(serial_number : String));
     }`, {
-        name: "BodyTrace Scale",
-        category: 'physical',
-    }, {
         type: 'form',
         text: "BodyTrace Scale",
         kind: 'com.bodytrace.scale',
-        category: 'physical',
+        category: 'online',
         fields: [
             { name: 'username', label: 'Username', type: 'text' },
             { name: 'password', label: 'Password', type: 'password' },
@@ -69,31 +57,24 @@ const TEST_CASES = [
         ]
     }],
 
-    [`class @com.bodytrace.scale2 {
+    [`class @com.bodytrace.scale2 #_[thingpedia_name="BodyTrace Scale"] {
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.basic_auth();
     }`, {
-        name: "BodyTrace Scale",
-        category: 'physical',
-    }, {
         type: 'form',
         text: "BodyTrace Scale",
         kind: 'com.bodytrace.scale2',
-        category: 'physical',
+        category: 'online',
         fields: [
             { name: 'username', label: 'Username', type: 'text' },
             { name: 'password', label: 'Password', type: 'password' }
         ]
     }],
 
-    [`class @org.thingpedia.rss {
+    [`class @org.thingpedia.rss #_[thingpedia_name="RSS Feed"] {
         import loader from @org.thingpedia.rss();
         import config from @org.thingpedia.config.form(params=new ArgMap(url : Entity(tt:url)));
     }`, {
-        primary_kind: "org.thingpedia.rss",
-        name: "RSS Feed",
-        category: 'data',
-    }, {
         type: 'form',
         text: "RSS Feed",
         kind: 'org.thingpedia.rss',
@@ -103,39 +84,30 @@ const TEST_CASES = [
         ]
     }],
 
-    [`class @com.twitter {
+    [`class @com.twitter #_[thingpedia_name="Twitter Account"] {
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.custom_oauth();
     }`, {
-        name: "Twitter Account",
-        category: 'online',
-    }, {
         type: 'oauth2',
         text: "Twitter Account",
         kind: 'com.twitter',
         category: 'online',
     }],
 
-    [`class @com.linkedin {
+    [`class @com.linkedin #_[thingpedia_name="LinkedIn Account"] {
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.oauth2(client_id="foo", client_secret="bar");
     }`, {
-        name: "LinkedIn Account",
-        category: 'online',
-    }, {
         type: 'oauth2',
         text: "LinkedIn Account",
         kind: 'com.linkedin',
         category: 'online',
     }],
 
-    [`class @com.lg.tv.webos2 {
+    [`class @com.lg.tv.webos2 #_[thingpedia_name="LG TV"] {
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.discovery.upnp(search_target=['urn:lge:com:service:webos:second-screen-1']);
     }`, {
-        name: "LG TV",
-        category: 'physical',
-    }, {
         type: 'discovery',
         text: "LG TV",
         kind: 'com.lg.tv.webos2',
@@ -143,13 +115,10 @@ const TEST_CASES = [
         discoveryType: 'upnp'
     }],
 
-    [`class @org.thingpedia.bluetooth.speaker.a2dp {
+    [`class @org.thingpedia.bluetooth.speaker.a2dp #_[thingpedia_name="Bluetooth Speaker"] {
         import loader from @org.thingpedia.v2();
         import config from @org.thingpedia.config.discovery.bluetooth(uuids=['0000110b-0000-1000-8000-00805f9b34fb']);
     }`, {
-        name: "Bluetooth Speaker",
-        category: 'physical',
-    }, {
         type: 'discovery',
         text: "Bluetooth Speaker",
         kind: 'org.thingpedia.bluetooth.speaker.a2dp',
@@ -160,10 +129,10 @@ const TEST_CASES = [
 
 async function testCase(i) {
     console.log(`Test Case #${i+1}`);
-    const [classCode, device, expectedFactory] = TEST_CASES[i];
+    const [classCode, expectedFactory] = TEST_CASES[i];
 
     const classDef = ThingTalk.Syntax.parse(classCode).classes[0];
-    const generatedFactory = DeviceFactoryUtils.makeDeviceFactory(classDef, device);
+    const generatedFactory = DeviceFactoryUtils.makeDeviceFactory(classDef);
 
     try {
         assert.deepStrictEqual(generatedFactory, expectedFactory);
