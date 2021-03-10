@@ -139,5 +139,6 @@ function makeBaseDeviceMetadata(classDef : ThingTalk.Ast.ClassDef) {
 }
 
 export {
+    getCategory,
     makeBaseDeviceMetadata
 };

@@ -27,6 +27,8 @@ import * as util from 'util';
 import * as qs from 'qs';
 
 import * as Helpers from './helpers';
+import { getCategory } from './compat';
+import { makeDeviceFactory } from './device_factory_utils';
 
 import BaseClient, {
     EntityLookupResult,
@@ -34,6 +36,9 @@ import BaseClient, {
     LocationInput,
     LocationRecord,
     DeviceNameRecord,
+    DeviceListRecord,
+    DeviceFactory,
+    MultipleDeviceFactory,
 } from './base_client';
 
 // who to contact to resolve locations and entities
@@ -98,6 +103,18 @@ export default class FileClient extends BaseClient {
         return this._locale;
     }
 
+    getModuleLocation(id : string) : Promise<string> {
+        throw new Error('not implemented');
+    }
+
+    getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : DeviceFactory|MultipleDeviceFactory|null }> {
+        throw new Error('not implemented');
+    }
+
+    getKindByDiscovery(publicData : any) : Promise<string> {
+        throw new Error('not implemented');
+    }
+
     private async _load() {
         this._devices = (await util.promisify(fs.readFile)(this._thingpediafilename)).toString();
 
@@ -146,6 +163,46 @@ export default class FileClient extends BaseClient {
             return this._loaded = this._load();
     }
 
+    async getDeviceList(klass ?: string, page = 0, page_size = 10) : Promise<DeviceListRecord[]> {
+        await this._ensureLoaded();
+
+        const parsed = ThingTalk.Syntax.parse(this._devices!);
+        assert(parsed instanceof Ast.Library);
+        const list : DeviceListRecord[] = [];
+        for (const classDef of parsed.classes.slice(page_size * page, page_size * (page+1))) {
+            const category = getCategory(classDef);
+            if (klass && klass !== category)
+                continue;
+
+            list.push({
+                primary_kind: classDef.kind,
+                name: classDef.nl_annotations.thingpedia_name || classDef.kind,
+                description: classDef.nl_annotations.thingpedia_description || '',
+                category,
+                subcategory: classDef.getImplementationAnnotation<string>('subcategory') || 'service',
+                license: classDef.getImplementationAnnotation<string>('license') || '',
+                website: classDef.getImplementationAnnotation<string>('website') || '',
+                repository: classDef.getImplementationAnnotation<string>('repository') || '',
+                issue_tracker: classDef.getImplementationAnnotation<string>('issue_tracker') || '',
+            });
+        }
+        return list;
+    }
+
+    async getDeviceFactories(klass : string) : Promise<DeviceFactory[]> {
+        await this._ensureLoaded();
+
+        const parsed = ThingTalk.Syntax.parse(this._devices!);
+        assert(parsed instanceof Ast.Library);
+        const list : DeviceFactory[] = [];
+        for (const classDef of parsed.classes) {
+            const factory = makeDeviceFactory(classDef);
+            if (factory)
+                list.push(factory);
+        }
+        return list;
+    }
+
     async getSchemas(kinds : string[], useMeta ?: boolean) : Promise<string> {
         await this._ensureLoaded();
 
@@ -170,6 +227,10 @@ export default class FileClient extends BaseClient {
         return this._dataset!;
     }
 
+    async getExamplesByKey(key : string) : Promise<string> {
+        throw new Error('not implemented');
+    }
+
     async getExamplesByKinds(kinds : string[])  : Promise<string> {
         assert(Array.isArray(kinds));
         await this._ensureLoaded();
@@ -184,6 +245,10 @@ export default class FileClient extends BaseClient {
         const dataset = new Ast.Dataset(null, name, examples);
         const library = new Ast.Input.Library(null, [], [dataset]);
         return library.prettyprint();
+    }
+
+    async clickExample(exampleId : number) : Promise<void> {
+        // do nothing
     }
 
     async getAllDeviceNames() : Promise<DeviceNameRecord[]> {
