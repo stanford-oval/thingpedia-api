@@ -1,4 +1,10 @@
 class @com.facebook
+#_[thingpedia_name="Facebook"]
+#_[thingpedia_description="Connect to Facebook on Almond."]
+#[website="https://www.facebook.com"^^tt:url]
+#[license="CC0"]
+#[license_gplcompatible=true]
+#[subcategory=enum(social_network)]
 #_[canonical="facebook account"] {
   monitorable list query list_photos(in opt album: String #_[prompt="Which album? "] #_[canonical="album"],
                                      out date: Date #_[canonical="date"],

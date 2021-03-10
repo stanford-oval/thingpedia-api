@@ -189,6 +189,35 @@ export default class FileClient extends BaseClient {
         return list;
     }
 
+    async searchDevice(q : string) : Promise<DeviceListRecord[]> {
+        await this._ensureLoaded();
+
+        q = q.toLowerCase();
+
+        const parsed = ThingTalk.Syntax.parse(this._devices!);
+        assert(parsed instanceof Ast.Library);
+        const list : DeviceListRecord[] = [];
+        for (const classDef of parsed.classes) {
+            const record = {
+                primary_kind: classDef.kind,
+                name: classDef.nl_annotations.thingpedia_name || classDef.kind,
+                description: classDef.nl_annotations.thingpedia_description || '',
+                category: getCategory(classDef),
+                subcategory: classDef.getImplementationAnnotation<string>('subcategory') || 'service',
+                license: classDef.getImplementationAnnotation<string>('license') || '',
+                website: String(classDef.getImplementationAnnotation<string>('website') || ''),
+                repository: String(classDef.getImplementationAnnotation<string>('repository') || ''),
+                issue_tracker: String(classDef.getImplementationAnnotation<string>('issue_tracker') || ''),
+            };
+
+            // very simple search
+            if (record.name.toLowerCase().includes(q) ||
+                record.description.toLowerCase().includes(q))
+                list.push(record);
+        }
+        return list;
+    }
+
     async getDeviceFactories(klass : string) : Promise<DeviceFactory[]> {
         await this._ensureLoaded();
 

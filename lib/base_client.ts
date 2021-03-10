@@ -170,6 +170,8 @@ export default abstract class BaseClient {
 
     abstract getDeviceList(klass ?: string, page ?: number, page_size ?: number) : Promise<DeviceListRecord[]>;
 
+    abstract searchDevice(q : string) : Promise<DeviceListRecord[]>;
+
     abstract getDeviceFactories(klass : string) : Promise<DeviceFactory[]>;
 
     abstract getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : DeviceFactory|MultipleDeviceFactory|null }>;

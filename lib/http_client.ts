@@ -343,6 +343,10 @@ export default class HttpClient extends ClientBase {
         return this._simpleRequest('/devices/all', params);
     }
 
+    searchDevice(q : string) : Promise<DeviceListRecord[]> {
+        return this._simpleRequest('/devices/search', { q });
+    }
+
     getDeviceFactories(klass ?: string) : Promise<DeviceFactory[]> {
         const params : APIQueryParams = {};
         if (klass)

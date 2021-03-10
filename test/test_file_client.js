@@ -183,6 +183,22 @@ async function testGetDeviceList(klass) {
     }
 }
 
+async function testSearchDevices() {
+    const devices = await _fileClient.searchDevice('facebook');
+
+    assert.deepStrictEqual(devices, [{
+        primary_kind: "com.facebook",
+        name: "Facebook",
+        description: "Connect to Facebook on Almond.",
+        category: "data",
+        website: "https://www.facebook.com",
+        repository: "",
+        issue_tracker: "",
+        license: "CC0",
+        subcategory: "social_network"
+    }]);
+}
+
 async function main() {
     await testGetDeviceCode();
     await testGetSchemas(false);
@@ -192,6 +208,7 @@ async function main() {
     await testGetEntities();
 
     await testGetDeviceList();
+    await testSearchDevices();
 }
 
 export default main;
