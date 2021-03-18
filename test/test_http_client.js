@@ -313,6 +313,7 @@ async function testGetDeviceSetup() {
         },
         'org.thingpedia.builtin.test': {
             type: 'multiple',
+            text: 'Test Device',
             choices: []
         }
     });
@@ -321,6 +322,7 @@ async function testGetDeviceSetup() {
     assert.deepStrictEqual(nonexistent, {
         'org.thingpedia.builtin.test.nonexistent': {
             type: 'multiple',
+            text: 'org.thingpedia.builtin.test.nonexistent',
             choices: []
         }
     });
@@ -464,6 +466,22 @@ async function testGetEntities() {
     }
 }
 
+async function testSearchDevices() {
+    const devices = await _httpClient.searchDevice('home assistant');
+
+    assert.deepStrictEqual(devices, [{
+        primary_kind: "io.home-assistant",
+        name: "Home Assistant",
+        description: "Integrate your Almond with Home Assistant to control your home with voice.",
+        category: "online",
+        website: "https://home-assistant.io",
+        repository: "",
+        issue_tracker: "",
+        license: "BSD-3-Clause",
+        subcategory: "home"
+    }]);
+}
+
 async function main() {
     // remove any cached file, if any
     try {
@@ -483,6 +501,7 @@ async function main() {
     await testGetDeviceList('data');
     await testGetDeviceList('system');
     await testGetDeviceListErrorCases();
+    await testSearchDevices();
 
     await testGetDeviceFactories();
     await testGetDeviceFactories('online');

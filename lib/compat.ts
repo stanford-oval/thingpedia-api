@@ -115,6 +115,7 @@ function getCategory(classDef : ThingTalk.Ast.ClassDef) : 'system'|'data'|'physi
     switch (config.module) {
     case 'org.thingpedia.config.builtin':
     case 'org.thingpedia.config.none':
+    case 'org.thingpedia.config.form':
         return 'data';
     case 'org.thingpedia.config.discovery.bluetooth':
     case 'org.thingpedia.config.discovery.upnp':
@@ -139,5 +140,6 @@ function makeBaseDeviceMetadata(classDef : ThingTalk.Ast.ClassDef) {
 }
 
 export {
+    getCategory,
     makeBaseDeviceMetadata
 };

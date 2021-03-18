@@ -199,10 +199,7 @@ export default class HttpClient extends ClientBase {
 
     private async _getLocalFactory(localPath : string, kind : string) : Promise<DeviceFactory|null> {
         const classDef = await this._getLocalDeviceManifest(localPath, kind);
-        return makeDeviceFactory(classDef, {
-            category: 'data', // doesn't matter too much
-            name: classDef.metadata.thingpedia_name || classDef.metadata.name || kind,
-        });
+        return makeDeviceFactory(classDef);
     }
 
     async getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : DeviceFactory|null }> {
@@ -344,6 +341,10 @@ export default class HttpClient extends ClientBase {
         if (klass)
             params.class = klass;
         return this._simpleRequest('/devices/all', params);
+    }
+
+    searchDevice(q : string) : Promise<DeviceListRecord[]> {
+        return this._simpleRequest('/devices/search', { q });
     }
 
     getDeviceFactories(klass ?: string) : Promise<DeviceFactory[]> {

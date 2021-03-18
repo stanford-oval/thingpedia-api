@@ -155,6 +155,50 @@ async function testGetEntities() {
     }
 }
 
+async function testGetDeviceList(klass) {
+    const publicDevices = new Set;
+
+    const page0 = await _fileClient.getDeviceList(klass);
+
+    for (let i = 0; ; i++) {
+        const page = await _fileClient.getDeviceList(klass, i, 10);
+        if (i === 0)
+            assert.deepStrictEqual(page, page0);
+        for (let j = 0; j < Math.min(page.length, 10); j++) {
+            const device = page[j];
+            assertNonEmptyString(device.name);
+            assert.strictEqual(typeof device.description, 'string');
+            assertNonEmptyString(device.primary_kind);
+            assertNonEmptyString(device.category);
+            assertNonEmptyString(device.subcategory);
+            if (klass)
+                assert.deepStrictEqual(device.category, klass);
+
+            // no duplicates
+            assert(!publicDevices.has(device.primary_kind));
+            publicDevices.add(device.primary_kind);
+        }
+        if (page.length <= 10)
+            break;
+    }
+}
+
+async function testSearchDevices() {
+    const devices = await _fileClient.searchDevice('facebook');
+
+    assert.deepStrictEqual(devices, [{
+        primary_kind: "com.facebook",
+        name: "Facebook",
+        description: "Connect to Facebook on Almond.",
+        category: "data",
+        website: "https://www.facebook.com",
+        repository: "",
+        issue_tracker: "",
+        license: "CC0",
+        subcategory: "social_network"
+    }]);
+}
+
 async function main() {
     await testGetDeviceCode();
     await testGetSchemas(false);
@@ -162,6 +206,9 @@ async function main() {
 
     await testGetExamples();
     await testGetEntities();
+
+    await testGetDeviceList();
+    await testSearchDevices();
 }
 
 export default main;

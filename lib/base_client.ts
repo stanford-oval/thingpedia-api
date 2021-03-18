@@ -20,7 +20,7 @@
 
 import Mixins from './mixins.json';
 
-export type DeviceCategory = 'data'|'online'|'physical';
+export type DeviceCategory = 'data'|'online'|'physical'|'system';
 
 export interface DeviceListRecord {
     name : string;
@@ -83,7 +83,7 @@ export type DeviceFactory =
     InteractiveDeviceFactory |
     DiscoveryDeviceFactory |
     FormDeviceFactory;
-interface MultipleDeviceFactory {
+export interface MultipleDeviceFactory {
     type : 'multiple';
     text : string;
     choices : DeviceFactory[];
@@ -159,87 +159,40 @@ export default abstract class BaseClient {
 
     /**
      * The locale to use when querying Thingpedia, as BCP 47 tag.
-     *
-     * @type {string}
      */
-    get locale() : string {
-        throw new Error('not implemented');
-    }
+    abstract get locale() : string;
 
-    /* istanbul ignore next */
-    getModuleLocation(id : string) : Promise<string> {
-        throw new Error('not implemented');
-    }
+    abstract getModuleLocation(id : string) : Promise<string>;
 
-    /* istanbul ignore next */
-    getDeviceCode(id : string) : Promise<string> {
-        throw new Error('not implemented');
-    }
+    abstract getDeviceCode(id : string) : Promise<string>;
 
-    /* istanbul ignore next */
-    getSchemas(kinds : string[], withMetadata ?: boolean) : Promise<string> {
-        throw new Error('not implemented');
-    }
+    abstract getSchemas(kinds : string[], withMetadata ?: boolean) : Promise<string>;
 
-    /* istanbul ignore next */
-    getDeviceList(klass ?: string, page ?: number, page_size ?: number) : Promise<DeviceListRecord[]> {
-        throw new Error('not implemented');
-    }
+    abstract getDeviceList(klass ?: string, page ?: number, page_size ?: number) : Promise<DeviceListRecord[]>;
 
-    /* istanbul ignore next */
-    getDeviceFactories(klass : string) : Promise<DeviceFactory[]> {
-        throw new Error('not implemented');
-    }
+    abstract searchDevice(q : string) : Promise<DeviceListRecord[]>;
 
-    /* istanbul ignore next */
-    getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : DeviceFactory|MultipleDeviceFactory|null }> {
-        throw new Error('not implemented');
-    }
+    abstract getDeviceFactories(klass : string) : Promise<DeviceFactory[]>;
 
-    /* istanbul ignore next */
-    getKindByDiscovery(publicData : any) : Promise<string> {
-        throw new Error('not implemented');
-    }
+    abstract getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : DeviceFactory|MultipleDeviceFactory|null }>;
 
-    /* istanbul ignore next */
-    getExamplesByKey(key : string) : Promise<string> {
-        throw new Error('not implemented');
-    }
+    abstract getKindByDiscovery(publicData : any) : Promise<string>;
 
-    /* istanbul ignore next */
-    getExamplesByKinds(kinds : string[]) : Promise<string> {
-        throw new Error('not implemented');
-    }
+    abstract getExamplesByKey(key : string) : Promise<string>;
 
-    /* istanbul ignore next */
-    clickExample(exampleId : number) : Promise<void> {
-        throw new Error('not implemented');
-    }
+    abstract getExamplesByKinds(kinds : string[]) : Promise<string>;
 
-    /* istanbul ignore next */
-    lookupEntity(entityType : string, searchTerm : string) : Promise<EntityLookupResult> {
-        throw new Error('not implemented');
-    }
+    abstract clickExample(exampleId : number) : Promise<void>;
 
-    /* istanbul ignore next */
-    lookupLocation(searchTerm : string, around ?: LocationInput) : Promise<LocationRecord[]> {
-        throw new Error('not implemented');
-    }
+    abstract lookupEntity(entityType : string, searchTerm : string) : Promise<EntityLookupResult>;
 
-    /* istanbul ignore next */
-    getAllExamples() : Promise<string> {
-        throw new Error('not implemented');
-    }
+    abstract lookupLocation(searchTerm : string, around ?: LocationInput) : Promise<LocationRecord[]>;
 
-    /* istanbul ignore next */
-    getAllDeviceNames() : Promise<DeviceNameRecord[]> {
-        throw new Error('not implemented');
-    }
+    abstract getAllExamples() : Promise<string>;
 
-    /* istanbul ignore next */
-    getAllEntityTypes() : Promise<EntityTypeRecord[]> {
-        throw new Error('not implemented');
-    }
+    abstract getAllDeviceNames() : Promise<DeviceNameRecord[]>;
+
+    abstract getAllEntityTypes() : Promise<EntityTypeRecord[]>;
 
     getMixins() : Promise<{ [key : string] : MixinDeclaration }> {
         const mixins : { [key : string] : MixinDeclaration } = {};

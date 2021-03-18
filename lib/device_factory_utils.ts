@@ -22,9 +22,9 @@ import assert from 'assert';
 import { Ast, Type } from 'thingtalk';
 import {
     DeviceFactory,
-    DeviceCategory,
     FormField,
 } from './base_client';
+import { getCategory } from './compat';
 
 function clean(name : string) : string {
     if (/^[vwgp]_/.test(name))
@@ -57,14 +57,12 @@ function getInputParam(config : Ast.MixinImportStmt, name : string) : unknown {
 
 type TypeMap = { [key : string] : Type };
 
-interface DeviceRecordLike {
-    name : string;
-    category : DeviceCategory;
-}
-
-function makeDeviceFactory(classDef : Ast.ClassDef, device : DeviceRecordLike) : DeviceFactory|null {
+function makeDeviceFactory(classDef : Ast.ClassDef) : DeviceFactory|null {
     if (classDef.is_abstract)
         return null;
+
+    const name = classDef.metadata.thingpedia_name || classDef.metadata.name || '';
+    const category = getCategory(classDef);
 
     const config = classDef.config;
     assert(config);
@@ -94,60 +92,60 @@ function makeDeviceFactory(classDef : Ast.ClassDef, device : DeviceRecordLike) :
     case 'org.thingpedia.config.discovery.bluetooth':
         return {
             type: 'discovery',
-            category: device.category,
+            category: category,
             kind: classDef.kind,
-            text: device.name,
+            text: name,
             discoveryType: 'bluetooth'
         };
     case 'org.thingpedia.config.discovery.upnp':
         return {
             type: 'discovery',
-            category: device.category,
+            category: category,
             kind: classDef.kind,
-            text: device.name,
+            text: name,
             discoveryType: 'upnp'
         };
 
     case 'org.thingpedia.config.interactive':
         return {
             type: 'interactive',
-            category: device.category,
+            category: category,
             kind: classDef.kind,
-            text: device.name
+            text: name
         };
 
     case 'org.thingpedia.config.none':
         return {
             type: 'none',
-            category: device.category,
+            category: category,
             kind: classDef.kind,
-            text: device.name
+            text: name
         };
 
     case 'org.thingpedia.config.oauth2':
     case 'org.thingpedia.config.custom_oauth':
         return {
             type: 'oauth2',
-            category: device.category,
+            category: category,
             kind: classDef.kind,
-            text: device.name
+            text: name
         };
 
     case 'org.thingpedia.config.form':
         return {
             type: 'form',
-            category: device.category,
+            category: category,
             kind: classDef.kind,
-            text: device.name,
+            text: name,
             fields: toFields(getInputParam(config, 'params') as TypeMap)
         };
 
     case 'org.thingpedia.config.basic_auth':
         return {
             type: 'form',
-            category: device.category,
+            category: category,
             kind: classDef.kind,
-            text: device.name,
+            text: name,
             fields: [
                 { name: 'username', label: 'Username', type: 'text' },
                 { name: 'password', label: 'Password', type: 'password' }
