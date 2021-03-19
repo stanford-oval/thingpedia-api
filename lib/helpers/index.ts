@@ -38,6 +38,7 @@ import * as Xml from './xml';
 import RefCounted from './ref_counted';
 import * as ObjectSet from './object_set';
 import FilePreferences from './file_prefs';
+import MemoryPreferences from './memory_prefs';
 
 export {
     Content,
@@ -49,4 +50,5 @@ export {
     RefCounted,
     ObjectSet,
     FilePreferences,
+    MemoryPreferences,
 };
