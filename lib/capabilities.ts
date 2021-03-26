@@ -100,6 +100,7 @@ interface SoundStreamOptions {
     channels ?: number;
     latency ?: number;
     flags ?: string;
+    properties ?: Record<string, string>;
 }
 
 export interface SoundApi extends events.EventEmitter {
