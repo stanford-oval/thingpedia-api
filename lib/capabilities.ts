@@ -100,6 +100,7 @@ interface SoundStreamOptions {
     channels ?: number;
     latency ?: number;
     flags ?: string;
+    properties ?: Record<string, string>;
 }
 
 export interface SoundApi extends events.EventEmitter {
@@ -170,6 +171,18 @@ export interface SystemLockApi {
     lock() : Promise<void>;
 }
 
+interface Player {
+    stop() : Promise<void>;
+}
+
+export interface AudioPlayerApi {
+    play(urls : string[]) : Promise<Player>;
+}
+
+export interface SoundEffectsApi {
+    play(name : string) : Promise<void>;
+}
+
 export interface CapabilityMap {
     'thingpedia-client' : BaseClient;
     'content-api' : ContentApi;
@@ -187,6 +200,8 @@ export interface CapabilityMap {
     'contacts' : ContactsApi;
     'app-launcher' : AppLauncherApi;
     'system-lock' : SystemLockApi;
+    'audio-player' : AudioPlayerApi;
+    'sound-effects' : SoundEffectsApi;
 
     [key : string] : unknown;
 }
