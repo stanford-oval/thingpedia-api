@@ -29,7 +29,6 @@ import * as util from 'util';
  * dependency to Thingpedia interfaces, so that they don't need to bundle it themselves.
  *
  * @namespace
- * @alias Helpers.Xml
  */
 
 /**
@@ -37,6 +36,5 @@ import * as util from 'util';
  *
  * @param {string} xml - the XML to parse
  * @return {Object} the parsed document
- * @async
  */
 export const parseString = util.promisify(xml2js.parseString);

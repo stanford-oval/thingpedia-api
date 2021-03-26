@@ -147,13 +147,8 @@ export interface MixinDeclaration {
  *
  * Accessing the Thingpedia API from Almond occurs in a platform-specific manner,
  * through clients that extend this class.
- *
- * @interface
  */
 export default abstract class BaseClient {
-    /**
-     * @protected
-     */
     constructor() {
     }
 

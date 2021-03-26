@@ -26,7 +26,6 @@
  * instead of custom bundled libraries.
  *
  * @namespace
- * @name Helpers
  */
 
 import * as Content from './content';

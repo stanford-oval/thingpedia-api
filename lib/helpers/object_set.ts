@@ -23,8 +23,6 @@ import * as events from 'events';
 
 /**
  * The abstract interface that all ObjectSets must conform to.
- *
- * @memberof! Helpers.ObjectSet
  */
 class Base<T> extends events.EventEmitter {
     /**
@@ -40,9 +38,6 @@ class Base<T> extends events.EventEmitter {
      * @param {Object} object - the just-removed object
      */
 
-    /**
-     * @protected
-     */
     protected constructor() {
         super();
         this.setMaxListeners(Infinity);
@@ -53,7 +48,6 @@ class Base<T> extends events.EventEmitter {
      *
      * @param {Object} o - the added object
      * @fires Helpers.ObjectSet.Base#object-added
-     * @protected
      */
     protected objectAdded(o : T) : void {
         this.emit('object-added', o);
@@ -64,7 +58,6 @@ class Base<T> extends events.EventEmitter {
      *
      * @param {Object} o - the removed object
      * @fires Helpers.ObjectSet.Base#object-removed
-     * @protected
      */
     protected objectRemoved(o : T) : void {
         this.emit('object-removed', o);
@@ -75,7 +68,6 @@ class Base<T> extends events.EventEmitter {
      * List all objects currently in the set.
      *
      * @return {Object[]} - the objects in the set
-     * @abstract
      */
     values() : T[] {
         throw new Error('Not Implemented');
@@ -87,7 +79,6 @@ class Base<T> extends events.EventEmitter {
      *
      * This should be called for ObjectSets whose content
      * changes dynamically.
-     * @abstract
      */
     async start() : Promise<void> {
         throw new Error('Not Implemented');
@@ -99,7 +90,6 @@ class Base<T> extends events.EventEmitter {
      *
      * This should be called for ObjectSets whose content
      * changes dynamically.
-     * @abstract
      */
     async stop() : Promise<void> {
         throw new Error('Not Implemented');
@@ -112,9 +102,6 @@ interface HasUniqueId {
 
 /**
  * A simple implementation of {@link Helpers.ObjectSet.Base} backed by a {@link Map}.
- *
- * @extends Helpers.ObjectSet.Base
- * @memberof! Helpers.ObjectSet
  */
 class Simple<T extends HasUniqueId> extends Base<T> {
     private _objects : Map<string, T>;
@@ -210,7 +197,6 @@ class Simple<T extends HasUniqueId> extends Base<T> {
  * and removal.
  *
  * @namespace
- * @alias Helpers.ObjectSet
  */
 export {
     Simple,

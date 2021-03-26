@@ -32,7 +32,6 @@ import type BasePlatform from '../base_platform';
  * These APIs should be used in preference to other libraries to support platform-specific
  * URLs, like `file:///` or `content://` URLs.
  *
- * @alias Helpers.Content
  * @namespace
  */
 
@@ -86,7 +85,6 @@ interface ContentTypeStream extends stream.Readable {
  * @param {BasePlatform} platform - the current Almond platform
  * @param {string} url - the URL to retrieve
  * @return {stream.Readable} - a nodejs Readable stream, which also has a `contentType` string property
- * @async
  */
 export async function getStream(platform : BasePlatform, url : string) : Promise<ContentTypeStream> {
     if (url.startsWith('http')) {
@@ -116,7 +114,6 @@ interface ContentTypeBuffer extends Buffer {
  * @param {BasePlatform} platform - the current Almond platform
  * @param {string} url - the URL to retrieve
  * @return {Buffer} - the buffered URL content; it also has a `contentType` string property
- * @async
  */
 export async function getData(platform : BasePlatform, url : string) : Promise<ContentTypeBuffer> {
     return getStream(platform, url).then((stream : ContentTypeStream) => new Promise((callback, errback) => {

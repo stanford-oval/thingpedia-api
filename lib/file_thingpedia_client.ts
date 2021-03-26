@@ -62,7 +62,6 @@ interface APIQueryParams {
 /**
  * A Thingpedia Client backed by local files.
  *
- * @extends BaseClient
  */
 export default class FileClient extends BaseClient {
     private _locale : string;
