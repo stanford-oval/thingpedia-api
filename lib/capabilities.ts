@@ -180,6 +180,21 @@ export interface AudioPlayerApi {
 }
 
 export interface SoundEffectsApi {
+    /**
+     * Returns the URL of the sound effect with this name.
+     *
+     * This can be a `file://` URL or a remote one.
+     *
+     * If the sound effect is not know, this method returns `undefined`.
+     */
+    getURL(name : string) : string|undefined;
+
+    /**
+     * Plays the given sound effect.
+     *
+     * Does nothing if the sound effect is not known, or if alert sounds
+     * are muted/disabled.
+     */
     play(name : string) : Promise<void>;
 }
 
