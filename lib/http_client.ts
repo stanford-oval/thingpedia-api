@@ -58,7 +58,6 @@ interface APIQueryParams {
  * If the developer-dir shared preference is set, HTTP results are overridden
  * with the manifest.tt in the developer directory.
  *
- * @extends BaseClient
  */
 export default class HttpClient extends ClientBase {
     platform : BasePlatform;
@@ -79,7 +78,6 @@ export default class HttpClient extends ClientBase {
     /**
      * Retrieve the current user's developer key.
      *
-     * @type {string|null}
      */
     get developerKey() : string|null {
         return this.platform.getDeveloperKey();

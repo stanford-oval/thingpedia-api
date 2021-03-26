@@ -25,26 +25,40 @@ import * as Http from './http';
 
 /**
  * RSS entry returned by the helpers.
- *
- * @typedef {Object} Helpers.Rss~RSSEntry
- * @property {string} guid - the GUID of the RSS entry
- * @property {string} title - the title of the RSS entry
- * @property {Date} updated_time - the time at which this RSS entry was updated
- * @property {string} link - the link to the underlying article
- * @property {string|null} description - the body of the RSS entry, if present and plain text
- * @property {string|null} author - the author of the RSS entry, if present
- * @property {string|null} picture_url - the image associated with this entry, if one is present
- * @property {string[]} categories - categories associated with this RSS entry
  */
 export interface RSSEntry {
+    /**
+     * The GUID of the RSS entry.
+     */
     guid : string;
+    /**
+     * The title of the RSS entry.
+     */
     title : string;
+    /**
+     * The time at which this RSS entry was updated.
+     */
     updated_time : Date;
     updated : Date;
+    /**
+     * The link to the underlying article.
+     */
     link : string;
+    /**
+     * The body of the RSS entry, if present and plain text.
+     */
     description : string|null;
+    /**
+     * The author of the RSS entry, if present.
+     */
     author : string|null;
+    /**
+     * The image associated with this entry, if one is present.
+     */
     picture_url : string|null;
+    /**
+     * Categories associated with this RSS entry.
+     */
     categories : string[];
 }
 
@@ -52,7 +66,6 @@ export interface RSSEntry {
  * RSS helpers.
  *
  * @namespace
- * @alias Helpers.Rss
  */
 
 /**
@@ -61,7 +74,6 @@ export interface RSSEntry {
  * @param {string} url - the URL of the feed
  * @param {Object} options - options to pass to the HTTP library; see {@link Helpers.Http.get} for details
  * @return {Array.<Helpers.Rss~RSSEntry>} a list of RSS entries
- * @async
  */
 export function get(url : string, options ?: Http.HTTPRequestOptions) : Promise<RSSEntry[]> {
     return Http.getStream(url, options).then((stream) => {

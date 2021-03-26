@@ -218,6 +218,29 @@ function httpRequestStream<UploadStreamT extends boolean, DownloadStreamT extend
     });
 }
 
+/**
+ * Perform a buffered HTTP request with a custom method.
+ *
+ * @param {string} url - the URL to POST to
+ * @param {string} method - the HTTP method to use
+ * @param {string|null} data - the content of the request body; you can pass `null` for an empty body
+ * @param {Object} [options] - request options
+ * @param {string} [options.dataContentType] - the value of the `Content-Type` request header
+ * @param {string} [options.auth] - the value of `Authorization` header
+ * @param {string} [options.accept] - the value of `Accept` header
+ * @param {BaseDevice} [options.useOAuth2] - if set, the `Authorization` header will be computed for the passed
+ *                                           device based on the OAuth 2.0 standard; using this option also enables
+ *                                           automatic refresh token handling (if the refresh token exists); this
+ *                                           option is ignored if `auth` is also set
+ * @param {string} [options.authMethod=Bearer] - set this to override the prefix of the `Authorization` header;
+ *                                        this option is ignored unless `useOAuth2` is set
+ * @param {string} [options.user-agent] - set the `User-Agent` header; if unset a default user agent is used
+ * @param {Object.<string,string>} [options.extraHeaders] - other request headers to set
+ * @param {boolean} [options.ignoreErrors=false] - set to `true` to ignore errors (HTTP statuses 300 and higher)
+ * @param {boolean} [options.followRedirects=true] - set to `false` to disable automatic handling of HTTP redirects (status 301, 302 and 303)
+ * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
+ * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with `Buffer` and content type.
+ */
 function httpRequest(url : string,
                      method : string,
                      data : string|Buffer|null,
@@ -244,34 +267,8 @@ function httpDownloadStream(url : string,
  * HTTP Helpers.
  *
  * @namespace
- * @alias Helpers.Http
  */
 export {
-    /**
-     * Perform a buffered HTTP request with a custom method.
-     *
-     * @param {string} url - the URL to POST to
-     * @param {string} method - the HTTP method to use
-     * @param {string|null} data - the content of the request body; you can pass `null` for an empty body
-     * @param {Object} [options] - request options
-     * @param {string} [options.dataContentType] - the value of the `Content-Type` request header
-     * @param {string} [options.auth] - the value of `Authorization` header
-     * @param {string} [options.accept] - the value of `Accept` header
-     * @param {BaseDevice} [options.useOAuth2] - if set, the `Authorization` header will be computed for the passed
-     *                                           device based on the OAuth 2.0 standard; using this option also enables
-     *                                           automatic refresh token handling (if the refresh token exists); this
-     *                                           option is ignored if `auth` is also set
-     * @param {string} [options.authMethod=Bearer] - set this to override the prefix of the `Authorization` header;
-     *                                        this option is ignored unless `useOAuth2` is set
-     * @param {string} [options.user-agent] - set the `User-Agent` header; if unset a default user agent is used
-     * @param {Object.<string,string>} [options.extraHeaders] - other request headers to set
-     * @param {boolean} [options.ignoreErrors=false] - set to `true` to ignore errors (HTTP statuses 300 and higher)
-     * @param {boolean} [options.followRedirects=true] - set to `false` to disable automatic handling of HTTP redirects (status 301, 302 and 303)
-     * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
-     * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with {@link Buffer} and content type.
-     * @function
-     * @async
-     */
     httpRequest as request,
 };
 
@@ -300,8 +297,7 @@ export {
  * @param {boolean} [options.ignoreErrors=false] - set to `true` to ignore errors (HTTP statuses 300 and higher)
  * @param {boolean} [options.followRedirects=true] - set to `false` to disable automatic handling of HTTP redirects (status 301, 302 and 303)
  * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
- * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with {@link Buffer} and content type.
- * @async
+ * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with `Buffer` and content type.
  */
 export function get(url : string, options : RawHTTPRequestOptions) : Promise<[Buffer, string]>;
 export function get(url : string, options ?: HTTPRequestOptions) : Promise<string>;
@@ -329,8 +325,7 @@ export function get(url : string, options : HTTPRequestOptions = {}) : Promise<[
  * @param {boolean} [options.ignoreErrors=false] - set to `true` to ignore errors (HTTP statuses 300 and higher)
  * @param {boolean} [options.followRedirects=true] - set to `false` to disable automatic handling of HTTP redirects (status 301, 302 and 303)
  * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
- * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with {@link Buffer} and content type.
- * @async
+ * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with `Buffer` and content type.
  */
 export function post(url : string, data : string|Buffer, options : RawHTTPRequestOptions) : Promise<[Buffer, string]>;
 export function post(url : string, data : string|Buffer, options ?: HTTPRequestOptions) : Promise<string>;
@@ -360,8 +355,7 @@ export function post(url : string, data : string|Buffer, options : HTTPRequestOp
  * @param {boolean} [options.ignoreErrors=false] - set to `true` to ignore errors (HTTP statuses 300 and higher)
  * @param {boolean} [options.followRedirects=true] - set to `false` to disable automatic handling of HTTP redirects (status 301, 302 and 303)
  * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
- * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with {@link Buffer} and content type.
- * @async
+ * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with `Buffer` and content type.
  */
 export function postStream(url : string, data : stream.Readable, options : RawHTTPRequestOptions) : Promise<[Buffer, string]>;
 export function postStream(url : string, data : stream.Readable, options ?: HTTPRequestOptions) : Promise<string>;
@@ -391,7 +385,6 @@ export function postStream(url : string, data : stream.Readable, options : HTTPR
  * @param {boolean} [options.ignoreErrors=false] - set to `true` to ignore errors (HTTP statuses 300 and higher)
  * @param {boolean} [options.followRedirects=true] - set to `false` to disable automatic handling of HTTP redirects (status 301, 302 and 303)
  * @return {Promise<http.IncomingMessage>} the server response
- * @async
  */
 export function getStream(url : string, options ?: HTTPRequestOptions) : Promise<http.IncomingMessage> {
     return httpDownloadStream(url, 'GET', null, options);

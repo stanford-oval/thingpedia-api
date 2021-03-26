@@ -27,9 +27,6 @@ import { CapabilityMap } from './capabilities';
  * All platform specific APIs should be accessed through an instance of this class.
  */
 export default abstract class BasePlatform {
-    /**
-     * @protected
-     */
     constructor() {}
 
     /* istanbul ignore next */
@@ -74,7 +71,7 @@ export default abstract class BasePlatform {
      * Retrieve an interface to an optional functionality provided by the
      * platform.
      *
-     * This will return `null` if {@link BasePlatform#hasCapability}(cap) is `false`.
+     * This will return `null` if {@link BasePlatform.hasCapability}(cap) is `false`.
      *
      * @param {string} cap - the capability name
      * @return {any|null} an interface implementing the given capability
@@ -145,7 +142,7 @@ export default abstract class BasePlatform {
     /**
      * Retrieve the HTTP origin to use for OAuth redirects.
      *
-     * This defaults to {@link BasePlatform#getOrigin} but can be overridden
+     * This defaults to {@link BasePlatform.getOrigin} but can be overridden
      * by subclasses that need different origins for HTTP and OAuth.
      *
      * @return {string} an HTTP origin (protocol, hostname and port)

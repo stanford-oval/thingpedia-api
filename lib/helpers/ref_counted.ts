@@ -35,8 +35,6 @@ async function pFinally<T>(promise : Promise<T>, finallyClause : () => void) : P
  * This class can be used to manage the lifetime of some resource (like
  * a file or a socket) in a deterministic manner among multiple users.
  *
- * @extends events.EventEmitter
- * @alias Helpers.RefCounted
  */
 export default class RefCounted extends events.EventEmitter {
     private _useCount : number;
@@ -46,7 +44,7 @@ export default class RefCounted extends events.EventEmitter {
     /**
      * Construct a new reference counted object.
      *
-     * The object has initial reference count of 0. You must call {@link Helpers.RefCounted#open} before use.
+     * The object has initial reference count of 0. You must call {@link Helpers.RefCounted.open} before use.
      *
      * @protected
      */
@@ -63,9 +61,6 @@ export default class RefCounted extends events.EventEmitter {
      * Open a reference to the underlying resource.
      *
      * This method is called when the reference count goes from 0 to 1.
-     *
-     * @abstract
-     * @protected
      */
     protected async _doOpen() : Promise<void> {
     }
@@ -74,9 +69,6 @@ export default class RefCounted extends events.EventEmitter {
      * Release the underlying resource.
      *
      * This method is called when the reference count goes from 1 to 0.
-     *
-     * @abstract
-     * @protected
      */
     protected async _doClose() : Promise<void> {
     }
@@ -87,7 +79,6 @@ export default class RefCounted extends events.EventEmitter {
      * This method ensures that the resource is initialized, and increases
      * the reference count.
      *
-     * @async
      */
     open() : Promise<void> {
         // if closing, wait to fully close then reopen
@@ -119,7 +110,6 @@ export default class RefCounted extends events.EventEmitter {
      * This method decreases the reference count, and releases the resource
      * if there are no other users.
      *
-     * @async
      */
     close() : Promise<void> {
         // if opening, wait to fully open then close

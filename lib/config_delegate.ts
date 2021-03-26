@@ -27,16 +27,13 @@
  * because JS does not have interfaces or multiple inheritance.
  */
 export default abstract class ConfigDelegate {
-    /**
-     * @protected
-     */
     constructor() {}
 
     /* istanbul ignore next */
     /**
      * Report that the device was configured successfully.
      *
-     * @deprecated returning successfully from {@link BaseDevice#completeDiscovery} or
+     * @deprecated returning successfully from {@link BaseDevice.completeDiscovery} or
      *             {@link BaseDevice.loadInteractively} is enough to report success.
      */
     async configDone() : Promise<void> {
@@ -49,7 +46,7 @@ export default abstract class ConfigDelegate {
      * for some reason.
      *
      * @param {Error} error - the error that occurred
-     * @deprecated throwing an exception from {@link BaseDevice#completeDiscovery}
+     * @deprecated throwing an exception from {@link BaseDevice.completeDiscovery}
      *             {@link BaseDevice.loadInteractively} is enough to report failure.
      */
     configFailed(error : Error) : Promise<void> {
@@ -61,7 +58,7 @@ export default abstract class ConfigDelegate {
      * Ask the user a yes/no question.
      *
      * @param {string} question - the question to ask
-     * @result {boolean} true if the user says yes, false if the user says no, or an error
+     * @return {boolean} true if the user says yes, false if the user says no, or an error
      */
     async confirm(question : string) : Promise<boolean> {
         throw new Error('Not Implemented');
@@ -73,7 +70,7 @@ export default abstract class ConfigDelegate {
      *
      * @param {string} question - the question to ask
      * @param {boolean} [secret] - true if the question is secret (the answer should be masked)
-     * @result {string} the answer from the user
+     * @return {string} the answer from the user
      */
     async requestCode(question : string, secret = false) : Promise<string> {
         throw new Error('Not Implemented');

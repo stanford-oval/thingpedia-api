@@ -35,7 +35,6 @@ import type BasePlatform from './base_platform';
  *
  * Tiers are used to inform how synchronization of device database occurs.
  *
- * @alias BaseDevice.Tier
  */
 export enum Tier {
     GLOBAL = 'global',
@@ -48,7 +47,6 @@ export enum Tier {
 /**
  * Whether a device is available (power on and accessible).
  *
- * @alias BaseDevice.Availability
  */
 export enum Availability {
     UNAVAILABLE = 0,
@@ -117,7 +115,6 @@ export interface QueryInterfaceMap {
 /**
  * The base class of all Thingpedia device implementations.
  *
- * @extends events.EventEmitter
  */
 export default abstract class BaseDevice extends events.EventEmitter {
     // legacy interface
@@ -135,10 +132,53 @@ export default abstract class BaseDevice extends events.EventEmitter {
 
     protected _engine : BaseEngine;
     state : DeviceState;
+    /**
+     * The unique ID of this device instance.
+     *
+     * Device implementations should set this the Thingpedia kind (class ID) plus something unique
+     * (eg "com.mydevice/aa-bb-cc-dd-ee-ff") so that no other device
+     * can possibly have the same ID.
+     * If you leave it unset, a unique identifier will be automatically generated.
+     */
     uniqueId : string|undefined;
+    /**
+     * The user-visible name of this device instance.
+     *
+     * If multiple instances of the same class can reasonably be configured by the same
+     * user (e.g. multiple devices of the same brand, or multiple accounts on the same service),
+     * they should have different names.
+     *
+     * This defaults to the `#_[name]` annotation provided in Thingpedia, with placeholders replaced with
+     * values taken from the device state.
+     *
+     */
     name : string;
+    /**
+     * A longer description of this device instance.
+     *
+     * This can be used to add additional distinguishing information, such as the URL
+     * or address of a local gateway.
+     * It defaults to the `#_[description]` annotation provided in Thingpedia.
+     *
+     */
     description : string;
+    /**
+     * Discovery protocol descriptors.
+     *
+     * Device implementations should set these to protocol/discovery specific IDs (such as
+     * "bluetooth/aa-bb-cc-dd-ee-ff") so that it is unlikely that
+     * another device has the same ID.
+     *
+     */
     descriptors : string[];
+    /**
+     * Indicates a transient device.
+     *
+     * Set to true if this device should not be stored in the device database
+     * but only kept in memory (i.e., its lifetime is managed by some
+     * device discovery module, or it's a subdevice of some other device).
+     *
+     */
     isTransient : boolean;
 
     /**
@@ -149,7 +189,6 @@ export default abstract class BaseDevice extends events.EventEmitter {
      *
      * @param {BaseEngine} engine - the shared Almond engine initializing this device
      * @param {Object} state - arbitrary JSON data associated with this device
-     * @protected
      */
     constructor(engine : BaseEngine, state : DeviceState) {
         super();
@@ -166,18 +205,6 @@ export default abstract class BaseDevice extends events.EventEmitter {
         const isNoneFactory = ast.auth.type === 'none' && params.length === 0;
         const isNoneAuth = ast.auth.type === 'none';
 
-        /**
-         * The unique ID of this device instance.
-         *
-         * Device implementations should set this the Thingpedia kind (class ID) plus something unique
-         * (eg "com.mydevice/aa-bb-cc-dd-ee-ff") so that no other device
-         * can possibly have the same ID.
-         * If you leave it unset, a unique identifier will be automatically generated.
-         *
-         * @name BaseDevice#uniqueId
-         * @type {string}
-         * @member
-         */
         if (isNoneFactory)
             this.uniqueId = this.kind;
         else if (isNoneAuth)
@@ -189,18 +216,6 @@ export default abstract class BaseDevice extends events.EventEmitter {
         // NOTE: these are not getters, because the subclass can override
         // them and mutate them as it wishes
 
-        /**
-         * The user-visible name of this device instance.
-         *
-         * If multiple instances of the same class can reasonably be configured by the same
-         * user (e.g. multiple devices of the same brand, or multiple accounts on the same service),
-         * they should have different names.
-         *
-         * This defaults to the name provided in Thingpedia, with placeholders replaced with
-         * values taken from the device state.
-         *
-         * @type {string}
-         */
         this.name = ast.name;
         if (ast.name) {
             this.name = interpolate(ast.name, this.state, {
@@ -209,15 +224,6 @@ export default abstract class BaseDevice extends events.EventEmitter {
             })||'';
         }
 
-        /**
-         * A longer description of this device instance.
-         *
-         * This can be used to add additional distinguishing information, such as the URL
-         * or address of a local gateway.
-         * It defaults to the description provided in Thingpedia.
-         *
-         * @type {string}
-         */
         this.description = ast.description;
         if (ast.description) {
             this.description = interpolate(ast.description, this.state, {
@@ -226,26 +232,8 @@ export default abstract class BaseDevice extends events.EventEmitter {
             })||'';
         }
 
-        /**
-         * Discovery protocol descriptors.
-         *
-         * Device implementations should set these to protocol/discovery specific IDs (such as
-         * "bluetooth/aa-bb-cc-dd-ee-ff") so that it is unlikely that
-         * another device has the same ID.
-         *
-         * @type {string[]}
-         */
         this.descriptors = [];
 
-        /**
-         * Indicates a transient device.
-         *
-         * Set to true if this device should not be stored in the device database
-         * but only kept in memory (i.e., its lifetime is managed by some
-         * device discovery module, or it's a subdevice of some other device).
-         *
-         * @type {boolean}
-         */
         this.isTransient = false;
     }
 
@@ -266,7 +254,6 @@ export default abstract class BaseDevice extends events.EventEmitter {
      *
      * @param {BaseEngine} engine - the shared Almond engine initializing this device
      * @return {Array} tuple of redirect URI and session data
-     * @abstract
     */
     static async loadFromCustomOAuth(engine : BaseEngine) : Promise<[string, SessionMap]> {
         // if not overridden, call the compatibility method using the legacy interface
@@ -286,7 +273,6 @@ export default abstract class BaseDevice extends events.EventEmitter {
      * @param {string} url - the redirect URL called after completing OAuth
      * @param {Object.<string,string>} session - session data that was returned from {@link BaseDevice.loadFromCustomOAuth}
      * @return {BaseDevice} the fully configured device instance
-     * @abstract
     */
     static async completeCustomOAuth(engine : BaseEngine, url : string, session : SessionMap) : Promise<BaseDevice|null> {
         // if not overridden, call the compatibility method with a made-up `req` object
@@ -313,7 +299,6 @@ export default abstract class BaseDevice extends events.EventEmitter {
      * @param {string} accessToken - the OAuth access token
      * @param {string} refreshToken - the OAuth refresh token, if one is provided
      * @param {Object} extraData - the whole response to the OAuth token request
-     * @abstract
     */
     static async loadFromOAuth2(engine : BaseEngine,
                                 accessToken : string,
@@ -328,14 +313,13 @@ export default abstract class BaseDevice extends events.EventEmitter {
      *
      * The method should return a new device instance. The instance might be partially
      * initialized (e.g. for Bluetooth, the device might not be paired). If the user
-     * chooses to continue configuring the device, {@link BaseDevice#completeDiscovery} will be called.
+     * chooses to continue configuring the device, {@link BaseDevice.completeDiscovery} will be called.
      *
      * @param {BaseEngine} engine - the shared Almond engine initializing this device
      * @param {Object} publicData - protocol specific data that is public (e.g. Bluetooth UUIDs)
      * @param {Object} privateData - protocol specific data that is specific to the device and
      *                               private to the user (e.g. Bluetooth HW address)
      * @return {BaseDevice} the new, partially initialized device instance
-     * @abstract
     */
     static async loadFromDiscovery(engine : BaseEngine,
                                    publicData : { [key : string] : unknown },
@@ -357,7 +341,6 @@ export default abstract class BaseDevice extends events.EventEmitter {
      *
      * @param {ConfigDelegate} delegate - a delegate object to interact with the user and complete configuration
      * @return {BaseDevice} the device instance itself (`this`)
-     * @abstract
     */
     async completeDiscovery(delegate : ConfigDelegate) : Promise<this> {
         throw new Error('not implemented');
@@ -403,7 +386,6 @@ export default abstract class BaseDevice extends events.EventEmitter {
      * @param {BaseEngine} engine - the shared Almond engine initializing this device
      * @param {ConfigDelegate} delegate - a delegate object to interact with the user and complete configuration
      * @return {BaseDevice} the fully configured device instance
-     * @abstract
      */
     static async loadInteractively(engine : BaseEngine, delegate : ConfigDelegate) : Promise<BaseDevice> {
         // if not overridden, call the compatibility method
@@ -421,7 +403,6 @@ export default abstract class BaseDevice extends events.EventEmitter {
     /**
      * The Thingpedia "kind" (unique class ID) of this device.
      *
-     * @type string
      */
     get kind() : string {
         return this.state.kind;
@@ -436,7 +417,6 @@ export default abstract class BaseDevice extends events.EventEmitter {
     /**
      * Access the current platform for this device instance.
      *
-     * @type {BasePlatform}
      */
     get platform() : BasePlatform {
         return this._engine.platform;
@@ -445,7 +425,6 @@ export default abstract class BaseDevice extends events.EventEmitter {
     /**
      * Access the current engine for this device instance.
      *
-     * @type {BaseEngine}
      * @deprecated It is recommended to avoid using the {@link BaseEngine} API as it can change without notice.
      */
     get engine() : BaseEngine {
@@ -456,17 +435,16 @@ export default abstract class BaseDevice extends events.EventEmitter {
     /**
      * Notify that the device's serialized state changed.
      *
-     * This should be called after any change to {@link BaseDevice#state} meant to be
+     * This should be called after any change to {@link BaseDevice.state} meant to be
      * persisted on disk.
      *
-     * @fires BaseDevice#state-changed
-     * @protected
+     * @fires BaseDevice.state-changed
      */
     protected stateChanged() : void {
         /**
          * Reports a change in device state.
          *
-         * @event BaseDevice#state-changed
+         * @event BaseDevice.state-changed
          */
         this.emit('state-changed');
     }
@@ -529,7 +507,7 @@ export default abstract class BaseDevice extends events.EventEmitter {
      * Perform an async check to verify if the device is available
      * (i.e., on, working, reachable on the local network, etc.)
      *
-     * @returns {BaseDevice.Availability} whether the device is available or not.
+     * @return {BaseDevice.Availability} whether the device is available or not.
      */
     async checkAvailable() : Promise<Availability> {
         return Availability.UNKNOWN;

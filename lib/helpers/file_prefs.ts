@@ -27,8 +27,6 @@ import Preferences from '../prefs';
 /**
  * A simple implementation of {@link Preferences} that uses a single file.
  *
- * @alias Helpers.FilePreferences
- * @extends Preferences
  */
 export default class FilePreferences extends Preferences {
     private _file : string;

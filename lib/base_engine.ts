@@ -47,7 +47,6 @@ export default abstract class BaseEngine {
      * @param {Object} options - additional options
      * @param {string} [options.thingpediaUrl] - the Thingpedia URL to use (if the platform
      *                                           does not provide a {@link BaseClient})
-     * @protected
      */
     constructor(platform : BasePlatform, options : EngineOptions = {}) {
         this._platform = platform;

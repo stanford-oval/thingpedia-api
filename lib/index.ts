@@ -44,7 +44,6 @@ interface Version {
  *
  * Note: you should never bundle the Thingpedia SDK with your device.
  *
- * @alias version
  * @namespace
  */
 const VERSION = {

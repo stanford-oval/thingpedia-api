@@ -26,7 +26,6 @@ import * as stream from 'stream';
  *
  * The callback should poll the underlying API and return the current results.
  *
- * @callback Helpers~PollCallback
  * @return {Object[]} the current list of results
  */
 
@@ -48,8 +47,6 @@ export interface EventResult {
 /**
  * A stream.Readable implementation that emits new values at specific interval.
  *
- * @extends stream.Readable
- * @alias Helpers.PollingStream
  */
 export default class PollingStream<EventType extends EventResult> extends stream.Readable {
     private _timeout : NodeJS.Timeout|null;

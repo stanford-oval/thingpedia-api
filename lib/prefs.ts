@@ -31,7 +31,6 @@ import * as events from 'events';
  * This is backed by {@link Helpers.FilePreferences} in most platforms, and by Android's `SharedPreferences`
  * on Android.
  *
- * @extends events.EventEmitter
  */
 export default abstract class Preferences extends events.EventEmitter {
     constructor() {
@@ -43,7 +42,6 @@ export default abstract class Preferences extends events.EventEmitter {
      * List all names in this preference store.
      *
      * @return {String[]}
-     * @abstract
      */
     keys() : string[] {
         return [];
@@ -55,7 +53,6 @@ export default abstract class Preferences extends events.EventEmitter {
      *
      * @param {string} name - the preference name
      * @return {any} - the value, or `undefined`
-     * @abstract
      */
     get(name : string) : unknown {
         return undefined;
@@ -69,7 +66,6 @@ export default abstract class Preferences extends events.EventEmitter {
      *
      * @param {string} name - the preference name
      * @param {any} value - the value
-     * @abstract
     */
     set<T>(name : string, value : T) : T {
         throw new Error('Abstract method');
@@ -80,7 +76,6 @@ export default abstract class Preferences extends events.EventEmitter {
      * Remove the given preference key from the store.
      *
      * @param {string} name - the preference key to delete
-     * @abstract
      */
     delete(name : string) : void {
         throw new Error('Abstract method');
@@ -95,7 +90,6 @@ export default abstract class Preferences extends events.EventEmitter {
      *
      * @param {string} [name] - which preference name changed; if omitted, all preferences will
      *                          be considered changed
-     * @abstract
      */
     changed(name : string) : void {
         throw new Error('Abstract method');

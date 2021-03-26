@@ -2,20 +2,17 @@ branches:
   except:
   - "/^wip/"
 language: node_js
-node_js:
-- '12'
+node_js: '12'
 before_install:
 - mkdir -p ../node_modules
 - ln -s -T `pwd` ../node_modules/thingpedia
 script:
 - npm run lint
+- npm run doc
 - TZ="America/Los_Angeles" npm run test
 after_success: npm run coverage
-env:
-  global:
-  - COVERALLS_PARALLEL=true
 deploy:
-  provider: npm
+- provider: npm
   email: gcampagn@cs.stanford.edu
   skip_cleanup: true
   api_key:
@@ -23,7 +20,19 @@ deploy:
   on:
     tags: true
     repo: stanford-oval/thingpedia-api
+- provider: s3
+  bucket: "geniehai-public"
+  region: us-west-2
+  skip_cleanup: true
+  access_key_id:
+    secure: "ciTtKytLl/jiRCFoRO2m70YNdYdRNkb1N3UZ96BLl2EOaIByNhhmq1F98fy+15V2s1lcBkRmgBBEijlNAF148F9FEnosOlb34PlVjl/YXbQkPme2MaE0BpySYKF12uagUSF6fZs2JFlUMHwqPIKVqKE+yofX+hCr878CE6qp9Ns1hoFg+wwB0YjPmB92PuFps4ee2RNvmqFR/Hg8qGoVQSv2mkeN4drvg/gbk+pLhxDRLswAKsRmtirOz4ae6eYp7c3iFRk9UHEX9/VGHEJlq3Tq5aN0jdtPOpY5ODAJhnrKYFKRZhKmaFT/AJ2cgqDojTnetheZ+PagNtMm+0gBPJmPPDWUbiMlkeFxIHFqr1Ke62+4jmAoq7q26AqdIGLIPMsz6wCpNzSTsJ3aW++t6G+w3MaYYf+Wk3ofFCkQKZDDItSt4gZMCcAXon5naXNAhE4ht0LW4b2RQZvx+YtnqR7GeWUPkUBfPhbYS8KQDYPYesE38JQ65bNzAbDuzob44QWM1FmERhU0dIhN9O4jz8pO1rS0egXTqdBth8r5ccKf9ODa8LbOfEKJmONmY8uXslBJLkGNDHbU5Schr4G768EVpF5CE+e/Jo+vYqmkSg3R+B3BfdhvAMjCQ0H4Grpz7HQ37gRN84ZRIiegLZhOM2O9gt2i+UMRl75PIs6IW+Y="
+  secret_access_key:
+    secure: "NAUwODkC2Y61bTPqUX5lXbtQ6sU0b6WPgaFWsubm+cVExrLotDtyiojvi3v8QweztVBtJ99/fbQtpTS8drE81usbB8aHzpIGZYCrMt7CvY0oVfI74L9I4EQBnG3qasHJaVa0Z/z/8Kel8Hq5pX+1f6nLktXpdDpM09oE9cfklSkpHd50wsb6tL7h5YCVXS2aM0ZLBadaFFl1OCLtddY8yxKqSPsMdzAX5t09fb5GuaQd3NrBCADlnS9/FZ+wSEOYNyjHr+24GfAzE2Zbab+lp+yu6+2BibqS5NfYalUPbI4i8haLUNmrR9qRytL4GedlIqlxbZt0LIecG044QR5akZ0e8tWqxAboa5AW2I9MwVSBblB65EvkUCP21rDuXw/Mlaqq0XMoFSUscbs60f+kjqRc/usPRj/r5ElWYeua5JKImNGm3UJ6UvtAX7ia31Rl7C0dymIdE1d7nRxrvOvkCDnqDb9MVNi0THqlXdeA2FeZ98NcFPE+BVuGijHn0pNLR1HzCnsW8ZWzdNIzXJ0TIh4p8zP+8JoGLLVUHYCuP8VAJwILqYWpNu69ZwRBJ3MVgfeNA92puGSW0mZxKx/pXq2mS81MzouyKhmGszZnRRsem29eilnEsyEINOTFZ5kmiNAx6iFZ3bPjOD1WYRd/d2ujHYw/A6YjpUo3rclMJO8="
+  localdir: doc
+  upload-dir: jsdoc/thingpedia/latest
+  on:
+    branch: master
+    repo: stanford-oval/thingpedia-api
 notifications:
-  webhooks: https://coveralls.io/webhook
   slack:
     secure: cjz76sz9UmspDtO7oLH0IjXcAeMkefVwopYABMvPY7bLDQEBv14pkuRL4yCjh5fVIIzMHQJSNzv5b8DmH2O4dJ1ko1YOx/iLtU0GOcOZvWe6OLY9X4zuqJPLIqOaLL3rQMSTHTGiVdI8jBEv0uCJ4C0jYNsmnzdtG1kB5Iaovx36sRNP9B+iCoQGDi755bM4iVCymCr7vKKg9VZRVHIPLkD0ortBuXdL5CAzNigfilecwLMPEJWnOp3boFBdCu9/6lAQbAHEMZkHH8jxHfCQmyWT5azGFgarphkobXRsl25aCG9wo1Z0wOmLTOH8pXKK7HqVrjPkFNtWTAQdGtIvFv5Fd/7CTZf02g8gx2ulZIGFgZZGjt9jqReuh5ZS27swoGoiRNmWvdlkxGbCVKLjhvkwxqKovaklRQt1RF11T0r3isEXtexFdOlY5QdRGF0LdQxGnnaq7q4FpJU2Wkx5o5ugnxIxl+VMxTBDWQRvdbfCVQFXVcLzS68WUHC5h2D4QsXidlovRg113T/iM4j2IajaRW7O9D80HTUvpgeR7S1Q3Xe8Ae68CDXqh4kQDttbJXNL/wM7W9vgaXiTC7VNRHbQsRrlrzoiOVKyKF9GxmNlLKJJ2XkjsIKXPfzraYAD8DN0NMGOnP/li2+iSFesv7eR7lGoAKc6rYeCKoYzFWw=
