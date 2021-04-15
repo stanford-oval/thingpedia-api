@@ -22,6 +22,37 @@ import Preferences from './prefs';
 import { CapabilityMap } from './capabilities';
 
 /**
+ * The profile of the user.
+ */
+interface UserProfile {
+    /**
+     * Platform-specific account identifier.
+     */
+    account : string;
+
+    /**
+     * Locale identifier.
+     */
+    locale : string;
+
+    /**
+     * Timezone identifier.
+     */
+    timezone : string;
+
+    /**
+     * Real name of the user.
+     */
+    name ?: string;
+
+    email ?: string;
+    email_verified ?: boolean;
+
+    phone ?: string;
+    phone_verified ?: boolean;
+}
+
+/**
  * The base class of the Almond platform layers.
  *
  * All platform specific APIs should be accessed through an instance of this class.
@@ -51,6 +82,34 @@ export default abstract class BasePlatform {
      */
     get timezone() : string {
         throw new Error('not implemented');
+    }
+
+    /* istanbul ignore next */
+    /**
+     * Retrieve the profile of the current user.
+     */
+    getProfile() : UserProfile {
+        // by default, we delegate to this.locale and this.timezone
+        // and leave the other fields unset
+        // this is for compatibility with existing platforms
+        // platforms are expected to override this method
+        return {
+            account: 'unknown',
+            locale: this.locale,
+            timezone: this.timezone
+        };
+    }
+
+    /* istanbul ignore next */
+    /**
+     * Attempt to change some profile fields of the current user.
+     *
+     * Fields that are not present are not modified.
+     *
+     * @returns whether the modification actually occurred.
+     */
+    async setProfile(newProfile : UserProfile) : Promise<boolean> {
+        return false;
     }
 
     /* istanbul ignore next */
