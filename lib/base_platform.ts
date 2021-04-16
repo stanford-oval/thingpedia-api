@@ -52,6 +52,14 @@ interface UserProfile {
     phone_verified ?: boolean;
 }
 
+interface UserProfileSet {
+    locale ?: string;
+    timezone ?: string;
+    name ?: string;
+    email ?: string;
+    phone ?: string;
+}
+
 /**
  * The base class of the Almond platform layers.
  *
@@ -108,7 +116,7 @@ export default abstract class BasePlatform {
      *
      * @returns whether the modification actually occurred.
      */
-    async setProfile(newProfile : UserProfile) : Promise<boolean> {
+    async setProfile(newProfile : UserProfileSet) : Promise<boolean> {
         return false;
     }
 
