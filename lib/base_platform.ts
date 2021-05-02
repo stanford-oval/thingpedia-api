@@ -20,6 +20,7 @@
 
 import Preferences from './prefs';
 import { CapabilityMap } from './capabilities';
+import BaseDevice from './base_device';
 
 /**
  * The profile of the user.
@@ -90,6 +91,14 @@ export default abstract class BasePlatform {
      */
     get timezone() : string {
         throw new Error('not implemented');
+    }
+
+    /* istanbul ignore next */
+    /**
+     * Retrieve the device to configure to provide platform-specific functionality.
+     */
+    getPlatformDevice() : { kind : string, class : string, module : typeof BaseDevice }|null {
+        return null;
     }
 
     /* istanbul ignore next */
