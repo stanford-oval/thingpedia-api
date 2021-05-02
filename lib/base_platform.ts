@@ -20,6 +20,7 @@
 
 import Preferences from './prefs';
 import { CapabilityMap } from './capabilities';
+import BaseEngine from './base_engine';
 import BaseDevice from './base_device';
 
 /**
@@ -61,6 +62,10 @@ interface UserProfileSet {
     phone ?: string;
 }
 
+interface DeviceClass {
+    new(engine : BaseEngine, state : any) : BaseDevice;
+}
+
 /**
  * The base class of the Almond platform layers.
  *
@@ -97,7 +102,7 @@ export default abstract class BasePlatform {
     /**
      * Retrieve the device to configure to provide platform-specific functionality.
      */
-    getPlatformDevice() : { kind : string, class : string, module : typeof BaseDevice }|null {
+    getPlatformDevice() : { kind : string, class : string, module : DeviceClass }|null {
         return null;
     }
 
