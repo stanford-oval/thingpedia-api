@@ -52,7 +52,7 @@ const VERSION = {
     /** Minor version number (incremented on feature additions) */
     minor: 9,
     /** Full version string, in semantic version format */
-    full: '2.9.0-alpha.3',
+    full: '2.9.0-beta.1',
     /** Convert the version number to a number (for comparisons) */
     valueOf() : number {
         return this.major * 100 + this.minor;

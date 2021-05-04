@@ -1,3 +1,15 @@
+2.9.0-beta.1
+============
+
+* Add client APIs to search devices in Thingpedia [#137].
+* Added MemoryPreferences class, to complement FilePreferences [#138].
+* Added platform APIs to get and set the user profile [#142].
+* Expanded type definitions for interfaces used by the API, including more
+  capability interfaces [#139].
+* Restored and updated documentation [#140].
+* Updated dependencies [#141, #143, #144, #145, #146, #147, #148, #149, #150,
+  #151, #152].
+
 2.9.0-alpha.3
 =============
 
