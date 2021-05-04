@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,21 +18,24 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-
 import assert from 'assert';
 import * as stream from 'stream';
+import * as ThingTalk from 'thingtalk';
 
 import { getPollInterval } from '../utils';
 import { makeBaseDeviceMetadata } from '../compat';
 import { ImplementationError } from '../errors';
 import * as ConfigMixins from '../config';
 import * as Helpers from '../helpers';
+import BaseClient from '../base_client';
+import type ModuleDownloader from '../downloader';
+import BaseDevice from '../base_device';
 
 /* eslint-disable no-invalid-this */
 
 // shared code between all modules with JS implementation
 
-function isIterable(result) {
+function isIterable(result : any) : result is Iterable<unknown>|AsyncIterable<unknown> {
     return typeof result === 'object' && result !== null &&
         (typeof result[Symbol.iterator] === 'function' || typeof result[Symbol.asyncIterator] === 'function');
 }
@@ -46,33 +49,44 @@ function isIterable(result) {
 // - type checking of the return value ensures understandable
 //   error messages, rather than failing deep in a compiled ThingTalk
 //   function with no stack
-function safeWrapQuery(query, queryName) {
-    return async function() {
-        const result = await query.apply(this, arguments);
+function safeWrapQuery<ThisArg, Args extends unknown[], Return>(query : (this : ThisArg, ...args : Args) => Promise<Return>, queryName : string) :
+    (this : ThisArg, ...args : Args) => Promise<Return & Iterable<unknown>|AsyncIterable<unknown>> {
+    return async function(...args) {
+        const result = await query.apply(this, args);
         if (!isIterable(result))
             throw new ImplementationError(`The query ${queryName} must return an async-iterable or iterable object (eg. Array), got ${result}`);
         return result;
     };
 }
-function safeWrapAction(action) {
-    return async function() {
-        return action.apply(this, arguments);
+function safeWrapAction<ThisArg, Args extends unknown[], Return>(action : (this : ThisArg, ...args : Args) => Promise<Return>) :
+    (this : ThisArg, ...args : Args) => Promise<Return> {
+    return async function(...args) {
+        return action.apply(this, args);
     };
 }
 
 // same thing, but for subscribe_, which must *synchronously*
 // return a stream
-function safeWrapSubscribe(subscribe, queryName) {
-    return function() {
-        const result = subscribe.apply(this, arguments);
+function safeWrapSubscribe<ThisArg, Args extends unknown[], Return>(subscribe : (this : ThisArg, ...args : Args) => Return, queryName : string)
+    : (this : ThisArg, ...args : Args) => (Return & stream.Readable) {
+    return function(...args) {
+        const result = subscribe.apply(this, args);
         if (!(result instanceof stream.Readable))
             throw new ImplementationError(`The subscribe function for ${queryName} must return an instance of stream.Readable, got ${result}`);
         return result;
     };
 }
 
-export default class BaseJavascriptModule {
-    constructor(id, manifest, loader) {
+export default abstract class BaseJavascriptModule {
+    protected _loader : ModuleDownloader;
+    protected _id : string;
+    protected _config : ConfigMixins.Base|null;
+    protected _client : BaseClient;
+    protected _loading : Promise<BaseDevice.DeviceClass<BaseDevice>>|null;
+    protected _manifest : ThingTalk.Ast.ClassDef;
+    protected _modulePath : string|null;
+
+    constructor(id : string, manifest : ThingTalk.Ast.ClassDef, loader : ModuleDownloader) {
         assert(id);
         assert(manifest);
         assert(loader);
@@ -95,7 +109,7 @@ export default class BaseJavascriptModule {
         return this._manifest;
     }
     get version() {
-        return this._manifest.annotations.version.toJS();
+        return this._manifest.annotations.version.toJS() as number;
     }
 
     static get [Symbol.species]() {
@@ -107,35 +121,29 @@ export default class BaseJavascriptModule {
         return this;
     }
 
-    /* istanbul ignore next */
-    clearCache() {
-        throw new TypeError('Not Implemented');
-    }
+    abstract clearCache() : void;
 
-    /* istanbul ignore next */
-    _doGetDeviceClass() {
-        throw new TypeError('Not Implemented');
-    }
+    protected abstract _doGetDeviceClass() : Promise<BaseDevice.DeviceClass<BaseDevice>>;
 
-    async _createSubmodule(id, manifest, deviceClass) {
-        const submodule = new (this.constructor[Symbol.species])(id, manifest, this._loader);
+    protected async _createSubmodule(id : string, manifest : ThingTalk.Ast.ClassDef, deviceClass : BaseDevice.DeviceClass<BaseDevice>) {
+        const submodule : BaseJavascriptModule = new (this.constructor as any)[Symbol.species](id, manifest, this._loader);
         await submodule._completeLoading(deviceClass);
 
         return submodule;
     }
 
-    async _completeLoading(deviceClass) {
+    protected async _completeLoading(deviceClass : BaseDevice.DeviceClass<BaseDevice>) {
         if (this._config)
             this._config.install(deviceClass);
         deviceClass.manifest = this._manifest;
         deviceClass.metadata = makeBaseDeviceMetadata(this._manifest);
 
-        for (let action in this._manifest.actions) {
+        for (const action in this._manifest.actions) {
             if (typeof deviceClass.prototype['do_' + action] !== 'function')
                 throw new ImplementationError(`Implementation for action ${action} missing`);
             deviceClass.prototype['do_' + action] = safeWrapAction(deviceClass.prototype['do_' + action]);
         }
-        for (let query in this._manifest.queries) {
+        for (const query in this._manifest.queries) {
             // skip functions with `handle_thingtalk` annotation
             if (this._manifest.queries[query].annotations['handle_thingtalk']) {
                 if (typeof deviceClass.prototype['query'] !== 'function')
@@ -145,7 +153,7 @@ export default class BaseJavascriptModule {
                 continue;
             }
 
-            let pollInterval = getPollInterval(this._manifest.queries[query]);
+            const pollInterval = getPollInterval(this._manifest.queries[query]);
 
             if (pollInterval === 0 && typeof deviceClass.prototype['subscribe_' + query] !== 'function')
                 throw new ImplementationError(`Poll interval === 0 but no subscribe function was found`);
@@ -155,35 +163,21 @@ export default class BaseJavascriptModule {
             deviceClass.prototype['get_' + query] = safeWrapQuery(deviceClass.prototype['get_' + query], query);
             if (!deviceClass.prototype['subscribe_' + query]) {
                 if (pollInterval > 0) {
-                    deviceClass.prototype['subscribe_' + query] = function(params, state, hints) {
+                    deviceClass.prototype['subscribe_' + query] = function(params : any, state : any, hints : any) {
                         return new Helpers.PollingStream(state, pollInterval, () => this['get_' + query](params, hints));
                     };
                 } else if (pollInterval < 0) {
-                    deviceClass.prototype['subscribe_' + query] = function(params, state, hints) {
+                    deviceClass.prototype['subscribe_' + query] = function(params : any, state : any, hints : any) {
                         throw new Error('This query is non-deterministic and cannot be monitored');
                     };
                 }
             } else {
                 deviceClass.prototype['subscribe_' + query] = safeWrapSubscribe(deviceClass.prototype['subscribe_' + query], query);
             }
-            if (!deviceClass.prototype['history_' + query]) {
-                deviceClass.prototype['history_' + query] = function(params, base, delta, hints) {
-                    return null; // no history
-                };
-            }
-            if (!deviceClass.prototype['sequence_' + query]) {
-                deviceClass.prototype['sequence_' + query] = function(params, base, limit, hints) {
-                    return null; // no sequence history
-                };
-            }
         }
 
         const subdevices = deviceClass.subdevices || {};
-        let child_types = this._manifest.annotations.child_types;
-        if (child_types)
-            child_types = child_types.toJS();
-        else
-            child_types = [];
+        const child_types = this._manifest.getImplementationAnnotation<string[]>('child_types') || [];
 
         await Promise.all(child_types.map(async (childId) => {
             if (!(childId in subdevices)) {
@@ -196,13 +190,13 @@ export default class BaseJavascriptModule {
             this._loader.injectModule(childId, submodule);
         }));
 
-        this._loading = deviceClass;
+        this._loading = Promise.resolve(deviceClass);
         return deviceClass;
     }
 
     getDeviceClass() {
         if (this._loading)
-            return Promise.resolve(this._loading);
+            return this._loading;
 
         return this._loading = this._doGetDeviceClass();
     }

@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,40 +18,48 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-
 import * as ThingTalk from 'thingtalk';
+import type Gettext from 'node-gettext';
 
 import BaseJavascriptModule from './base_js';
+import ModuleDownloader from '../downloader';
+import BaseDevice from '../base_device';
 
-function translate(annotation, gettext, domain) {
+function translate(annotation : unknown, gettext : Gettext, domain : string) {
     if (typeof annotation === 'string') {
         return gettext.dgettext(domain, annotation);
     } else if (Array.isArray(annotation)) {
-        return annotation.map((str) => gettext.dgettext(domain, annotation));
+        return annotation.map((str) => gettext.dgettext(domain, str));
     } else if (typeof annotation === 'object') {
-        let translated = {};
-        for (let subkey in annotation)
-            translated[subkey] = translate(annotation[subkey], gettext, domain);
+        const translated : Record<string, unknown> = {};
+        for (const subkey in annotation)
+            translated[subkey] = translate((annotation as Record<string, unknown>)[subkey], gettext, domain);
         return translated;
     } else {
         return annotation;
     }
 }
 
-function applyTranslation(metadata, gettext, domain) {
-    for (let key in metadata)
+function applyTranslation(metadata : ThingTalk.Ast.NLAnnotationMap, gettext : Gettext, domain : string) {
+    for (const key in metadata)
         metadata[key] = translate(metadata[key], gettext, domain);
 }
 
-function applyTranslationFunction(fndef, gettext, domain) {
+function applyTranslationFunction(fndef : ThingTalk.Ast.FunctionDef, gettext : Gettext, domain : string) {
     applyTranslation(fndef.metadata, gettext, domain);
 
-    for (let arg of fndef.args)
-        applyTranslation(fndef.getArgument(arg).metadata, gettext, domain);
+    for (const arg of fndef.args)
+        applyTranslation(fndef.getArgument(arg)!.metadata, gettext, domain);
 }
 
 export default class BuiltinModule extends BaseJavascriptModule {
-    constructor(id, classDef, loader, deviceClass, builtinGettextDomain) {
+    private _loaded : BaseDevice.DeviceClass<BaseDevice>;
+
+    constructor(id : string,
+                classDef : ThingTalk.Ast.ClassDef,
+                loader : ModuleDownloader,
+                deviceClass : BaseDevice.DeviceClass<BaseDevice>,
+                builtinGettextDomain : string|undefined) {
         // version does not matter for builtin modules
         classDef.annotations.version = new ThingTalk.Ast.Value.Number(0);
         super(id, classDef, loader);
@@ -61,16 +69,16 @@ export default class BuiltinModule extends BaseJavascriptModule {
             if (gettext) {
                 applyTranslation(classDef.metadata, gettext, builtinGettextDomain);
 
-                for (let query in classDef.queries)
+                for (const query in classDef.queries)
                     applyTranslationFunction(classDef.queries[query], gettext, builtinGettextDomain);
-                for (let query in classDef.actions)
+                for (const query in classDef.actions)
                     applyTranslationFunction(classDef.actions[query], gettext, builtinGettextDomain);
             }
         }
-        
+
         this._loaded = deviceClass;
     }
-    
+
     clearCache() {
         // nothing to do here
     }

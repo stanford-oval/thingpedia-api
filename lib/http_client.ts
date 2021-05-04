@@ -27,15 +27,7 @@ import * as path from 'path';
 import * as util from 'util';
 
 import * as Helpers from './helpers';
-import ClientBase, {
-    DeviceListRecord,
-    DeviceFactory,
-    EntityLookupResult,
-    EntityTypeRecord,
-    LocationInput,
-    LocationRecord,
-    DeviceNameRecord,
-} from './base_client';
+import BaseClient from './base_client';
 import BasePlatform from './base_platform';
 import { makeDeviceFactory } from './device_factory_utils';
 
@@ -59,7 +51,7 @@ interface APIQueryParams {
  * with the manifest.tt in the developer directory.
  *
  */
-export default class HttpClient extends ClientBase {
+export default class HttpClient extends BaseClient {
     platform : BasePlatform;
     private _url : string;
 
@@ -195,19 +187,19 @@ export default class HttpClient extends ClientBase {
         return code;
     }
 
-    private async _getLocalFactory(localPath : string, kind : string) : Promise<DeviceFactory|null> {
+    private async _getLocalFactory(localPath : string, kind : string) : Promise<BaseClient.DeviceFactory|null> {
         const classDef = await this._getLocalDeviceManifest(localPath, kind);
         return makeDeviceFactory(classDef);
     }
 
-    async getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : DeviceFactory|null }> {
+    async getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : BaseClient.DeviceFactory|null }> {
         const developerDirs = this._getDeveloperDirs();
 
         if (!developerDirs)
             return this._getDeviceSetupHttp(kinds);
 
         const forward : string[] = [];
-        const handled : { [key : string] : DeviceFactory|null } = {};
+        const handled : { [key : string] : BaseClient.DeviceFactory|null } = {};
 
         for (const kind of kinds) {
             let ok = false;
@@ -331,7 +323,7 @@ export default class HttpClient extends ClientBase {
         }, 'application/x-thingtalk');
     }
 
-    getDeviceList(klass ?: string, page ?: number, page_size ?: number) : Promise<DeviceListRecord[]> {
+    getDeviceList(klass ?: string, page ?: number, page_size ?: number) : Promise<BaseClient.DeviceListRecord[]> {
         const params : APIQueryParams = {
             page: page !== undefined ? String(page) : undefined,
             page_size: page_size !== undefined ? String(page_size) : undefined
@@ -341,18 +333,18 @@ export default class HttpClient extends ClientBase {
         return this._simpleRequest('/devices/all', params);
     }
 
-    searchDevice(q : string) : Promise<DeviceListRecord[]> {
+    searchDevice(q : string) : Promise<BaseClient.DeviceListRecord[]> {
         return this._simpleRequest('/devices/search', { q });
     }
 
-    getDeviceFactories(klass ?: string) : Promise<DeviceFactory[]> {
+    getDeviceFactories(klass ?: string) : Promise<BaseClient.DeviceFactory[]> {
         const params : APIQueryParams = {};
         if (klass)
             params.class = klass;
         return this._simpleRequest('/devices/setup', params);
     }
 
-    private _getDeviceSetupHttp(kinds : string[]) : Promise<{ [key : string] : DeviceFactory }> {
+    private _getDeviceSetupHttp(kinds : string[]) : Promise<{ [key : string] : BaseClient.DeviceFactory }> {
         return this._simpleRequest('/devices/setup/' + kinds.join(','));
     }
 
@@ -414,12 +406,15 @@ export default class HttpClient extends ClientBase {
             { method: 'POST' });
     }
 
-    lookupEntity(entityType : string, searchTerm : string) : Promise<EntityLookupResult> {
+    lookupEntity(entityType : string, searchTerm : string) : Promise<BaseClient.EntityLookupResult> {
         return this._simpleRequest('/entities/lookup/' + encodeURIComponent(entityType),
             { q: searchTerm }, 'application/json', { extractData: false });
     }
 
-    lookupLocation(searchTerm : string, around ?: LocationInput) : Promise<LocationRecord[]> {
+    lookupLocation(searchTerm : string, around ?: {
+        latitude : number;
+        longitude : number;
+    }) : Promise<BaseClient.LocationRecord[]> {
         if (around) {
             return this._simpleRequest('/locations/lookup',
                 { q: searchTerm, latitude: String(around.latitude), longitude: String(around.longitude) }, 'application/json');
@@ -433,12 +428,12 @@ export default class HttpClient extends ClientBase {
         return this._simpleRequest('/examples/all', {}, 'application/x-thingtalk');
     }
 
-    async getAllEntityTypes() : Promise<EntityTypeRecord[]> {
+    async getAllEntityTypes() : Promise<BaseClient.EntityTypeRecord[]> {
         return this._simpleRequest('/entities/all');
     }
 
-    async getAllDeviceNames() : Promise<DeviceNameRecord[]> {
-        const names : DeviceNameRecord[] = [];
+    async getAllDeviceNames() : Promise<BaseClient.DeviceNameRecord[]> {
+        const names : BaseClient.DeviceNameRecord[] = [];
 
         let snapshot = await this._checkSnapshot();
         if (!snapshot)

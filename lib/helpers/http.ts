@@ -54,9 +54,6 @@ export interface HTTPRequestOptions {
     raw ?: boolean;
     debug ?: boolean;
 }
-interface RawHTTPRequestOptions extends HTTPRequestOptions {
-    raw : true;
-}
 
 export class HTTPError extends Error {
     code : number;
@@ -244,7 +241,7 @@ function httpRequestStream<UploadStreamT extends boolean, DownloadStreamT extend
 function httpRequest(url : string,
                      method : string,
                      data : string|Buffer|null,
-                     options : RawHTTPRequestOptions) : Promise<[Buffer, string]>;
+                     options : HTTPRequestOptions & { raw : true }) : Promise<[Buffer, string]>;
 function httpRequest(url : string,
                      method : string,
                      data : string|Buffer|null,
@@ -299,7 +296,7 @@ export {
  * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
  * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with `Buffer` and content type.
  */
-export function get(url : string, options : RawHTTPRequestOptions) : Promise<[Buffer, string]>;
+export function get(url : string, options : HTTPRequestOptions & { raw : true }) : Promise<[Buffer, string]>;
 export function get(url : string, options ?: HTTPRequestOptions) : Promise<string>;
 export function get(url : string, options : HTTPRequestOptions = {}) : Promise<[Buffer, string]|string> {
     return httpRequestStream(url, 'GET', null, options, false, false, !!options.raw);
@@ -327,7 +324,7 @@ export function get(url : string, options : HTTPRequestOptions = {}) : Promise<[
  * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
  * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with `Buffer` and content type.
  */
-export function post(url : string, data : string|Buffer, options : RawHTTPRequestOptions) : Promise<[Buffer, string]>;
+export function post(url : string, data : string|Buffer, options : HTTPRequestOptions & { raw : true }) : Promise<[Buffer, string]>;
 export function post(url : string, data : string|Buffer, options ?: HTTPRequestOptions) : Promise<string>;
 export function post(url : string, data : string|Buffer, options : HTTPRequestOptions = {}) : Promise<[Buffer, string]|string> {
     return httpRequestStream(url, 'POST', data, options, false, false, !!options.raw);
@@ -357,7 +354,7 @@ export function post(url : string, data : string|Buffer, options : HTTPRequestOp
  * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
  * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with `Buffer` and content type.
  */
-export function postStream(url : string, data : stream.Readable, options : RawHTTPRequestOptions) : Promise<[Buffer, string]>;
+export function postStream(url : string, data : stream.Readable, options : HTTPRequestOptions & { raw : true }) : Promise<[Buffer, string]>;
 export function postStream(url : string, data : stream.Readable, options ?: HTTPRequestOptions) : Promise<string>;
 export function postStream(url : string, data : stream.Readable, options : HTTPRequestOptions = {}) : Promise<[Buffer, string]|string> {
     return httpRequestStream(url, 'POST', data, options, true, false, !!options.raw);

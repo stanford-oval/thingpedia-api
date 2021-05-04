@@ -20,10 +20,7 @@
 
 import assert from 'assert';
 import { Ast, Type } from 'thingtalk';
-import {
-    DeviceFactory,
-    FormField,
-} from './base_client';
+import BaseClient from './base_client';
 import { getCategory } from './compat';
 
 function clean(name : string) : string {
@@ -57,7 +54,7 @@ function getInputParam(config : Ast.MixinImportStmt, name : string) : unknown {
 
 type TypeMap = { [key : string] : Type };
 
-function makeDeviceFactory(classDef : Ast.ClassDef) : DeviceFactory|null {
+function makeDeviceFactory(classDef : Ast.ClassDef) : BaseClient.DeviceFactory|null {
     if (classDef.is_abstract)
         return null;
 
@@ -67,10 +64,10 @@ function makeDeviceFactory(classDef : Ast.ClassDef) : DeviceFactory|null {
     const config = classDef.config;
     assert(config);
 
-    function toFields(argMap : TypeMap) : FormField[] {
+    function toFields(argMap : TypeMap) : BaseClient.FormField[] {
         if (!argMap)
             return [];
-        return Object.keys(argMap).map((k : string) : FormField => {
+        return Object.keys(argMap).map((k : string) : BaseClient.FormField => {
             const type = argMap[k];
             let htmlType;
             if (type instanceof Type.Entity)
@@ -157,7 +154,7 @@ function makeDeviceFactory(classDef : Ast.ClassDef) : DeviceFactory|null {
     }
 }
 
-interface DiscoveryService {
+export interface DiscoveryService {
     discovery_type : 'bluetooth'|'upnp';
     service : string;
 }

@@ -25,10 +25,6 @@ import ThingpediaHttpClient from './http_client';
 import BaseClient from './base_client';
 import BasePlatform from './base_platform';
 
-interface EngineOptions {
-    thingpediaUrl ?: string;
-}
-
 /**
  * The base Almond engine class.
  *
@@ -43,12 +39,12 @@ export default abstract class BaseEngine {
     /**
      * Construct an engine instance.
      *
-     * @param {BasePlatform} platform - the platform associated with this engine
-     * @param {Object} options - additional options
-     * @param {string} [options.thingpediaUrl] - the Thingpedia URL to use (if the platform
-     *                                           does not provide a {@link BaseClient})
+     * @param platform - the platform associated with this engine
+     * @param options - additional options
+     * @param options.thingpediaUrl - the Thingpedia URL to use (if the platform
+     *                                does not provide a {@link BaseClient})
      */
-    constructor(platform : BasePlatform, options : EngineOptions = {}) {
+    constructor(platform : BasePlatform, options : { thingpediaUrl ?: string } = {}) {
         this._platform = platform;
 
         if (platform.hasCapability('thingpedia-client'))

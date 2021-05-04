@@ -24,7 +24,7 @@ import FileClient from './file_thingpedia_client';
 import DeviceFactory from './factory';
 import { ImplementationError, UnsupportedError } from './errors';
 import BaseEngine from './base_engine';
-import BasePlatform from './base_platform';
+import BasePlatform, { UserProfile } from './base_platform';
 import * as DeviceConfigUtils from './device_factory_utils';
 import * as Capabilities from './capabilities';
 
@@ -129,6 +129,7 @@ export {
     ConfigDelegate,
     Preferences,
     Capabilities,
+    UserProfile,
 
     // compatibility export
     ObjectSet,

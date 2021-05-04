@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,7 +18,7 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-
+import * as ThingTalk from 'thingtalk';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as tmp from 'tmp';
@@ -28,25 +28,28 @@ import * as Module from 'module';
 import BaseJavascriptModule from './base_js';
 import * as Helpers from '../helpers';
 import * as I18n from '../i18n';
+import BasePlatform from '../base_platform';
+import ModuleDownloader from '../downloader';
+import BaseDevice from '../base_device';
 
-function resolve(mainModule) {
+function resolve(mainModule : string) {
     if (process.platform !== 'win32' && !mainModule.startsWith('/'))
         throw new Error('Invalid relative module path');
     if (require.resolve)
         return require.resolve(mainModule);
     else
-        return Module._resolveFilename(mainModule, module, false);
+        return (Module as any)._resolveFilename(mainModule, module, false);
 }
 
-function clearRequireCache(mainModule) {
+function clearRequireCache(mainModule : string) {
     try {
-        let fileName = resolve(mainModule);
+        const fileName = resolve(mainModule);
         console.log(mainModule + ' was cached as ' + fileName);
 
         delete require.cache[fileName];
 
-        let prefix = path.dirname(fileName) + '/';
-        for (let key in require.cache) {
+        const prefix = path.dirname(fileName) + '/';
+        for (const key in require.cache) {
             if (key.startsWith(prefix))
                 delete require.cache[key];
         }
@@ -58,7 +61,10 @@ function clearRequireCache(mainModule) {
 // base class of all JS modules loaded from Thingpedia and cached on disk
 // this differs from BaseJavascriptModule because the latter covers BuiltinModules too
 export default class BaseOnDiskJavascriptModule extends BaseJavascriptModule {
-    constructor(id, manifest, loader) {
+    private _platform : BasePlatform;
+    private _cacheDir : string;
+
+    constructor(id : string, manifest : ThingTalk.Ast.ClassDef, loader : ModuleDownloader) {
         super(id, manifest, loader);
 
         this._platform = loader.platform;
@@ -71,7 +77,7 @@ export default class BaseOnDiskJavascriptModule extends BaseJavascriptModule {
     }
 
     get package_version() {
-        return this._manifest.annotations.package_version.toJS();
+        return this._manifest.annotations.package_version.toJS() as number;
     }
 
     clearCache() {
@@ -81,8 +87,8 @@ export default class BaseOnDiskJavascriptModule extends BaseJavascriptModule {
             clearRequireCache(this._modulePath);
     }
 
-    async _loadJsModule() {
-        const modulePath = this._modulePath;
+    private async _loadJsModule() {
+        const modulePath = this._modulePath!;
         const version = JSON.parse(fs.readFileSync(modulePath + '/package.json').toString('utf8'))['thingpedia-version'];
 
         if (version !== undefined && version !== this.package_version) {
@@ -94,7 +100,7 @@ export default class BaseOnDiskJavascriptModule extends BaseJavascriptModule {
         // ES Module compatibility for "export default"
         if (typeof deviceClass !== 'function' && typeof deviceClass.default === 'function')
             deviceClass = deviceClass.default;
-        deviceClass.require = function(subpath) {
+        deviceClass.require = function(subpath : string) {
             return require(path.resolve(modulePath, subpath));
         };
 
@@ -110,8 +116,8 @@ export default class BaseOnDiskJavascriptModule extends BaseJavascriptModule {
                 };
             } else {
                 deviceClass.gettext = {
-                    gettext(x) { return x; },
-                    ngettext(x1, xn, n) { return n === 1 ? x1 : xn; },
+                    gettext(x : string) { return x; },
+                    ngettext(x1 : string, xn : string, n : number) { return n === 1 ? x1 : xn; },
                 };
             }
         }
@@ -119,42 +125,42 @@ export default class BaseOnDiskJavascriptModule extends BaseJavascriptModule {
         return this._completeLoading(deviceClass);
     }
 
-    async _doGetDeviceClass() {
+    protected async _doGetDeviceClass() : Promise<BaseDevice.DeviceClass<BaseDevice>> {
         this._modulePath = path.resolve(process.cwd(), this._cacheDir + '/' + this._id);
 
         try {
             if (fs.existsSync(this._modulePath)) {
-                let device_class = await this._loadJsModule();
-                if (device_class !== null)
-                    return device_class;
+                const deviceClass = await this._loadJsModule();
+                if (deviceClass !== null)
+                    return deviceClass;
             }
 
             if (!this._platform.hasCapability('code-download'))
                 throw new Error('Code download is not allowed on this platform');
 
-            const redirect = await this._client.getModuleLocation(this._id, this.version);
+            const redirect = await this._client.getModuleLocation(this._id);
 
             if (redirect.startsWith('file:///') && !redirect.endsWith('.zip')) {
                 this._modulePath = redirect.substring('file://'.length);
-                return await this._loadJsModule();
+                return (await this._loadJsModule())!;
             }
 
             const response = await Helpers.Content.getStream(this._platform, redirect);
 
-            const [path, fd] = await new Promise((resolve, reject) => {
+            const [path, fd] = await new Promise<[string, number]>((resolve, reject) => {
                 tmp.file({ mode: 0o600,
                            keep: true,
                            dir: this._platform.getTmpDir(),
                            prefix: 'thingengine-' + this._id + '-',
-                           postfix: '.zip' }, (err, path, fd, cleanup) => {
+                           postfix: '.zip' }, (err, path, fd) => {
                     if (err)
                         reject(err);
                     else
-                        resolve([path, fd, cleanup]);
+                        resolve([path, fd]);
                 });
             });
             const stream = fs.createWriteStream('', { fd, flags: 'w' });
-            const zipPath = await new Promise((callback, errback) => {
+            const zipPath = await new Promise<string>((callback, errback) => {
                 response.pipe(stream);
                 stream.on('finish', () => {
                     callback(path);
@@ -168,10 +174,10 @@ export default class BaseOnDiskJavascriptModule extends BaseJavascriptModule {
                     throw e;
             }
 
-            let unzip = this._platform.getCapability('code-download');
+            const unzip = this._platform.getCapability('code-download')!;
             await unzip.unzip(zipPath, this._modulePath);
             fs.unlinkSync(zipPath);
-            return await this._loadJsModule();
+            return (await this._loadJsModule())!;
         } catch(e) {
             this._loading = null;
             throw e;

@@ -25,9 +25,9 @@ import * as ThingTalk from 'thingtalk';
 
 import Modules from './loaders';
 
-import type BaseDevice from './base_device';
 import type BasePlatform from './base_platform';
 import type BaseClient from './base_client';
+import BaseDevice from './base_device';
 
 function safeMkdir(dir : string) {
     try {
@@ -47,17 +47,14 @@ function safeSymlinkSync(from : string, to : string) {
     }
 }
 
-type BuiltinRegistry = Record<string, { class : string, module : typeof BaseDevice }>;
-
-interface ModuleDownloaderOptions {
-    builtinGettextDomain ?: string;
-}
+type BuiltinRegistry = Record<string, { class : string, module : BaseDevice.DeviceClass<BaseDevice> }>;
 
 interface Module {
     id : string;
     version : unknown; // FIXME
 
     clearCache() : void;
+    getDeviceClass() : Promise<BaseDevice.DeviceClass<BaseDevice>>;
 }
 
 export default class ModuleDownloader {
@@ -73,7 +70,7 @@ export default class ModuleDownloader {
                 client : BaseClient,
                 schemas : ThingTalk.SchemaRetriever,
                 builtins : BuiltinRegistry = {},
-                options : ModuleDownloaderOptions = {}) {
+                options : { builtinGettextDomain ?: string } = {}) {
         this._platform = platform;
         this._client = client;
 
@@ -188,7 +185,7 @@ export default class ModuleDownloader {
         this._moduleRequests.set(id, Promise.resolve(module));
     }
 
-    private async _doLoadModule(id : string) {
+    private async _doLoadModule(id : string) : Promise<Module> {
         try {
             const classdef = await this.loadClass(id, true);
             const module = classdef.loader!.module as keyof typeof Modules;

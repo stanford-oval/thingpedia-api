@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,8 +18,11 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-
+import BaseClient from './base_client';
+import BaseEngine from './base_engine';
 import ModuleDownloader from './downloader';
+import ConfigDelegate from './config_delegate';
+import BaseDevice from './base_device';
 
 /**
  * Factory class that can create device instances.
@@ -29,16 +32,22 @@ import ModuleDownloader from './downloader';
  * metadata and the correct default methods.
  */
 export default class DeviceFactory {
+    private _engine : BaseEngine;
+    private _downloader : ModuleDownloader;
+
     /**
      * Construct a new DeviceFactory.
      *
-     * @param {BaseEngine} engine - the engine that will be passed to newly constructed devices
-     * @param {BaseClient} client - the client to use to contact Thingpedia
-     * @param {Object} [builtins] - implementation of builtin classes
-     * @param {Object} [options] - additional configuration options
-     * @param {string} [options.builtinGettextDomain] - gettext domain to use to translate builtin devices
+     * @param engine - the engine that will be passed to newly constructed devices
+     * @param client - the client to use to contact Thingpedia
+     * @param builtins - implementation of builtin classes
+     * @param options - additional configuration options
+     * @param options.builtinGettextDomain - gettext domain to use to translate builtin devices
      */
-    constructor(engine, client, builtins, options) {
+    constructor(engine : BaseEngine,
+                client : BaseClient,
+                builtins : Record<string, { class : string, module : BaseDevice.DeviceClass<BaseDevice> }> = {},
+                options : { builtinGettextDomain ?: string } = {}) {
         this._engine = engine;
         this._downloader = new ModuleDownloader(engine.platform, client, engine.schemas, builtins, options);
     }
@@ -46,7 +55,7 @@ export default class DeviceFactory {
     /**
      * Retrieve the list of cached device classes.
      *
-     * @return {Object[]} the list of device classes
+     * @return the list of device classes
      */
     getCachedDeviceClasses() {
         return this._downloader.getCachedMetas();
@@ -55,19 +64,18 @@ export default class DeviceFactory {
     /**
      * Update the cached device class with the given ID.
      *
-     * @param {string} kind - the class identifier to update
+     * @param kind - the class identifier to update
      */
-    updateDeviceClass(kind) {
+    updateDeviceClass(kind : string) {
         return this._downloader.updateModule(kind);
     }
 
     /**
      * Retrieve the device class with the given ID, fully initialized.
      *
-     * @param {string} - the class identifier to retrieve
-     * @return {Class.<BaseDevice>}
+     * @param kind - the class identifier to retrieve
      */
-    getDeviceClass(kind) {
+    getDeviceClass(kind : string) : Promise<BaseDevice.DeviceClass<BaseDevice>> {
         return this._downloader.getModule(kind)
             .then((module) => module.getDeviceClass());
     }
@@ -77,10 +85,10 @@ export default class DeviceFactory {
      *
      * See {@link BaseDevice.loadFromCustomOAuth} for details
      *
-     * @param {string} - the class identifier to load
-     * @return {Array} - a tuple with redirect URL and session
+     * @param kind - the class identifier to load
+     * @return - a tuple with redirect URL and session
      */
-    loadFromOAuth(kind) {
+    loadFromOAuth(kind : string) {
         return this.getDeviceClass(kind).then((deviceClass) => deviceClass.loadFromCustomOAuth(this._engine));
     }
     /**
@@ -88,12 +96,12 @@ export default class DeviceFactory {
      *
      * See {@link BaseDevice.completeCustomOAuth} for details
      *
-     * @param {string} - the class identifier to load
-     * @param {string} - the OAuth redirect URL
-     * @param {Object.<string,string>} - the session object
-     * @return {BaseDevice} - the newly configured device
+     * @param - the class identifier to load
+     * @param - the OAuth redirect URL
+     * @param - the session object
+     * @return - the newly configured device
      */
-    completeOAuth(kind, url, session) {
+    completeOAuth(kind : string, url : string, session : Record<string, string>) {
         return this.getDeviceClass(kind).then((deviceClass) => deviceClass.completeCustomOAuth(this._engine, url, session));
     }
 
@@ -102,11 +110,11 @@ export default class DeviceFactory {
      *
      * See {@link BaseDevice.loadInteractively} for details
      *
-     * @param {string} - the class identifier to load
-     * @param {ConfigDelegate} - the delegate to use for configuration
-     * @return {BaseDevice} - the newly configured device
+     * @param - the class identifier to load
+     * @param - the delegate to use for configuration
+     * @return - the newly configured device
      */
-    loadInteractively(kind, delegate) {
+    loadInteractively(kind : string, delegate : ConfigDelegate) {
         return this.getDeviceClass(kind).then((deviceClass) => deviceClass.loadInteractively(this._engine, delegate));
     }
 
@@ -117,13 +125,13 @@ export default class DeviceFactory {
      * {@link BaseDevice.completeDiscovery} to finish initialization.
      * See {@link BaseDevice.loadFromDiscovery} for details.
      *
-     * @param {string} - the class identifier to load
-     * @param {Object} publicData - protocol specific data that is public (e.g. Bluetooth UUIDs)
-     * @param {Object} privateData - protocol specific data that is specific to the device and
+     * @param - the class identifier to load
+     * @param publicData - protocol specific data that is public (e.g. Bluetooth UUIDs)
+     * @param privateData - protocol specific data that is specific to the device and
      *                               private to the user (e.g. Bluetooth HW address)
-     * @return {BaseDevice} - the partially configured device
+     * @return - the partially configured device
      */
-    loadFromDiscovery(kind, publicData, privateData) {
+    loadFromDiscovery(kind : string, publicData : Record<string, unknown>, privateData : Record<string, unknown>) {
         return this.getDeviceClass(kind).then((deviceClass) =>
             deviceClass.loadFromDiscovery(this._engine, publicData, privateData));
     }
@@ -131,14 +139,13 @@ export default class DeviceFactory {
     /**
      * Load a new device of the given class ID from its serialized state.
      *
-     * @param {string} - the class identifier to load
-     * @param {Object} - the serialized state
-     * @return {BaseDevice} - the initialized device
+     * @param - the class identifier to load
+     * @param - the serialized state
+     * @return - the initialized device
      */
-    loadSerialized(kind, serializedDevice) {
+    loadSerialized(kind : string, serializedDevice : Record<string, unknown>) {
         return this.getDeviceClass(kind).then((deviceClass) => {
             return new deviceClass(this._engine, serializedDevice);
         });
     }
 }
-DeviceFactory.prototype.$rpcMethods = ['runOAuth2', 'getCachedModules'];

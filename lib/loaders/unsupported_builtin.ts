@@ -22,7 +22,7 @@ import * as ThingTalk from 'thingtalk';
 
 import { makeBaseDeviceMetadata } from '../compat';
 import { UnsupportedError } from '../errors';
-import BaseDevice, { DeviceState } from '../base_device';
+import BaseDevice from '../base_device';
 
 import type BaseEngine from '../base_engine';
 import type ModuleDownloader from '../downloader';
@@ -30,7 +30,7 @@ import type ModuleDownloader from '../downloader';
 export default class UnsupportedBuiltinModule {
     private _id : string;
     private _manifest : ThingTalk.Ast.ClassDef;
-    private _loaded : typeof BaseDevice;
+    private _loaded : BaseDevice.DeviceClass<BaseDevice>;
 
     constructor(id : string,
                 manifest : ThingTalk.Ast.ClassDef,
@@ -42,7 +42,7 @@ export default class UnsupportedBuiltinModule {
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         this._loaded = class UnsupportedDevice extends BaseDevice {
-            constructor(engine : BaseEngine, state : DeviceState) {
+            constructor(engine : BaseEngine, state : BaseDevice.DeviceState) {
                 super(engine, state);
 
                 this.uniqueId = this.kind;

@@ -55,13 +55,6 @@ export enum Availability {
     UNKNOWN = -1
 }
 
-export interface DeviceState {
-    kind : string;
-    accessToken ?: string;
-    refreshToken ?: string;
-    [key : string] : unknown;
-}
-
 type URLQuery = { [key : string] : string|string[]|undefined };
 type SessionMap = { [key : string] : string };
 
@@ -82,46 +75,15 @@ export interface LegacyRunOAuth2 {
 }
 
 /**
- * @deprecated
- */
-export interface DeviceMetadata {
-    kind : string;
-    name : string;
-    description : string;
-    version : number;
-    category : 'online'|'physical'|'data'|'system';
-    types : string[];
-    params : { [key : string] : unknown };
-    auth : {
-        type : string;
-        client_id ?: string;
-        client_secret ?: string;
-    };
-}
-
-interface OAuth2Interface {
-    accessToken : string;
-    refreshToken ?: string;
-    refreshCredentials() : Promise<void>;
-}
-
-export interface QueryInterfaceMap {
-    'subdevices' : ObjectSet.Base<BaseDevice>;
-    'messaging' : Messaging;
-    'oauth2' : OAuth2Interface;
-    [key : string] : unknown;
-}
-
-/**
  * The base class of all Thingpedia device implementations.
  *
  */
-export default abstract class BaseDevice extends events.EventEmitter {
+abstract class BaseDevice extends events.EventEmitter {
     // legacy interface
     static runOAuth2 ?: LegacyRunOAuth2;
 
     // access ThingTalk metadata at runtime
-    static metadata : DeviceMetadata;
+    static metadata : BaseDevice.DeviceMetadata;
     static manifest : ThingTalk.Ast.ClassDef;
 
     static Tier = Tier;
@@ -131,7 +93,7 @@ export default abstract class BaseDevice extends events.EventEmitter {
     $rpcMethods ! : string[];
 
     protected _engine : BaseEngine;
-    state : DeviceState;
+    state : BaseDevice.DeviceState;
     /**
      * The unique ID of this device instance.
      *
@@ -190,7 +152,7 @@ export default abstract class BaseDevice extends events.EventEmitter {
      * @param {BaseEngine} engine - the shared Almond engine initializing this device
      * @param {Object} state - arbitrary JSON data associated with this device
      */
-    constructor(engine : BaseEngine, state : DeviceState) {
+    constructor(engine : BaseEngine, state : BaseDevice.DeviceState) {
         super();
         this._engine = engine;
 
@@ -409,7 +371,7 @@ export default abstract class BaseDevice extends events.EventEmitter {
     }
 
     // obsolete, do not use
-    get metadata() : DeviceMetadata {
+    get metadata() : BaseDevice.DeviceMetadata {
         const constructor = this.constructor as typeof BaseDevice;
         return constructor.metadata;
     }
@@ -457,7 +419,7 @@ export default abstract class BaseDevice extends events.EventEmitter {
      *
      * @param {Object} state - the new state
      */
-    updateState(state : DeviceState) : void {
+    updateState(state : BaseDevice.DeviceState) : void {
         // nothing to do here by default, except for updating the state
         // pointer
         // subclasses can override if they need to do anything about it
@@ -469,7 +431,7 @@ export default abstract class BaseDevice extends events.EventEmitter {
      *
      * @return {Object} the serialized device representation
      */
-    serialize() : DeviceState {
+    serialize() : BaseDevice.DeviceState {
         if (!this.state)
             throw new Error('Device lost state, cannot serialize');
         return this.state;
@@ -559,7 +521,7 @@ export default abstract class BaseDevice extends events.EventEmitter {
      * @param {string} name - the interface name
      * @return {any} the extension implementation
      */
-    queryInterface<T extends keyof QueryInterfaceMap>(name : T) : QueryInterfaceMap[T]|null {
+    queryInterface<T extends keyof BaseDevice.QueryInterfaceMap>(name : T) : BaseDevice.QueryInterfaceMap[T]|null {
         // no extension interfaces for this device class
         return null;
     }
@@ -569,3 +531,49 @@ BaseDevice.prototype.$rpcMethods = [
     'get name', 'get uniqueId', 'get description',
     'get ownerTier', 'get kind', 'get isTransient',
     'checkAvailable', 'hasKind'];
+
+namespace BaseDevice {
+
+export type DeviceClass<T extends BaseDevice> = Omit<typeof BaseDevice, "new"> & {
+    new(engine : BaseEngine, state : any) : T;
+
+    subdevices ?: Record<string, DeviceClass<BaseDevice>>;
+};
+
+export interface DeviceState {
+    kind : string;
+    accessToken ?: string;
+    refreshToken ?: string;
+    [key : string] : unknown;
+}
+
+export interface DeviceMetadata {
+    kind : string;
+    name : string;
+    description : string;
+    version : number;
+    category : 'online'|'physical'|'data'|'system';
+    types : string[];
+    params : { [key : string] : unknown };
+    auth : {
+        type : string;
+        client_id ?: string;
+        client_secret ?: string;
+    };
+}
+
+interface OAuth2Interface {
+    accessToken : string;
+    refreshToken ?: string;
+    refreshCredentials() : Promise<void>;
+}
+
+export interface QueryInterfaceMap {
+    'subdevices' : ObjectSet.Base<BaseDevice>;
+    'messaging' : Messaging;
+    'oauth2' : OAuth2Interface;
+    [key : string] : unknown;
+}
+
+}
+export default BaseDevice;

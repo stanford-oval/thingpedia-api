@@ -30,26 +30,10 @@ import * as Helpers from './helpers';
 import { getCategory } from './compat';
 import { makeDeviceFactory } from './device_factory_utils';
 
-import BaseClient, {
-    EntityLookupResult,
-    EntityTypeRecord,
-    LocationInput,
-    LocationRecord,
-    DeviceNameRecord,
-    DeviceListRecord,
-    DeviceFactory,
-    MultipleDeviceFactory,
-} from './base_client';
+import BaseClient from './base_client';
 
 // who to contact to resolve locations and entities
 const THINGPEDIA_URL = 'https://thingpedia.stanford.edu/thingpedia/api/v3';
-
-interface FileClientArgs {
-    thingpedia : string;
-    locale : string;
-    entities ?: string;
-    dataset ?: string;
-}
 
 interface APIQueryParams {
     locale ?: string;
@@ -66,7 +50,7 @@ interface APIQueryParams {
 export default class FileClient extends BaseClient {
     private _locale : string;
     private _devices : string|null;
-    private _entities : EntityTypeRecord[]|null;
+    private _entities : BaseClient.EntityTypeRecord[]|null;
     private _dataset : string|null;
     private _examples : { [key : string] : Ast.Example[] };
     private _thingpediafilename : string;
@@ -80,10 +64,15 @@ export default class FileClient extends BaseClient {
      * @param {Object} args - construction parameters
      * @param {string} args.locale - the locale of the user
      * @param {string} args.thingpedia - the path to the `thingpedia.tt` file
-     * @param {string} [args.entities] - the path to the `entities.json` file
-     * @param {string} [args.dataset] - the path to the `dataset.tt` file
+     * @param {string} args.entities - the path to the `entities.json` file
+     * @param {string} args.dataset - the path to the `dataset.tt` file
      */
-    constructor(args : FileClientArgs) {
+    constructor(args : {
+        thingpedia : string;
+        locale : string;
+        entities ?: string;
+        dataset ?: string;
+    }) {
         super();
         this._locale = args.locale;
         this._devices = null;
@@ -106,7 +95,7 @@ export default class FileClient extends BaseClient {
         throw new Error('not implemented');
     }
 
-    getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : DeviceFactory|MultipleDeviceFactory|null }> {
+    getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : BaseClient.DeviceFactory|BaseClient.MultipleDeviceFactory|null }> {
         throw new Error('not implemented');
     }
 
@@ -162,12 +151,12 @@ export default class FileClient extends BaseClient {
             return this._loaded = this._load();
     }
 
-    async getDeviceList(klass ?: string, page = 0, page_size = 10) : Promise<DeviceListRecord[]> {
+    async getDeviceList(klass ?: string, page = 0, page_size = 10) : Promise<BaseClient.DeviceListRecord[]> {
         await this._ensureLoaded();
 
         const parsed = ThingTalk.Syntax.parse(this._devices!);
         assert(parsed instanceof Ast.Library);
-        const list : DeviceListRecord[] = [];
+        const list : BaseClient.DeviceListRecord[] = [];
         for (const classDef of parsed.classes.slice(page_size * page, page_size * (page+1))) {
             const category = getCategory(classDef);
             if (klass && klass !== category)
@@ -188,14 +177,14 @@ export default class FileClient extends BaseClient {
         return list;
     }
 
-    async searchDevice(q : string) : Promise<DeviceListRecord[]> {
+    async searchDevice(q : string) : Promise<BaseClient.DeviceListRecord[]> {
         await this._ensureLoaded();
 
         q = q.toLowerCase();
 
         const parsed = ThingTalk.Syntax.parse(this._devices!);
         assert(parsed instanceof Ast.Library);
-        const list : DeviceListRecord[] = [];
+        const list : BaseClient.DeviceListRecord[] = [];
         for (const classDef of parsed.classes) {
             const record = {
                 primary_kind: classDef.kind,
@@ -217,12 +206,12 @@ export default class FileClient extends BaseClient {
         return list;
     }
 
-    async getDeviceFactories(klass : string) : Promise<DeviceFactory[]> {
+    async getDeviceFactories(klass : string) : Promise<BaseClient.DeviceFactory[]> {
         await this._ensureLoaded();
 
         const parsed = ThingTalk.Syntax.parse(this._devices!);
         assert(parsed instanceof Ast.Library);
-        const list : DeviceFactory[] = [];
+        const list : BaseClient.DeviceFactory[] = [];
         for (const classDef of parsed.classes) {
             const factory = makeDeviceFactory(classDef);
             if (factory)
@@ -279,7 +268,7 @@ export default class FileClient extends BaseClient {
         // do nothing
     }
 
-    async getAllDeviceNames() : Promise<DeviceNameRecord[]> {
+    async getAllDeviceNames() : Promise<BaseClient.DeviceNameRecord[]> {
         await this._ensureLoaded();
 
         const parsed = ThingTalk.Syntax.parse(this._devices!);
@@ -294,7 +283,7 @@ export default class FileClient extends BaseClient {
         return names;
     }
 
-    async getAllEntityTypes() : Promise<EntityTypeRecord[]> {
+    async getAllEntityTypes() : Promise<BaseClient.EntityTypeRecord[]> {
         await this._ensureLoaded();
         return this._entities || [];
     }
@@ -313,12 +302,15 @@ export default class FileClient extends BaseClient {
             return parsed;
     }
 
-    lookupEntity(entityType : string, searchTerm : string) : Promise<EntityLookupResult> {
+    lookupEntity(entityType : string, searchTerm : string) : Promise<BaseClient.EntityLookupResult> {
         return this._httpRequest('/entities/lookup/' + encodeURIComponent(entityType),
             { q: searchTerm }, 'application/json', { extractData: false });
     }
 
-    lookupLocation(searchTerm : string, around ?: LocationInput) : Promise<LocationRecord[]> {
+    lookupLocation(searchTerm : string, around ?: {
+        latitude : number;
+        longitude : number;
+    }) : Promise<BaseClient.LocationRecord[]> {
         if (around) {
             return this._httpRequest('/locations/lookup',
                 { q: searchTerm, latitude: String(around.latitude), longitude: String(around.longitude) }, 'application/json');

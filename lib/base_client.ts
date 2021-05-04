@@ -20,6 +20,8 @@
 
 import Mixins from './mixins.json';
 
+namespace BaseClient {
+
 export type DeviceCategory = 'data'|'online'|'physical'|'system';
 
 export interface DeviceListRecord {
@@ -34,28 +36,28 @@ export interface DeviceListRecord {
     subcategory : string;
 }
 
-interface NoneDeviceFactory {
+export interface NoneDeviceFactory {
     type : 'none';
     category : DeviceCategory;
     kind : string;
     text : string;
 }
 
-interface OAuthDeviceFactory {
+export interface OAuthDeviceFactory {
     type : 'oauth2';
     category : DeviceCategory;
     kind : string;
     text : string;
 }
 
-interface InteractiveDeviceFactory {
+export interface InteractiveDeviceFactory {
     type : 'interactive';
     category : DeviceCategory;
     kind : string;
     text : string;
 }
 
-interface DiscoveryDeviceFactory {
+export interface DiscoveryDeviceFactory {
     type : 'discovery';
     category : DeviceCategory;
     kind : string;
@@ -69,7 +71,7 @@ export interface FormField {
     type : string;
 }
 
-interface FormDeviceFactory {
+export interface FormDeviceFactory {
     type : 'form';
     category : DeviceCategory;
     kind : string;
@@ -112,11 +114,6 @@ export interface EntityTypeRecord {
     has_ner_support : boolean|number;
 }
 
-export interface LocationInput {
-    latitude : number;
-    longitude : number;
-}
-
 export interface LocationRecord {
     latitude : number;
     longitude : number;
@@ -142,13 +139,15 @@ export interface MixinDeclaration {
     facets : string[];
 }
 
+}
+
 /**
  * The base class of all clients to access the Thingpedia API.
  *
  * Accessing the Thingpedia API from Almond occurs in a platform-specific manner,
  * through clients that extend this class.
  */
-export default abstract class BaseClient {
+abstract class BaseClient {
     constructor() {
     }
 
@@ -163,13 +162,13 @@ export default abstract class BaseClient {
 
     abstract getSchemas(kinds : string[], withMetadata ?: boolean) : Promise<string>;
 
-    abstract getDeviceList(klass ?: string, page ?: number, page_size ?: number) : Promise<DeviceListRecord[]>;
+    abstract getDeviceList(klass ?: string, page ?: number, page_size ?: number) : Promise<BaseClient.DeviceListRecord[]>;
 
-    abstract searchDevice(q : string) : Promise<DeviceListRecord[]>;
+    abstract searchDevice(q : string) : Promise<BaseClient.DeviceListRecord[]>;
 
-    abstract getDeviceFactories(klass : string) : Promise<DeviceFactory[]>;
+    abstract getDeviceFactories(klass : string) : Promise<BaseClient.DeviceFactory[]>;
 
-    abstract getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : DeviceFactory|MultipleDeviceFactory|null }>;
+    abstract getDeviceSetup(kinds : string[]) : Promise<{ [key : string] : BaseClient.DeviceFactory|BaseClient.MultipleDeviceFactory|null }>;
 
     abstract getKindByDiscovery(publicData : any) : Promise<string>;
 
@@ -179,20 +178,24 @@ export default abstract class BaseClient {
 
     abstract clickExample(exampleId : number) : Promise<void>;
 
-    abstract lookupEntity(entityType : string, searchTerm : string) : Promise<EntityLookupResult>;
+    abstract lookupEntity(entityType : string, searchTerm : string) : Promise<BaseClient.EntityLookupResult>;
 
-    abstract lookupLocation(searchTerm : string, around ?: LocationInput) : Promise<LocationRecord[]>;
+    abstract lookupLocation(searchTerm : string, around ?: {
+        latitude : number;
+        longitude : number;
+    }) : Promise<BaseClient.LocationRecord[]>;
 
     abstract getAllExamples() : Promise<string>;
 
-    abstract getAllDeviceNames() : Promise<DeviceNameRecord[]>;
+    abstract getAllDeviceNames() : Promise<BaseClient.DeviceNameRecord[]>;
 
-    abstract getAllEntityTypes() : Promise<EntityTypeRecord[]>;
+    abstract getAllEntityTypes() : Promise<BaseClient.EntityTypeRecord[]>;
 
-    getMixins() : Promise<{ [key : string] : MixinDeclaration }> {
-        const mixins : { [key : string] : MixinDeclaration } = {};
+    getMixins() : Promise<{ [key : string] : BaseClient.MixinDeclaration }> {
+        const mixins : { [key : string] : BaseClient.MixinDeclaration } = {};
         for (const mixin of Mixins.data)
             mixins[mixin.kind] = mixin;
         return Promise.resolve(mixins);
     }
 }
+export default BaseClient;

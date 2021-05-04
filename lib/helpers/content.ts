@@ -72,7 +72,7 @@ export function isPubliclyAccessible(url : string) : boolean {
     return true;
 }
 
-interface ContentTypeStream extends stream.Readable {
+export interface ContentTypeStream extends stream.Readable {
     contentType ?: string;
 }
 
@@ -102,7 +102,7 @@ export async function getStream(platform : BasePlatform, url : string) : Promise
     return Promise.resolve(contentApi.getStream(url));
 }
 
-interface ContentTypeBuffer extends Buffer {
+export interface ContentTypeBuffer extends Buffer {
     contentType ?: string;
 }
 

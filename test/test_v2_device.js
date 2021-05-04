@@ -66,10 +66,6 @@ async function testPreloaded() {
     assert.strictEqual(typeof d.get_something_poll, 'function');
     assert.strictEqual(typeof d.subscribe_something, 'function');
     assert.strictEqual(typeof d.subscribe_something_poll, 'function');
-    assert.strictEqual(typeof d.history_something, 'function');
-    assert.strictEqual(typeof d.history_something_poll, 'function');
-    assert.strictEqual(typeof d.sequence_something, 'function');
-    assert.strictEqual(typeof d.sequence_something_poll, 'function');
     assert.strictEqual(typeof d.do_something_else, 'function');
 
     assert.deepStrictEqual(await d.get_something(), [

@@ -23,15 +23,15 @@ import * as ThingTalk from 'thingtalk';
 import * as Utils from '../utils';
 import { makeBaseDeviceMetadata } from '../compat';
 import * as ConfigMixins from '../config';
-import BaseDevice, { DeviceState } from '../base_device';
+import BaseDevice from '../base_device';
 
 import type BaseEngine from '../base_engine';
 
 export default class BaseGenericModule {
-    private _id : string;
-    private _manifest : ThingTalk.Ast.ClassDef;
-    private _loaded : (typeof BaseDevice)|null;
-    private _config : ConfigMixins.Base|null;
+    protected _id : string;
+    protected _manifest : ThingTalk.Ast.ClassDef;
+    protected _loaded : BaseDevice.DeviceClass<BaseDevice>|null;
+    protected _config : ConfigMixins.Base|null;
 
     constructor(kind : string, ast : ThingTalk.Ast.ClassDef) {
         this._id = kind;
@@ -41,7 +41,7 @@ export default class BaseGenericModule {
         this._config = ConfigMixins.get(this._manifest);
     }
 
-    private _loadModule() {
+    protected _loadModule() {
         let params : string[] = [];
         if (this._config) {
             if (this._config.module === 'org.thingpedia.config.form')
@@ -53,7 +53,7 @@ export default class BaseGenericModule {
         const newClass = class GenericDevice extends BaseDevice {
             params : unknown[];
 
-            constructor(engine : BaseEngine, state : DeviceState) {
+            constructor(engine : BaseEngine, state : BaseDevice.DeviceState) {
                 super(engine, state);
                 this.params = params.map((k) => state[k]);
             }
@@ -83,7 +83,7 @@ export default class BaseGenericModule {
         // nothing to do here
     }
 
-    getDeviceClass() {
+    getDeviceClass() : Promise<BaseDevice.DeviceClass<BaseDevice>> {
         if (this._loaded === null) {
             try {
                 this._loadModule();
@@ -92,6 +92,6 @@ export default class BaseGenericModule {
                 return Promise.reject(e);
             }
         }
-        return Promise.resolve(this._loaded);
+        return Promise.resolve(this._loaded!);
     }
 }

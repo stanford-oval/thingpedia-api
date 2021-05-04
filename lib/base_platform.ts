@@ -20,13 +20,12 @@
 
 import Preferences from './prefs';
 import { CapabilityMap } from './capabilities';
-import BaseEngine from './base_engine';
 import BaseDevice from './base_device';
 
 /**
  * The profile of the user.
  */
-interface UserProfile {
+ export interface UserProfile {
     /**
      * Platform-specific account identifier.
      */
@@ -52,18 +51,6 @@ interface UserProfile {
 
     phone ?: string;
     phone_verified ?: boolean;
-}
-
-interface UserProfileSet {
-    locale ?: string;
-    timezone ?: string;
-    name ?: string;
-    email ?: string;
-    phone ?: string;
-}
-
-interface DeviceClass {
-    new(engine : BaseEngine, state : any) : BaseDevice;
 }
 
 /**
@@ -102,7 +89,7 @@ export default abstract class BasePlatform {
     /**
      * Retrieve the device to configure to provide platform-specific functionality.
      */
-    getPlatformDevice() : { kind : string, class : string, module : DeviceClass }|null {
+    getPlatformDevice() : { kind : string, class : string, module : BaseDevice.DeviceClass<BaseDevice> }|null {
         return null;
     }
 
@@ -130,7 +117,13 @@ export default abstract class BasePlatform {
      *
      * @returns whether the modification actually occurred.
      */
-    async setProfile(newProfile : UserProfileSet) : Promise<boolean> {
+    async setProfile(newProfile : {
+        locale ?: string;
+        timezone ?: string;
+        name ?: string;
+        email ?: string;
+        phone ?: string;
+    }) : Promise<boolean> {
         return false;
     }
 

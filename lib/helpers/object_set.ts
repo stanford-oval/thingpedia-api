@@ -96,14 +96,10 @@ class Base<T> extends events.EventEmitter {
     }
 }
 
-interface HasUniqueId {
-    uniqueId : string;
-}
-
 /**
  * A simple implementation of {@link Helpers.ObjectSet.Base} backed by a {@link Map}.
  */
-class Simple<T extends HasUniqueId> extends Base<T> {
+class Simple<T extends { uniqueId : string; }> extends Base<T> {
     private _objects : Map<string, T>;
 
     constructor() {
