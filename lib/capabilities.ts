@@ -110,6 +110,11 @@ export interface SoundApi extends events.EventEmitter {
 
 export type WakeWordApi = stream.Writable;
 
+export interface VadApi {
+    setup(bitrate : number, level ?: number) : boolean;
+    process(chunk : Buffer) : boolean;
+}
+
 interface Location {
     latitude : number;
     longitude : number;
@@ -210,6 +215,7 @@ export interface CapabilityMap {
     'bluetooth' : BluetoothApi;
     'sound' : SoundApi;
     'wakeword-detector' : WakeWordApi;
+    'voice-detector' : VadApi;
     'gps' : GpsApi;
     'statistics' : StatisticsApi;
     'contacts' : ContactsApi;
