@@ -1,3 +1,14 @@
+2.9.0
+=====
+
+* Added VAD platform capability [#153].
+
+Please see the previous releases for the full list of changes in this
+development cycle.
+
+Contributors to this release:
+- Antonio Muratore
+
 2.9.0-beta.1
 ============
 
