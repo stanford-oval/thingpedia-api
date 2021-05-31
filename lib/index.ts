@@ -27,6 +27,8 @@ import BaseEngine from './base_engine';
 import BasePlatform, { UserProfile } from './base_platform';
 import * as DeviceConfigUtils from './device_factory_utils';
 import * as Capabilities from './capabilities';
+import DialogueHandler from './dialogue-handler';
+import * as FormatObjects from './format_objects';
 
 import * as ThingTalk from 'thingtalk';
 
@@ -130,6 +132,8 @@ export {
     Preferences,
     Capabilities,
     UserProfile,
+    DialogueHandler,
+    FormatObjects,
 
     // compatibility export
     ObjectSet,
