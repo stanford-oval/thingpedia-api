@@ -563,13 +563,13 @@ export interface DeviceMetadata {
     };
 }
 
-interface OAuth2Interface {
+export interface OAuth2Interface {
     accessToken : string;
     refreshToken ?: string;
     refreshCredentials() : Promise<void>;
 }
 
-interface NotificationInterface {
+export interface NotificationInterface {
     notify(data : {
         appId : string;
         icon : string|null;
