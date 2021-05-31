@@ -203,6 +203,26 @@ export interface SoundEffectsApi {
     play(name : string) : Promise<void>;
 }
 
+export interface NotificationBackend {
+    readonly name : string;
+    readonly uniqueId : string;
+    readonly requiredSettings : Record<string, string>;
+
+    notify(data : {
+        appId : string;
+        icon : string|null;
+        raw : Record<string, unknown>;
+        type : string;
+        formatted : any[]
+    }, config ?: Record<string, string>) : Promise<void>;
+
+    notifyError(data : {
+        appId : string;
+        icon : string|null;
+        error : Error
+    }, config ?: Record<string, string>) : Promise<void>;
+}
+
 export interface CapabilityMap {
     'thingpedia-client' : BaseClient;
     'content-api' : ContentApi;
@@ -223,6 +243,7 @@ export interface CapabilityMap {
     'system-lock' : SystemLockApi;
     'audio-player' : AudioPlayerApi;
     'sound-effects' : SoundEffectsApi;
+    'notifications' : NotificationBackend[];
 
     [key : string] : unknown;
 }

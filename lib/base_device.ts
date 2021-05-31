@@ -568,10 +568,27 @@ interface OAuth2Interface {
     refreshCredentials() : Promise<void>;
 }
 
+interface NotificationInterface {
+    notify(data : {
+        appId : string;
+        icon : string|null;
+        raw : Record<string, unknown>;
+        type : string;
+        formatted : any[]
+    }) : Promise<void>;
+
+    notifyError(data : {
+        appId : string;
+        icon : string|null;
+        error : Error
+    }) : Promise<void>;
+}
+
 export interface QueryInterfaceMap {
     'subdevices' : ObjectSet.Base<BaseDevice>;
     'messaging' : Messaging;
     'oauth2' : OAuth2Interface;
+    'notifications': NotificationInterface;
     [key : string] : unknown;
 }
 
