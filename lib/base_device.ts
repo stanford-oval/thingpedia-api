@@ -29,6 +29,7 @@ import type Messaging from './messaging';
 import type ConfigDelegate from './config_delegate';
 import type BaseEngine from './base_engine';
 import type BasePlatform from './base_platform';
+import DialogueHandler from './dialogue-handler';
 
 /**
  * The coarse grain classification of the currently running Almond platform.
@@ -562,16 +563,34 @@ export interface DeviceMetadata {
     };
 }
 
-interface OAuth2Interface {
+export interface OAuth2Interface {
     accessToken : string;
     refreshToken ?: string;
     refreshCredentials() : Promise<void>;
+}
+
+export interface NotificationInterface {
+    notify(data : {
+        appId : string;
+        icon : string|null;
+        raw : Record<string, unknown>;
+        type : string;
+        formatted : any[]
+    }) : Promise<void>;
+
+    notifyError(data : {
+        appId : string;
+        icon : string|null;
+        error : Error
+    }) : Promise<void>;
 }
 
 export interface QueryInterfaceMap {
     'subdevices' : ObjectSet.Base<BaseDevice>;
     'messaging' : Messaging;
     'oauth2' : OAuth2Interface;
+    'notifications' : NotificationInterface;
+    'dialogue-handler' : DialogueHandler<any, any>;
     [key : string] : unknown;
 }
 
