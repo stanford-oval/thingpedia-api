@@ -30,7 +30,7 @@ export default class GenericRestModule extends Base {
 
         for (const action in this._manifest.actions) {
             const fndef = this._manifest.actions[action];
-            const baseurl = fndef.getImplementationAnnotation<string>('url');
+            const baseurl = fndef.getImplementationAnnotation<string>('url')!;
             const method =  fndef.getImplementationAnnotation<string>('method') || 'POST';
 
             this._loaded!.prototype['do_' + action] = function(params : any) {
@@ -45,7 +45,7 @@ export default class GenericRestModule extends Base {
         for (const query in this._manifest.queries) {
             const fndef = this._manifest.queries[query];
             const pollInterval = Utils.getPollInterval(fndef);
-            const baseurl = fndef.getImplementationAnnotation<string>('url');
+            const baseurl = fndef.getImplementationAnnotation<string>('url')!;
             const method =  fndef.getImplementationAnnotation<string>('method') || 'GET';
 
             this._loaded!.prototype['get_' + query] = function(params : any, hints : any, env : any) {
