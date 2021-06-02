@@ -24,6 +24,12 @@ import * as http from 'http';
 import * as https from 'https';
 import * as Url from 'url';
 
+/**
+ * HTTP Helpers.
+ *
+ * @namespace
+ */
+
 function getModule(parsed : http.ClientRequestArgs) {
     if (parsed.protocol === 'https:')
         return https;
@@ -238,36 +244,20 @@ function httpRequestStream<UploadStreamT extends boolean, DownloadStreamT extend
  * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
  * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with `Buffer` and content type.
  */
-function httpRequest(url : string,
-                     method : string,
-                     data : string|Buffer|null,
-                     options : HTTPRequestOptions & { raw : true }) : Promise<[Buffer, string]>;
-function httpRequest(url : string,
-                     method : string,
-                     data : string|Buffer|null,
-                     options ?: HTTPRequestOptions) : Promise<string>;
-function httpRequest(url : string,
-                     method : string,
-                     data : string|Buffer|null,
-                     options : HTTPRequestOptions = {}) : Promise<[Buffer, string]|string> {
+export function request(url : string,
+                        method : string,
+                        data : string|Buffer|null,
+                        options : HTTPRequestOptions & { raw : true }) : Promise<[Buffer, string]>;
+export function request(url : string,
+                        method : string,
+                        data : string|Buffer|null,
+                        options ?: HTTPRequestOptions) : Promise<string>;
+export function request(url : string,
+                        method : string,
+                        data : string|Buffer|null,
+                        options : HTTPRequestOptions = {}) : Promise<[Buffer, string]|string> {
     return httpRequestStream(url, method, data, options, false, false, !!options.raw);
 }
-
-function httpDownloadStream(url : string,
-                            method : string,
-                            data : string|Buffer|null,
-                            options ?: HTTPRequestOptions) : Promise<http.IncomingMessage> {
-    return httpRequestStream(url, method, data, options, false, true, false);
-}
-
-/**
- * HTTP Helpers.
- *
- * @namespace
- */
-export {
-    httpRequest as request,
-};
 
 /**
  * Perform a buffered HTTP GET.
@@ -360,6 +350,13 @@ export function postStream(url : string, data : stream.Readable, options : HTTPR
     return httpRequestStream(url, 'POST', data, options, true, false, !!options.raw);
 }
 
+function httpDownloadStream(url : string,
+    method : string,
+    data : string|Buffer|null,
+    options ?: HTTPRequestOptions) : Promise<http.IncomingMessage> {
+return httpRequestStream(url, method, data, options, false, true, false);
+}
+
 /**
  * Perform a streaming GET request.
  *
@@ -385,4 +382,34 @@ export function postStream(url : string, data : stream.Readable, options : HTTPR
  */
 export function getStream(url : string, options ?: HTTPRequestOptions) : Promise<http.IncomingMessage> {
     return httpDownloadStream(url, 'GET', null, options);
+}
+
+/**
+ * Perform a streaming HTTP request with a custom method.
+ *
+ * @param {string} url - the URL to POST to
+ * @param {string} method - the HTTP method to use
+ * @param {string|null} data - the content of the request body; you can pass `null` for an empty body
+ * @param {Object} [options] - request options
+ * @param {string} [options.dataContentType] - the value of the `Content-Type` request header
+ * @param {string} [options.auth] - the value of `Authorization` header
+ * @param {string} [options.accept] - the value of `Accept` header
+ * @param {BaseDevice} [options.useOAuth2] - if set, the `Authorization` header will be computed for the passed
+ *                                           device based on the OAuth 2.0 standard; using this option also enables
+ *                                           automatic refresh token handling (if the refresh token exists); this
+ *                                           option is ignored if `auth` is also set
+ * @param {string} [options.authMethod=Bearer] - set this to override the prefix of the `Authorization` header;
+ *                                        this option is ignored unless `useOAuth2` is set
+ * @param {string} [options.user-agent] - set the `User-Agent` header; if unset a default user agent is used
+ * @param {Object.<string,string>} [options.extraHeaders] - other request headers to set
+ * @param {boolean} [options.ignoreErrors=false] - set to `true` to ignore errors (HTTP statuses 300 and higher)
+ * @param {boolean} [options.followRedirects=true] - set to `false` to disable automatic handling of HTTP redirects (status 301, 302 and 303)
+ * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
+ * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with `Buffer` and content type.
+ */
+ export function requestStream(url : string,
+    method : string,
+    data : string|Buffer|null,
+    options : HTTPRequestOptions = {}) : Promise<http.IncomingMessage> {
+    return httpRequestStream(url, method, data, options, false, true, false);
 }
