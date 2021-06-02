@@ -36,6 +36,8 @@ type OAuthCodeQuery = {
     access_type ?: string;
     state ?: string;
     scope ?: string;
+    code_challenge ?: string;
+    code_challenge_method ?: 'S256';
 };
 
 namespace OAuth2Helper {
@@ -47,6 +49,7 @@ export interface OAuthHelperParams<T extends BaseDevice> {
     redirect_uri ?: string;
     set_access_type ?: boolean;
     set_state ?: boolean;
+    use_pkce ?: boolean;
     scope ?: string[];
     callback ?: (engine : BaseEngine, accessToken : string, refreshToken : string|undefined, extraData : Record<string, unknown>) => Promise<T>;
 }
@@ -74,6 +77,7 @@ interface NormalizedOAuthParams {
     custom_headers : Record<string, string>;
     authorize : string;
     get_access_token : string;
+    use_pkce : boolean;
 }
 
 function normalizeOAuthParams<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParams<T>,
@@ -100,8 +104,15 @@ function normalizeOAuthParams<T extends BaseDevice>(params : OAuth2Helper.OAuthH
     return {
         client_id, client_secret, redirect_uri, custom_headers,
         authorize: params.authorize,
-        get_access_token: params.get_access_token
+        get_access_token: params.get_access_token,
+        use_pkce: !!params.use_pkce
     };
+}
+
+function sha256(x : string) : Buffer {
+    const hash = crypto.createHash('sha256');
+    hash.update(x);
+    return hash.digest();
 }
 
 function oauthPart1<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParams<T>,
@@ -124,6 +135,23 @@ function oauthPart1<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParam
     }
     if (params.scope)
         query.scope = params.scope.join(' ');
+    if (normalized.use_pkce) {
+        // PKCE is an extension of OAuth 2.0 that avoids the need of a client
+        // secret
+
+        // First generate a random verifier
+        // Following https://datatracker.ietf.org/doc/html/rfc7636#section-4.1
+        // we generate 32 random bytes and convert them to a 43 byte base64 string
+        const verifier = crypto.randomBytes(32).toString('base64url');
+
+        // Then generate the challenge
+        // We only support the S256 method
+        query.code_challenge = sha256(verifier).toString('base64url');
+        query.code_challenge_method = 'S256';
+
+        // Finally we store the verifier for later
+        session['oauth2-pkce-' + factory.metadata.kind] = verifier;
+    }
 
     return [params.authorize + '?' + qs.stringify(query), session];
 }
@@ -131,6 +159,7 @@ function oauthPart1<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParam
 type OAuthGrant = ({
     grant_type : 'authorization_code';
     code : string;
+    code_verifier ?: string;
 } | {
     grant_type : 'refresh_token';
     refresh_token : string;
@@ -149,7 +178,8 @@ interface OAuthAccessTokenResult {
 async function getOAuthAccessToken(params : NormalizedOAuthParams,
                                    grant : OAuthGrant) : Promise<OAuthAccessTokenResult> {
     grant.client_id = params.client_id;
-    grant.client_secret = params.client_secret;
+    if (!params.use_pkce)
+        grant.client_secret = params.client_secret;
     grant.redirect_uri = params.redirect_uri;
 
     const response = await Http.post(params.get_access_token, qs.stringify(grant), {
@@ -214,10 +244,17 @@ async function oauthPart2<T extends BaseDevice>(params : OAuth2Helper.OAuthHelpe
         throw new OAuthError("Invalid CSRF token");
 
     try {
-        const result = await getOAuthAccessToken(normalized, {
+        const grant : OAuthGrant = {
             grant_type: 'authorization_code',
             code: code
-        });
+        };
+        if (normalized.use_pkce) {
+            const pkceVerifier = req.session['oauth2-pkce-' + factory.metadata.kind];
+            delete req.session['oauth2-pkce-' + factory.metadata.kind];
+            grant.code_verifier = pkceVerifier;
+        }
+
+        const result = await getOAuthAccessToken(normalized, grant);
         if (params.callback)
             return await params.callback(engine, result.access_token, result.refresh_token, result);
         else

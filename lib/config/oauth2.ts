@@ -75,6 +75,7 @@ function makeGenericOAuth(kind : string, mixin : Ast.MixinImportStmt, devclass :
         get_access_token: String(info.get_access_token),
         scope: info.scope as string[],
         set_state: !!info.set_state,
+        use_pkce: !!info.use_pkce,
         redirect_uri: info.redirect_uri ? String(info.redirect_uri) : undefined
     });
     runOAuth2.install(devclass.prototype);
