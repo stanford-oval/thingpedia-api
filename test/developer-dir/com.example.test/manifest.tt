@@ -1,0 +1,7 @@
+class @com.example.test
+#_[name="Test"]
+#_[description="Test Device"]
+{
+    import loader from @org.thingpedia.v2();
+    import config from @org.thingpedia.config.none(api_key=$?);
+}

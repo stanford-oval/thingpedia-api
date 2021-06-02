@@ -23,6 +23,7 @@ import * as ThingTalk from 'thingtalk';
 import { Ast, } from 'thingtalk';
 import * as qs from 'querystring';
 import * as fs from 'fs';
+import { promises as pfs } from 'fs';
 import * as path from 'path';
 import * as util from 'util';
 
@@ -79,43 +80,106 @@ export default class HttpClient extends BaseClient {
         return this.platform.locale;
     }
 
+    private _jsonToAstValue(value : unknown) : Ast.Value {
+        if (value === null || value === undefined)
+            return new Ast.UndefinedValue();
+
+        if (typeof value === 'boolean')
+            return new Ast.BooleanValue(value);
+        else if (typeof value === 'number')
+            return new Ast.NumberValue(value);
+        else if (typeof value === 'string')
+            return new Ast.StringValue(value);
+
+        if (Array.isArray(value))
+            return new Ast.ArrayValue(value.map((v) => this._jsonToAstValue(v)));
+
+        const obj = value as Record<string, unknown>;
+        const mapped : Record<string, Ast.Value> = {};
+        for (const key in obj)
+            mapped[key] = this._jsonToAstValue(obj[key]);
+        return new Ast.ObjectValue(mapped);
+    }
+
+    private async _addConfigFromSecretsJSON(ourConfig : Ast.MixinImportStmt, filepath : string, deviceKind ?: string) {
+        try {
+            let secretJSON = JSON.parse(await pfs.readFile(filepath, { encoding: 'utf8' }));
+            if (typeof secretJSON !== 'object' || secretJSON === null)
+                return;
+            if (deviceKind !== undefined)
+                secretJSON = secretJSON[deviceKind];
+            if (typeof secretJSON !== 'object' || secretJSON === null)
+                return;
+
+            for (const inParam of ourConfig.in_params) {
+                if (inParam.value.isUndefined && secretJSON[inParam.name] !== undefined)
+                    inParam.value = this._jsonToAstValue(secretJSON[inParam.name]);
+            }
+        } catch(e) {
+            // ignore error if the file is missing, or if it doesn't parse as JSON (likely encrypted)
+            if (e.code === 'ENOENT' || e.name === 'SyntaxError')
+                return;
+
+            throw e;
+        }
+    }
+
+    private async _addConfigFromThingpedia(ourConfig : Ast.MixinImportStmt, deviceKind : string) {
+        try {
+            const officialMetadata = await this._getDeviceCodeHttp(deviceKind);
+            const officialParsed = ThingTalk.Syntax.parse(officialMetadata);
+            assert(officialParsed instanceof Ast.Library);
+
+            ourConfig.in_params = ourConfig.in_params.filter((ip) => !ip.value.isUndefined);
+            const ourConfigParams = new Set(ourConfig.in_params.map((ip) => ip.name));
+            const officialConfig = officialParsed.classes[0].config;
+            assert(officialConfig);
+
+            for (const in_param of officialConfig.in_params) {
+                if (!ourConfigParams.has(in_param.name))
+                    ourConfig.in_params.push(in_param);
+            }
+        } catch(e) {
+            if (e.code !== 404)
+                throw e;
+        }
+    }
+
     private async _getLocalDeviceManifest(manifestPath : string, deviceKind : string) {
         const ourMetadata = (await util.promisify(fs.readFile)(manifestPath)).toString();
         const ourParsed = ThingTalk.Syntax.parse(ourMetadata);
         assert(ourParsed instanceof Ast.Library);
-        ourParsed.classes[0].annotations.version = new Ast.Value.Number(-1);
 
-        if (!ourParsed.classes[0].is_abstract) {
-            try {
-                const ourConfig = ourParsed.classes[0].config;
-                if (!ourConfig || !ourConfig.in_params.some((v) => v.value.isUndefined))
-                    return ourParsed.classes[0];
+        const ourClassDef = ourParsed.classes[0];
+        ourClassDef.annotations.version = new Ast.Value.Number(-1);
 
-                // ourMetadata might lack some of the fields that are in the
-                // real metadata, such as api keys and OAuth secrets
-                // for that reason we fetch the metadata for thingpedia as well,
-                // and fill in any missing parameter
-                const officialMetadata = await this._getDeviceCodeHttp(deviceKind);
-                const officialParsed = ThingTalk.Syntax.parse(officialMetadata);
-                assert(officialParsed instanceof Ast.Library);
+        if (ourClassDef.is_abstract)
+            return ourClassDef;
 
-                ourConfig.in_params = ourConfig.in_params.filter((ip) => !ip.value.isUndefined);
-                const ourConfigParams = new Set(ourConfig.in_params.map((ip) => ip.name));
-                const officialConfig = officialParsed.classes[0].config;
-                assert(officialConfig);
+        const ourConfig = ourClassDef.config;
+        if (!ourConfig)
+            return ourClassDef;
 
-                for (const in_param of officialConfig.in_params) {
-                    if (!ourConfigParams.has(in_param.name))
-                        ourConfig.in_params.push(in_param);
-                }
+        // ourConfig might lack some of the fields that are in the
+        // real metadata, such as api keys and OAuth secrets
+        //
+        // we look in three places for the missing fields:
+        // 1. in a secrets.json file in the same directory, containing directly the secrets for this device
+        // 2. in a secrets.json file in the global user directory, containing secrets for all devices (indexed by device kind)
+        // 3. in the upstream thingpedia
 
-            } catch(e) {
-                if (e.code !== 404)
-                    throw e;
-            }
-        }
+        if (ourConfig.in_params.every((v) => !v.value.isUndefined))
+            return ourClassDef;
+        await this._addConfigFromSecretsJSON(ourConfig, path.resolve(manifestPath, '../secrets.json'));
+        if (ourConfig.in_params.every((v) => !v.value.isUndefined))
+            return ourClassDef;
 
-        return ourParsed.classes[0];
+        await this._addConfigFromSecretsJSON(ourConfig, path.resolve(this.platform.getWritableDir(), 'secrets.json'), deviceKind);
+        if (ourConfig.in_params.every((v) => !v.value.isUndefined))
+            return ourClassDef;
+
+        await this._addConfigFromThingpedia(ourConfig, deviceKind);
+        return ourClassDef;
     }
 
     private _getDeveloperDirs() : string[]|undefined {
