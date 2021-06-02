@@ -34,7 +34,7 @@ function makeGenericOAuth(kind : string, mixin : Ast.MixinImportStmt, devclass :
             const obj : {
                 kind : string,
                 accessToken : string,
-                refreshToken : string,
+                refreshToken : string|undefined,
                 [key : string] : unknown
             } = {
                 kind: kind,
@@ -71,8 +71,6 @@ function makeGenericOAuth(kind : string, mixin : Ast.MixinImportStmt, devclass :
     }
 
     const runOAuth2 = Helpers.OAuth2({
-        client_id: info.client_id as string,
-        client_secret: info.client_secret as string,
         authorize: String(info.authorize),
         get_access_token: String(info.get_access_token),
         scope: info.scope as string[],
