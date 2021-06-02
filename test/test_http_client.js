@@ -349,6 +349,16 @@ async function testGetDeviceSetup() {
             choices: []
         }
     });
+
+    const local = await _localDeveloperHttpClient.getDeviceSetup(['com.example.test']);
+    assert.deepStrictEqual(local, {
+        'com.example.test': {
+            category: 'data',
+            kind: 'com.example.test',
+            type: 'none',
+            text: 'Test'
+        }
+    });
 }
 
 async function testGetKindByDiscovery() {
