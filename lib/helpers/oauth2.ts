@@ -26,21 +26,6 @@ import { OAuthError } from '../errors';
 import type BaseEngine from '../base_engine';
 import type BaseDevice from '../base_device';
 
-/* eslint-disable no-invalid-this */
-
-// encryption ;)
-function rot13(x : string) : string {
-    return Array.prototype.map.call(x, (ch) => {
-        let code = ch.charCodeAt(0);
-        if (code >= 0x41 && code <= 0x5a)
-            code = (((code - 0x41) + 13) % 26) + 0x41;
-        else if (code >= 0x61 && code <= 0x7a)
-            code = (((code - 0x61) + 13) % 26) + 0x61;
-
-        return String.fromCharCode(code);
-    }).join('');
-}
-
 type OAuthCodeQuery = {
     response_type : 'code';
     redirect_uri : string;
@@ -83,12 +68,12 @@ export interface OAuthRunner<T extends BaseDevice> {
 function makeOAuthClient<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParams<T>,
                                                factory : OAuth2Helper.DeviceClass<T>,
                                                engine : BaseEngine) : [oauth.OAuth2, string] {
-    if (!factory.metadata.auth.client_id && !params.client_id)
+    if (!factory.metadata.auth.client_id)
         throw new OAuthError('Missing OAuth Client ID in Authentication part of the manifest');
-    const client_id = (factory.metadata.auth.client_id || params.client_id) as string;
-    if (!factory.metadata.auth.client_secret && !params.client_secret)
+    const client_id = factory.metadata.auth.client_id;
+    if (factory.metadata.auth.client_secret === undefined)
         throw new OAuthError('Missing OAuth Client Secret in Authentication part of the manifest');
-    const client_secret = factory.metadata.auth.client_secret || rot13(params.client_secret!);
+    const client_secret = factory.metadata.auth.client_secret;
 
     const customHeaders = params.custom_headers || {};
     if (params.use_basic_client_auth) {
