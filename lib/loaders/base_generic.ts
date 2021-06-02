@@ -79,6 +79,9 @@ export default class BaseGenericModule {
     get version() {
         return this._manifest.getImplementationAnnotation<number>('version')!;
     }
+    get config() {
+        return this._config;
+    }
 
     clearCache() {
         // nothing to do here

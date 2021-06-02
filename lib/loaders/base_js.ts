@@ -111,6 +111,9 @@ export default abstract class BaseJavascriptModule {
     get version() {
         return this._manifest.annotations.version.toJS() as number;
     }
+    get config() {
+        return this._config;
+    }
 
     static get [Symbol.species]() {
         // TRICKY NOTE: in JS, "static" means class method, not static method

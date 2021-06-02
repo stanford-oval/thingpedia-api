@@ -44,6 +44,21 @@ export default class BaseConfigMixin {
         return this._mixin.module;
     }
 
+    /**
+     * Check if some API keys or secrets are missing in this config mixin.
+     *
+     * This is indicated by an $? value in the manifest that survived after
+     * loading secrets.json
+     *
+     * Returning true causes the module to fail to load directly, and forces
+     * the use of a proxy through the Thingpedia API.
+     *
+     * @returns `true` if some config parameters are missing, `false` otherwise
+     */
+    hasMissingKeys() {
+        return this._mixin.in_params.some((ip) => ip.value.isUndefined);
+    }
+
     install(deviceClass : BaseDevice.DeviceClass<BaseDevice>) {
         // do nothing, successfully
     }

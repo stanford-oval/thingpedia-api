@@ -18,6 +18,8 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
+import * as ThingTalk from 'thingtalk';
+
 import Mixins from './mixins.json';
 
 namespace BaseClient {
@@ -197,5 +199,7 @@ abstract class BaseClient {
             mixins[mixin.kind] = mixin;
         return Promise.resolve(mixins);
     }
+
+    abstract invokeQuery(kind : string, uniqueId : string, query : string, params : Record<string, unknown>, hints : ThingTalk.Runtime.CompiledQueryHints) : AsyncIterable<Record<string, unknown>>;
 }
 export default BaseClient;

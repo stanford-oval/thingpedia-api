@@ -18,6 +18,7 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
+import * as ThingTalk from 'thingtalk';
 
 import * as Utils from '../utils';
 import * as Helpers from '../helpers';
@@ -69,11 +70,11 @@ export default class GenericRestModule extends Base {
             if (pollInterval === 0)
                 throw new ImplementationError(`Poll interval cannot be 0 for REST query ${query}`);
             if (pollInterval > 0) {
-                this._loaded!.prototype['subscribe_' + query] = function(params : any, state : any, hints : any) {
-                    return new Helpers.PollingStream(state, pollInterval, () => this['get_' + query](params, hints));
+                this._loaded!.prototype['subscribe_' + query] = function(params : Record<string, unknown>, state : any, hints : ThingTalk.Runtime.CompiledQueryHints, env : ThingTalk.ExecEnvironment) {
+                    return new Helpers.PollingStream(state, pollInterval, () => this['get_' + query](params, hints, env));
                 };
             } else {
-                this._loaded!.prototype['subscribe_' + query] = function(params : any, state : any, hints : any) {
+                this._loaded!.prototype['subscribe_' + query] = function() {
                     throw new Error('This query is non-deterministic and cannot be monitored');
                 };
             }

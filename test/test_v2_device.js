@@ -309,11 +309,32 @@ async function testDatabase() {
     const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.databasequery', metadata, downloader);
 
     const factory = await module.getDeviceClass();
-    const device = new factory(mockEngine, { kind: 'org.thingpedia.test.mydevice' });
+    const device = new factory(mockEngine, { kind: 'org.thingpedia.test.databasequery' });
 
     assert.strictEqual(typeof device.query, 'function');
 }
 
+async function testProxied() {
+    const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
+    const module = await downloader.getModule('org.thingpedia.test.proxied');
+
+    const factory = await module.getDeviceClass();
+    const device = new factory(mockEngine, { kind: 'org.thingpedia.test.proxied' });
+
+    await assert.rejects(async () => {
+        return device.do_test_action();
+    }, { code: 'ENOSYS' });
+
+    const out = [];
+    for await (const element of device.get_test({}))
+        out.push(element);
+
+    assert.deepStrictEqual(out, [{
+        a: 'foo', b: 1,
+    }, {
+        a: 'bar', b: 2
+    }]);
+}
 
 async function main() {
     await testPreloaded();
@@ -325,6 +346,7 @@ async function main() {
     await testBluetooth();
     await testInteractive();
     await testDatabase();
+    await testProxied();
 }
 export default main;
 if (!module.parent)

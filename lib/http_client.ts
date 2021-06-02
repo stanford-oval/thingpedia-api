@@ -26,6 +26,7 @@ import * as fs from 'fs';
 import { promises as pfs } from 'fs';
 import * as path from 'path';
 import * as util from 'util';
+import byline from 'byline';
 
 import * as Helpers from './helpers';
 import BaseClient from './base_client';
@@ -531,5 +532,22 @@ export default class HttpClient extends BaseClient {
         }
 
         return names;
+    }
+
+    async *invokeQuery(kind : string, uniqueId : string, query : string, params : Record<string, unknown>, hints : ThingTalk.Runtime.CompiledQueryHints) : AsyncIterable<Record<string, unknown>> {
+        const queryparams : APIQueryParams = {
+            locale: this.locale,
+            thingtalk_version: ThingTalk.version,
+        };
+        if (this.developerKey)
+            queryparams.developer_key = this.developerKey;
+
+        const stream = await Helpers.Http.requestStream(this._url + '/proxy/query/' + kind + '/' + query + qs.stringify(queryparams), 'POST',
+            JSON.stringify({ uniqueId, params, hints }), {
+            accept: 'application/json-l'
+        });
+
+        for await (const line of stream.pipe(byline()))
+            yield JSON.parse(line);
     }
 }

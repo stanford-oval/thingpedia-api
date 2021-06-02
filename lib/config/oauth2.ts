@@ -87,6 +87,14 @@ function makeGenericOAuth(kind : string, mixin : Ast.MixinImportStmt, devclass :
 }
 
 export default class OAuth2ConfigMixin extends Base {
+    // Override this method so a missing client_secret doesn't cause us to go through
+    // a proxy for the whole device
+    // Instead, we will proxy only the authentication calls, store the access token
+    // locally, and run the skill normally as if we had all the keys
+    hasMissingKeys() {
+        return false;
+    }
+
     install(deviceClass : BaseDevice.DeviceClass<BaseDevice>) {
         // compatibility note:
         //
