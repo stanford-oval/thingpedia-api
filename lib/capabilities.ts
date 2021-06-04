@@ -47,19 +47,24 @@ export interface GraphicsApi {
     createImageFromBuffer(buffer : Buffer) : Image;
 }
 
-type URLQuery = { [key : string] : string|string[]|undefined };
+export interface WebhookReply {
+    contentType ?: string;
+    code : number;
+    response ?: string;
+}
+
 export type WebhookCallback = (id : string,
                                method : 'GET'|'POST',
-                               query : URLQuery,
-                               headers : URLQuery,
-                               payload : unknown) => Promise<void>;
+                               query : Record<string, string|string[]|undefined>,
+                               headers : Record<string, string|string[]|undefined>,
+                               payload : unknown) => Promise<WebhookReply|void>;
 
 export interface WebhookApi {
     handleCallback(id : string,
                    method : 'GET'|'POST',
-                   query : URLQuery,
-                   headers : URLQuery,
-                   payload : unknown) : Promise<void>;
+                   query : Record<string, string|string[]|undefined>,
+                   headers : Record<string, string|string[]|undefined>,
+                   payload : unknown) : Promise<WebhookReply|void>;
 
     getWebhookBase() : string;
     registerWebhook(id : string, callback : WebhookCallback) : void;
