@@ -71,7 +71,7 @@ export interface WebhookApi {
     unregisterWebhook(id : string) : void;
 }
 
-interface BTDevice {
+export interface BTDevice {
     uuids : string[];
     alias : string;
     address : string;
@@ -80,7 +80,7 @@ interface BTDevice {
     class : number;
 }
 
-interface BTDeviceCallback {
+export interface BTDeviceCallback {
     (error : null, device : BTDevice) : void;
     (error : Error, device : null) : void;
 }
@@ -97,7 +97,7 @@ export interface BluetoothApi {
     ondiscoveryfinished : (() => void)|null;
 }
 
-interface SoundStreamOptions {
+export interface SoundStreamOptions {
     stream ?: string;
     device ?: string;
     format ?: string;
@@ -120,7 +120,7 @@ export interface VadApi {
     process(chunk : Buffer) : boolean;
 }
 
-interface Location {
+export interface Location {
     latitude : number;
     longitude : number;
     altitude ?: number;
@@ -142,7 +142,7 @@ export interface StatisticsApi {
     hit(key : string) : void;
 }
 
-interface WebSocket extends events.EventEmitter {
+export interface WebSocket extends events.EventEmitter {
     ping() : void;
     pong() : void;
     terminate() : void;
@@ -154,7 +154,7 @@ export interface WebSocketApi extends events.EventEmitter {
     on(event : string, cb : (...args : any[]) => void) : this;
 }
 
-interface Contact {
+export interface Contact {
     value : string;
     displayName : string;
     alternativeDisplayName : string;
@@ -181,7 +181,7 @@ export interface SystemLockApi {
     lock() : Promise<void>;
 }
 
-interface Player {
+export interface Player {
     stop() : Promise<void>;
 }
 
