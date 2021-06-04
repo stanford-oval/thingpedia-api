@@ -40,6 +40,17 @@ interface DialogueHandler<AnalysisType extends DialogueHandler.CommandAnalysisRe
     priority : DialogueHandler.Priority;
 
     /**
+     * The icon to use for this dialogue handler.
+     *
+     * This should be the identifier of a device in Thingpedia, e.g. `com.bing`. If `null`,
+     * the default icon for the agent will be used.
+     *
+     * The icon will be associated with all messages from the dialogue handler. It can change
+     * over the course of the dialogue.
+     */
+    icon : string|null;
+
+    /**
      * Initialize this dialogue handler for a new conversation.
      *
      * The dialogue handler can optionally produce a reply to show to the user immediately.
@@ -91,7 +102,8 @@ export enum Priority {
     /**
      * Fallback, only used if no dialogue handler is available.
      *
-     * Equivalent to "Sorry, I did not understand that."
+     * Equivalent to "Sorry, I did not understand that." or throwing the
+     * query to a search engine.
      */
     FALLBACK,
 
@@ -107,18 +119,37 @@ export enum Priority {
 }
 
 /**
- * How confident the dialogue handler is that it can handle a given command.
+ * How confident the dialogue handler is that it can handle a given utterance.
  */
 export enum Confidence {
     /**
-     * The dialogue handler is confident that the command is in-domain.
+     * The dialogue handler is confident that the utterance is in-domain, and it
+     * is a direct command that should take over from other dialogue handlers.
      */
     CONFIDENT_IN_DOMAIN_COMMAND,
 
     /**
-     * The command is potentially in-domain, but the confidence is low.
+     * The utterance is potentially in-domain, but the confidence is low. The
+     * utterance is recognized as a direct command that should take over from other
+     * dialogue handlers.
      */
     NONCONFIDENT_IN_DOMAIN_COMMAND,
+
+    /**
+     * The dialogue handler is confident that the utterance is in-domain, and it
+     * is a follow-up to the current dialogue handler state.
+     *
+     * The utterance will not be dispatched if the dialogue handler is not current.
+     */
+    CONFIDENT_IN_DOMAIN_FOLLOWUP,
+
+    /**
+     * The utteerance is potentially in-domain, but the confidence is low. The
+     * utterance is recognized a follow-up to the current dialogue handler state.
+     *
+     * The utterance will not be dispatched if the dialogue handler is not current.
+     */
+    NONCONFIDENT_IN_DOMAIN_FOLLOWUP,
 
     /**
      * The command is definitely out-of-domain and this dialogue handler cannot reply to this command.
@@ -147,7 +178,7 @@ export interface CommandAnalysisResult {
      * A ThingTalk representation of the current turn, if the dialogue handler is chosen.
      *
      * This is used exclusively in the conversation logs, and need not correspond to any
-     * executable ThingTalk form, but should be valid ThingTalk syntax.
+     * executable ThingTalk form, but must be valid ThingTalk syntax.
      */
     user_target : string;
 }
