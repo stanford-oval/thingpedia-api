@@ -5,24 +5,24 @@
 //
 // Licensed under the BSD license
 
-
-function vprintf(str, args) {
+// eslint-disable-next-line @typescript-eslint/ban-types
+function vprintf(str : String, args : unknown[]) {
     let i = 0;
     let usePos = false;
     return str.replace(/%(?:([1-9][0-9]*)\$)?([0-9]+)?(?:\.([0-9]+))?(.)/g, (str, posGroup, widthGroup, precisionGroup, genericGroup) => {
         if (precisionGroup && genericGroup !== 'f')
             throw new Error("Precision can only be specified for 'f'");
 
-        let pos = parseInt(posGroup, 10) || 0;
+        const pos = parseInt(posGroup, 10) || 0;
         if (usePos === false && i === 0)
             usePos = pos > 0;
         if (usePos && pos === 0 || !usePos && pos > 0)
             throw new Error("Numbered and unnumbered conversion specifications cannot be mixed");
 
-        let fillChar = (widthGroup && widthGroup[0] === '0') ? '0' : ' ';
-        let width = parseInt(widthGroup, 10) || 0;
+        const fillChar = (widthGroup && widthGroup[0] === '0') ? '0' : ' ';
+        const width = parseInt(widthGroup, 10) || 0;
 
-        function fillWidth(s, c, w) {
+        function fillWidth(s : string, c : string, w : number) {
             let fill = '';
             for (let i = 0; i < w; i++)
                 fill += c;
@@ -41,18 +41,18 @@ function vprintf(str, args) {
             s = String(getArg());
             break;
         case 'd': {
-            const intV = parseInt(getArg());
+            const intV = Number(getArg());
             s = intV.toString();
             break;
         }
         case 'x':
-            s = parseInt(getArg()).toString(16);
+            s = Number(getArg()).toString(16);
             break;
         case 'f':
             if (precisionGroup === '' || precisionGroup === undefined)
-                s = parseFloat(getArg()).toString();
+                s = Number(getArg()).toString();
             else
-                s = parseFloat(getArg()).toFixed(parseInt(precisionGroup));
+                s = Number(getArg()).toFixed(parseInt(precisionGroup));
             break;
         default:
             throw new Error('Unsupported conversion character %' + genericGroup);
@@ -60,6 +60,13 @@ function vprintf(str, args) {
         return fillWidth(s, fillChar, width);
     });
 }
+
+declare global {
+    interface String {
+        format(...args : unknown[]) : string;
+    }
+}
+export {};
 
 /*
  * This function is intended to extend the String object and provide
@@ -72,7 +79,7 @@ function vprintf(str, args) {
  * field width, e.g. "%5s".format("foo"). Unless the width is prefixed
  * with '0', the formatted string will be padded with spaces.
  */
-String.prototype.format = function format() {
+String.prototype.format = function format(...args : unknown[]) {
     //console.log('String.prototype.format is deprecated, use string-interp library instead');
-    return vprintf(this, arguments);
+    return vprintf(this, args);
 };
