@@ -47,26 +47,31 @@ export interface GraphicsApi {
     createImageFromBuffer(buffer : Buffer) : Image;
 }
 
-type URLQuery = { [key : string] : string|string[]|undefined };
+export interface WebhookReply {
+    contentType ?: string;
+    code : number;
+    response ?: string;
+}
+
 export type WebhookCallback = (id : string,
                                method : 'GET'|'POST',
-                               query : URLQuery,
-                               headers : URLQuery,
-                               payload : unknown) => Promise<void>;
+                               query : Record<string, string|string[]|undefined>,
+                               headers : Record<string, string|string[]|undefined>,
+                               payload : unknown) => Promise<WebhookReply|void>;
 
 export interface WebhookApi {
     handleCallback(id : string,
                    method : 'GET'|'POST',
-                   query : URLQuery,
-                   headers : URLQuery,
-                   payload : unknown) : Promise<void>;
+                   query : Record<string, string|string[]|undefined>,
+                   headers : Record<string, string|string[]|undefined>,
+                   payload : unknown) : Promise<WebhookReply|void>;
 
     getWebhookBase() : string;
     registerWebhook(id : string, callback : WebhookCallback) : void;
     unregisterWebhook(id : string) : void;
 }
 
-interface BTDevice {
+export interface BTDevice {
     uuids : string[];
     alias : string;
     address : string;
@@ -75,7 +80,7 @@ interface BTDevice {
     class : number;
 }
 
-interface BTDeviceCallback {
+export interface BTDeviceCallback {
     (error : null, device : BTDevice) : void;
     (error : Error, device : null) : void;
 }
@@ -92,7 +97,7 @@ export interface BluetoothApi {
     ondiscoveryfinished : (() => void)|null;
 }
 
-interface SoundStreamOptions {
+export interface SoundStreamOptions {
     stream ?: string;
     device ?: string;
     format ?: string;
@@ -115,7 +120,7 @@ export interface VadApi {
     process(chunk : Buffer) : boolean;
 }
 
-interface Location {
+export interface Location {
     latitude : number;
     longitude : number;
     altitude ?: number;
@@ -137,7 +142,7 @@ export interface StatisticsApi {
     hit(key : string) : void;
 }
 
-interface WebSocket extends events.EventEmitter {
+export interface WebSocket extends events.EventEmitter {
     ping() : void;
     pong() : void;
     terminate() : void;
@@ -149,7 +154,7 @@ export interface WebSocketApi extends events.EventEmitter {
     on(event : string, cb : (...args : any[]) => void) : this;
 }
 
-interface Contact {
+export interface Contact {
     value : string;
     displayName : string;
     alternativeDisplayName : string;
@@ -176,7 +181,7 @@ export interface SystemLockApi {
     lock() : Promise<void>;
 }
 
-interface Player {
+export interface Player {
     stop() : Promise<void>;
 }
 

@@ -5,8 +5,8 @@
 //
 // Licensed under the BSD license
 
-
-function vprintf(str : string, args : Record<number, unknown>) {
+// eslint-disable-next-line @typescript-eslint/ban-types
+function vprintf(str : String, args : unknown[]) {
     let i = 0;
     let usePos = false;
     return str.replace(/%(?:([1-9][0-9]*)\$)?([0-9]+)?(?:\.([0-9]+))?(.)/g, (str, posGroup, widthGroup, precisionGroup, genericGroup) => {
@@ -61,6 +61,13 @@ function vprintf(str : string, args : Record<number, unknown>) {
     });
 }
 
+declare global {
+    interface String {
+        format(...args : unknown[]) : string;
+    }
+}
+export {};
+
 /*
  * This function is intended to extend the String object and provide
  * an String.format API for string formatting.
@@ -72,8 +79,7 @@ function vprintf(str : string, args : Record<number, unknown>) {
  * field width, e.g. "%5s".format("foo"). Unless the width is prefixed
  * with '0', the formatted string will be padded with spaces.
  */
-(String.prototype as any).format = function format() {
+String.prototype.format = function format(...args : unknown[]) {
     //console.log('String.prototype.format is deprecated, use string-interp library instead');
-    // eslint-disable-next-line prefer-rest-params
-    return vprintf(this, arguments);
+    return vprintf(this, args);
 };
