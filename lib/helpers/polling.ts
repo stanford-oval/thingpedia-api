@@ -21,23 +21,17 @@
 
 import * as stream from 'stream';
 
+import type BaseDevice from '../base_device';
+
 /**
  * Callback called when polling.
  *
  * The callback should poll the underlying API and return the current results.
  *
- * @return {Object[]} the current list of results
+ * @return the current list of results
  */
 
 export type PollCallback<T> = () => T[];
-
-interface TriggerStateBinder {
-    get(k : 'last-poll') : number|undefined;
-    get(k : string) : unknown|undefined;
-
-    set(k : 'last-poll', v : number) : void;
-    set(k : string, v : unknown) : void;
-}
 
 export interface EventResult {
     __timestamp ?: number;
@@ -50,7 +44,7 @@ export interface EventResult {
  */
 export default class PollingStream<EventType extends EventResult> extends stream.Readable {
     private _timeout : NodeJS.Timeout|null;
-    readonly state : TriggerStateBinder;
+    readonly state : BaseDevice.TriggerState;
     readonly interval : number;
     private _callback : PollCallback<EventType>;
     private _destroyed : boolean;
@@ -58,11 +52,11 @@ export default class PollingStream<EventType extends EventResult> extends stream
     /**
      * Construct a new polling stream.
      *
-     * @param {TriggerStateBinder} state - a state binder object
-     * @param {number} interval - polling interval, in milliseconds
-     * @param {Helpers~PollCallback} callback - function to call every poll interval
+     * @param state - a state binder object
+     * @param interval - polling interval, in milliseconds
+     * @param callback - function to call every poll interval
      */
-    constructor(state : TriggerStateBinder,
+    constructor(state : BaseDevice.TriggerState,
                 interval : number,
                 callback : PollCallback<EventType>) {
         super({ objectMode: true });
