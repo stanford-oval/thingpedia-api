@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -20,7 +20,7 @@
 
 
 import interpolate from 'string-interp';
-import * as ThingTalk from 'thingtalk';
+import { Ast, Type, Builtin } from 'thingtalk';
 
 /**
   Split a textual chain of properties separated with . into an array of property names.
@@ -28,7 +28,7 @@ import * as ThingTalk from 'thingtalk';
   Handles \ as escape character.
 
 */
-function splitpropchain(propchainstring) {
+function splitpropchain(propchainstring : string) {
     const chain = [];
     let buffer = '';
 
@@ -73,52 +73,52 @@ function splitpropchain(propchainstring) {
     return chain;
 }
 
-function get(obj, propchain) {
-    for (let prop of splitpropchain(propchain))
+function get(obj : any, propchain : string) {
+    for (const prop of splitpropchain(propchain))
         obj = obj[prop];
     return obj;
 }
 
-function cast(value, type) {
-    if (type.isArray && typeof value === 'string')
-        return value.split(/,\s*/g).map((v) => cast(v, type.elem));
-    if (type.isArray)
-        return value.map((v) => cast(v, type.elem));
+function cast(value : any, type : Type) : any {
+    if (type instanceof Type.Array && typeof value === 'string')
+        return value.split(/,\s*/g).map((v) => cast(v, type.elem as Type));
+    if (type instanceof Type.Array)
+        return value.map((v : any) => cast(v, type.elem as Type));
     if (type.isDate)
         return new Date(value);
     if ((type.isNumber || type.isMeasure) && typeof value === 'string')
         return parseFloat(value);
     if (type.isCurrency && typeof value === 'number')
-        return new ThingTalk.Builtin.Currency(value, 'usd');
+        return new Builtin.Currency(value, 'usd');
     if (type.isCurrency && typeof value === 'string')
-        return new ThingTalk.Builtin.Currency(parseFloat(value), 'usd');
+        return new Builtin.Currency(parseFloat(value), 'usd');
     if (type.isCurrency)
-        return new ThingTalk.Builtin.Currency(value.value, value.unit);
+        return new Builtin.Currency(value.value, value.unit);
     if (type.isEntity && typeof value === 'string')
-        return new ThingTalk.Builtin.Entity(value, null);
+        return new Builtin.Entity(value, null);
     if (type.isEntity)
-        return new ThingTalk.Builtin.Entity(value.value, value.display);
+        return new Builtin.Entity(value.value, value.display);
     if (type.isLocation) {
         if (Object.prototype.hasOwnProperty.call(value, 'x') && Object.prototype.hasOwnProperty.call(value, 'y'))
-            return new ThingTalk.Builtin.Location(value.y, value.x, value.display);
+            return new Builtin.Location(value.y, value.x, value.display);
         else if (Object.prototype.hasOwnProperty.call(value, 'latitude') && Object.prototype.hasOwnProperty.call(value, 'longitude'))
-            return new ThingTalk.Builtin.Location(value.latitude, value.longitude, value.display);
+            return new Builtin.Location(value.latitude, value.longitude, value.display);
         else
-            return new ThingTalk.Builtin.Location(value.lat, value.lon, value.display);
+            return new Builtin.Location(value.lat, value.lon, value.display);
     }
 
     return value;
 }
 
-function getMixinArgs(mixin) {
-    const args = {};
-    for (let in_param of mixin.in_params)
+function getMixinArgs(mixin : Ast.MixinImportStmt) {
+    const args : Record<string, unknown> = {};
+    for (const in_param of mixin.in_params)
         args[in_param.name] = in_param.value.toJS();
     return args;
 }
 
-function findMixinArg(mixin, arg) {
-    for (let in_param of mixin.in_params) {
+function findMixinArg(mixin : Ast.MixinImportStmt, arg : string) {
+    for (const in_param of mixin.in_params) {
         if (in_param.name === arg)
             return in_param.value.toJS();
     }
@@ -133,16 +133,15 @@ export {
     findMixinArg,
 };
 
-export function parseGenericResponse(json, fndef) {
-    function extractOne(result) {
-        let extracted = {};
+export function parseGenericResponse(json : any, fndef : Ast.FunctionDef) {
+    function extractOne(result : any) {
+        const extracted : Record<string, unknown> = {};
 
-        for (let argname of fndef.args) {
-            const arg = fndef.getArgument(argname);
+        for (const arg of fndef.iterateArguments()) {
             if (arg.is_input)
                 continue;
             if (arg.annotations.json_key)
-                extracted[arg.name] = cast(get(result, arg.annotations.json_key.toJS()), arg.type);
+                extracted[arg.name] = cast(get(result, arg.annotations.json_key.toJS() as string), arg.type);
             else
                 extracted[arg.name] = cast(result[arg.name], arg.type);
         }
@@ -150,7 +149,7 @@ export function parseGenericResponse(json, fndef) {
     }
 
     if (fndef.annotations.json_key)
-        json = get(json, fndef.annotations.json_key.toJS());
+        json = get(json, fndef.annotations.json_key.toJS() as string);
 
     if (Array.isArray(json))
         return json.map(extractOne);
@@ -158,7 +157,7 @@ export function parseGenericResponse(json, fndef) {
         return [extractOne(json)];
 }
 
-export function formatString(url, deviceParams, functionParams) {
+export function formatString(url : string, deviceParams : Record<string, unknown>, functionParams : Record<string, unknown>) {
     return interpolate(url, (param) => {
         if (functionParams)
             return functionParams[param] || deviceParams[param];
@@ -169,9 +168,9 @@ export function formatString(url, deviceParams, functionParams) {
     });
 }
 
-export function getPollInterval(fndef) {
+export function getPollInterval(fndef : Ast.FunctionDef) {
     if (fndef.annotations.poll_interval)
-        return fndef.annotations.poll_interval.toJS();
+        return fndef.annotations.poll_interval.toJS() as number;
     else
         return -1;
 }

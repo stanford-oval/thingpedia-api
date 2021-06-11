@@ -45,9 +45,10 @@ export default class BaseGenericModule {
         let params : string[] = [];
         if (this._config) {
             if (this._config.module === 'org.thingpedia.config.form')
-                params = Object.keys(Utils.findMixinArg(this._config.mixin, 'params'));
+                // eslint-disable-next-line @typescript-eslint/ban-types
+                params = Object.keys(Utils.findMixinArg(this._config.mixin, 'params') as {});
             else if (this._config.module === 'org.thingpedia.config.oauth2')
-                params = Utils.findMixinArg(this._config.mixin, 'profile') || [];
+                params = Utils.findMixinArg(this._config.mixin, 'profile') as string[] || [];
         }
 
         const newClass = class GenericDevice extends BaseDevice {
@@ -77,6 +78,9 @@ export default class BaseGenericModule {
     }
     get version() {
         return this._manifest.getImplementationAnnotation<number>('version')!;
+    }
+    get config() {
+        return this._config;
     }
 
     clearCache() {

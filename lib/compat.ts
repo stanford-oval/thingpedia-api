@@ -74,7 +74,7 @@ function getAuth(classDef : ThingTalk.Ast.ClassDef) : [AuthMetadata, string[]] {
             break;
 
         default:
-            auth[param.name] = param.value.toJS();
+            auth[param.name] = param.value.isUndefined ? undefined : param.value.toJS();
         }
     });
     switch (config.module) {

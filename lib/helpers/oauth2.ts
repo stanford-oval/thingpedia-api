@@ -20,48 +20,38 @@
 
 import assert from 'assert';
 import * as crypto from 'crypto';
-import * as oauth from 'oauth';
+import * as qs from 'querystring';
 
 import { OAuthError } from '../errors';
 import type BaseEngine from '../base_engine';
 import type BaseDevice from '../base_device';
+import * as Http from './http';
 
 /* eslint-disable no-invalid-this */
-
-// encryption ;)
-function rot13(x : string) : string {
-    return Array.prototype.map.call(x, (ch) => {
-        let code = ch.charCodeAt(0);
-        if (code >= 0x41 && code <= 0x5a)
-            code = (((code - 0x41) + 13) % 26) + 0x41;
-        else if (code >= 0x61 && code <= 0x7a)
-            code = (((code - 0x61) + 13) % 26) + 0x61;
-
-        return String.fromCharCode(code);
-    }).join('');
-}
 
 type OAuthCodeQuery = {
     response_type : 'code';
     redirect_uri : string;
+    client_id : string;
     access_type ?: string;
     state ?: string;
     scope ?: string;
+    code_challenge ?: string;
+    code_challenge_method ?: 'S256';
 };
 
 namespace OAuth2Helper {
 export interface OAuthHelperParams<T extends BaseDevice> {
-    client_id ?: string;
-    client_secret ?: string;
     use_basic_client_auth ?: boolean;
     custom_headers ?: Record<string, string>;
-    authorize ?: string;
-    get_access_token ?: string;
+    authorize : string;
+    get_access_token : string;
     redirect_uri ?: string;
     set_access_type ?: boolean;
     set_state ?: boolean;
+    use_pkce ?: boolean;
     scope ?: string[];
-    callback ?: (engine : BaseEngine, accessToken : string, refreshToken : string, extraData : Record<string, unknown>) => Promise<T>;
+    callback ?: (engine : BaseEngine, accessToken : string, refreshToken : string|undefined, extraData : Record<string, unknown>) => Promise<T>;
 }
 
 export type DeviceClass<T extends BaseDevice> = BaseDevice.DeviceClass<T> & {
@@ -80,28 +70,30 @@ export interface OAuthRunner<T extends BaseDevice> {
 }
 }
 
-function makeOAuthClient<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParams<T>,
-                                               factory : OAuth2Helper.DeviceClass<T>,
-                                               engine : BaseEngine) : [oauth.OAuth2, string] {
-    if (!factory.metadata.auth.client_id && !params.client_id)
-        throw new OAuthError('Missing OAuth Client ID in Authentication part of the manifest');
-    const client_id = (factory.metadata.auth.client_id || params.client_id) as string;
-    if (!factory.metadata.auth.client_secret && !params.client_secret)
-        throw new OAuthError('Missing OAuth Client Secret in Authentication part of the manifest');
-    const client_secret = factory.metadata.auth.client_secret || rot13(params.client_secret!);
+interface NormalizedOAuthParams {
+    client_id : string;
+    client_secret : string;
+    redirect_uri : string;
+    custom_headers : Record<string, string>;
+    authorize : string;
+    get_access_token : string;
+    use_pkce : boolean;
+}
 
-    const customHeaders = params.custom_headers || {};
-    if (params.use_basic_client_auth) {
-        console.log('Setting basic auth header');
-        customHeaders['Authorization'] = 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'));
-    }
-    const auth = new oauth.OAuth2(client_id,
-                                  client_secret,
-                                  '',
-                                  params.authorize,
-                                  params.get_access_token,
-                                  customHeaders);
-    auth.useAuthorizationHeaderforGET(true);
+function normalizeOAuthParams<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParams<T>,
+                                                    factory : OAuth2Helper.DeviceClass<T>,
+                                                    engine : BaseEngine) : NormalizedOAuthParams {
+    if (!factory.metadata.auth.client_id)
+        throw new OAuthError('Missing OAuth Client ID in Authentication part of the manifest');
+    const client_id = factory.metadata.auth.client_id;
+    if (factory.metadata.auth.client_secret === undefined)
+        throw new OAuthError('Missing OAuth Client Secret in Authentication part of the manifest');
+    const client_secret = factory.metadata.auth.client_secret;
+
+    const custom_headers = params.custom_headers || {};
+    if (params.use_basic_client_auth)
+        custom_headers['Authorization'] = 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'));
+
     const origin = engine.platform.getOAuthRedirect();
     let redirect_uri;
     if (params.redirect_uri)
@@ -109,18 +101,30 @@ function makeOAuthClient<T extends BaseDevice>(params : OAuth2Helper.OAuthHelper
     else
         redirect_uri = origin + '/devices/oauth2/callback/' + factory.metadata.kind;
 
-    return [auth, redirect_uri];
+    return {
+        client_id, client_secret, redirect_uri, custom_headers,
+        authorize: params.authorize,
+        get_access_token: params.get_access_token,
+        use_pkce: !!params.use_pkce
+    };
+}
+
+function sha256(x : string) : Buffer {
+    const hash = crypto.createHash('sha256');
+    hash.update(x);
+    return hash.digest();
 }
 
 function oauthPart1<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParams<T>,
                                           factory : OAuth2Helper.DeviceClass<T>,
                                           engine : BaseEngine) : [string, Record<string, string>] {
-    const [client, redirect_uri] = makeOAuthClient(params, factory, engine);
+    const normalized = normalizeOAuthParams(params, factory, engine);
 
     const session : Record<string, string> = {};
     const query : OAuthCodeQuery = {
         response_type: 'code',
-        redirect_uri: redirect_uri,
+        redirect_uri: normalized.redirect_uri,
+        client_id: normalized.client_id
     };
     if (params.set_access_type)
         query.access_type = 'offline';
@@ -131,15 +135,75 @@ function oauthPart1<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParam
     }
     if (params.scope)
         query.scope = params.scope.join(' ');
+    if (normalized.use_pkce) {
+        // PKCE is an extension of OAuth 2.0 that avoids the need of a client
+        // secret
 
-    return [client.getAuthorizeUrl(query), session];
+        // First generate a random verifier
+        // Following https://datatracker.ietf.org/doc/html/rfc7636#section-4.1
+        // we generate 32 random bytes and convert them to a 43 byte base64 string
+        const verifier = crypto.randomBytes(32).toString('base64url');
+
+        // Then generate the challenge
+        // We only support the S256 method
+        query.code_challenge = sha256(verifier).toString('base64url');
+        query.code_challenge_method = 'S256';
+
+        // Finally we store the verifier for later
+        session['oauth2-pkce-' + factory.metadata.kind] = verifier;
+    }
+
+    return [params.authorize + '?' + qs.stringify(query), session];
 }
 
-function oauthPart2<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParams<T>,
-                                          factory : OAuth2Helper.DeviceClass<T>,
-                                          engine : BaseEngine,
-                                          req : OAuth2Helper.HTTPRequest) : Promise<T|null> {
-    const [client, redirect_uri] = makeOAuthClient(params, factory, engine);
+type OAuthGrant = ({
+    grant_type : 'authorization_code';
+    code : string;
+    code_verifier ?: string;
+} | {
+    grant_type : 'refresh_token';
+    refresh_token : string;
+}) & {
+    client_id ?: string;
+    client_secret ?: string;
+    redirect_uri ?: string;
+};
+interface OAuthAccessTokenResult {
+    access_token : string;
+    refresh_token ?: string;
+    expires_in ?: number;
+    [key : string] : unknown;
+}
+
+async function getOAuthAccessToken(params : NormalizedOAuthParams,
+                                   grant : OAuthGrant) : Promise<OAuthAccessTokenResult> {
+    grant.client_id = params.client_id;
+    if (!params.use_pkce)
+        grant.client_secret = params.client_secret;
+    grant.redirect_uri = params.redirect_uri;
+
+    const response = await Http.post(params.get_access_token, qs.stringify(grant), {
+        dataContentType: 'application/x-www-form-urlencoded',
+        extraHeaders: params.custom_headers
+    });
+
+    let results : OAuthAccessTokenResult;
+    try {
+        results = JSON.parse(response);
+    } catch(e) {
+        if (e.name !== 'SyntaxError')
+            throw e;
+        results = qs.parse(response) as OAuthAccessTokenResult;
+    }
+
+    return results;
+}
+
+async function oauthPart2<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParams<T>,
+                                                factory : OAuth2Helper.DeviceClass<T>,
+                                                engine : BaseEngine,
+                                                req : OAuth2Helper.HTTPRequest) : Promise<T|null> {
+    const normalized = normalizeOAuthParams(params, factory, engine);
 
     const expectedState = req.session['oauth2-state-' + factory.metadata.kind];
     delete req.session['oauth2-state-' + factory.metadata.kind];
@@ -166,7 +230,7 @@ function oauthPart2<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParam
             else
                 msg = String(req.query.error);
 
-            return Promise.reject(new OAuthError(msg));
+            throw new OAuthError(msg);
         }
     }
 
@@ -177,58 +241,51 @@ function oauthPart2<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParam
     // we are more lenient, and allow state to be unset on errors
     const state = req.query.state;
     if (params.set_state && state !== expectedState)
-        return Promise.reject(new OAuthError("Invalid CSRF token"));
+        throw new OAuthError("Invalid CSRF token");
 
-    const options = {
-        grant_type: 'authorization_code',
-        redirect_uri: redirect_uri
-    };
-    return (new Promise<[string, string, Record<string, unknown>]>((resolve, reject) => {
-        client.getOAuthAccessToken(code, options, (err : any, accessToken : string, refreshToken : string, extraData : Record<string, unknown>) => {
-            if (err)
-                reject(err);
-            else
-                resolve([accessToken, refreshToken, extraData]);
-        });
-    })).then(([accessToken, refreshToken, extraData]) => {
+    try {
+        const grant : OAuthGrant = {
+            grant_type: 'authorization_code',
+            code: code
+        };
+        if (normalized.use_pkce) {
+            const pkceVerifier = req.session['oauth2-pkce-' + factory.metadata.kind];
+            delete req.session['oauth2-pkce-' + factory.metadata.kind];
+            grant.code_verifier = pkceVerifier;
+        }
+
+        const result = await getOAuthAccessToken(normalized, grant);
         if (params.callback)
-            return params.callback(engine, accessToken, refreshToken, extraData) as Promise<T>;
+            return await params.callback(engine, result.access_token, result.refresh_token, result);
         else
-            return factory.loadFromOAuth2(engine, accessToken, refreshToken, extraData) as Promise<T>;
-    }).catch((e) : never => {
+            return await factory.loadFromOAuth2(engine, result.access_token, result.refresh_token, result) as T;
+    } catch(e) {
         console.error('Error obtaining access token', e);
         if (!e.message)
             throw new OAuthError('Error obtaining access token');
         else
             throw new OAuthError(e.message);
-    });
+    }
 }
 
-function oauthRefresh<T extends BaseDevice>(self : T,
-                                            params : OAuth2Helper.OAuthHelperParams<T>) {
+async function oauthRefresh<T extends BaseDevice>(self : T,
+                                                  params : OAuth2Helper.OAuthHelperParams<T>) {
     const factory = self.constructor as OAuth2Helper.DeviceClass<T>;
-    const [client, redirect_uri] = makeOAuthClient(params, factory, self.engine);
+    const normalized = normalizeOAuthParams(params, factory, self.engine);
 
-    const options = {
-        grant_type: 'refresh_token',
-        redirect_uri: redirect_uri
-    };
-    return (new Promise<[string, string, Record<string, unknown>]>((resolve, reject) => {
-        client.getOAuthAccessToken(self.state.refreshToken!, options, (err : any, accessToken : string, refreshToken : string, extraData : Record<string, unknown>) => {
-            if (err)
-                reject(err);
-            else
-                resolve([accessToken, refreshToken, extraData]);
+    try {
+        const result = await getOAuthAccessToken(normalized, {
+            grant_type: 'refresh_token',
+            refresh_token: self.state.refreshToken!
         });
-    })).then(([accessToken, refreshToken, extraData] : [string, string, Record<string, unknown>]) => {
-        return self.updateOAuth2Token(accessToken, refreshToken, extraData);
-    }).catch((e) => {
+        await self.updateOAuth2Token(result.access_token, result.refresh_token, result);
+    } catch(e) {
         console.error('Error obtaining access token', e);
         if (!e.message)
             throw new OAuthError('Error obtaining access token');
         else
             throw new OAuthError(e.message);
-    });
+    }
 }
 
 function OAuth2Helper<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParams<T>) : OAuth2Helper.OAuthRunner<T> {

@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,11 +18,12 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
+import BaseDevice from '../base_device';
 
 import Base from './base';
 
 export default class BasicAuthConfigMixin extends Base {
-    install(deviceClass) {
+    install(deviceClass : BaseDevice.DeviceClass<BaseDevice>) {
         // add an "auth" getter to the device class (through the prototype)
         // that returns the HTTP Authorization header to use
 

@@ -30,7 +30,7 @@ export default class RSSModule extends Base {
         for (const query in this._manifest.queries) {
             const fndef = this._manifest.queries[query];
             const pollInterval = Utils.getPollInterval(fndef);
-            const baseurl = fndef.getImplementationAnnotation<string>('url');
+            const baseurl = fndef.getImplementationAnnotation<string>('url')!;
 
             this._loaded!.prototype['get_' + query] = function(params : any, hints : any) {
                 // ignore count and filter

@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -23,42 +23,7 @@ import * as events from 'events';
 
 import RefCounted from './helpers/ref_counted';
 
-export class MessagingFeed extends RefCounted {
-    // events: new-message, incoming-message, outgoing-message, members-changed
-
-    constructor(feedId) {
-        super();
-
-        this.feedId = feedId;
-    }
-
-    /* istanbul ignore next */
-    _doOpen() {
-        throw new Error('Not Implemented');
-    }
-
-    /* istanbul ignore next */
-    _doClose() {
-        throw new Error('Not Implemented');
-    }
-
-    /* istanbul ignore next */
-    sendText() {
-        throw new Error('Not Implemented');
-    }
-
-    /* istanbul ignore next */
-    sendItem() {
-        throw new Error('Not Implemented');
-    }
-
-    /* istanbul ignore next */
-    sendRaw() {
-        throw new Error('Not Implemented');
-    }
-}
-
-export default class Messaging extends events.EventEmitter {
+abstract class Messaging extends events.EventEmitter {
     constructor() {
         super();
     }
@@ -73,33 +38,70 @@ export default class Messaging extends events.EventEmitter {
     }
 
     /* istanbul ignore next */
-    getIdentities() {
+    getIdentities() : string[] {
         throw new Error('Not Implemented');
     }
 
     /* istanbul ignore next */
-    getFeedList() {
+    getFeedList() : Promise<Messaging.Feed[]> {
         throw new Error('Not Implemented');
     }
 
     /* istanbul ignore next */
-    getFeed(feedId) {
+    getFeed(feedId : string) : Promise<Messaging.Feed> {
         throw new Error('Not Implemented');
     }
 
     /* istanbul ignore next */
-    getFeedWithContact(contactId) {
+    getFeedWithContact(contactId : string) : Promise<Messaging.Feed> {
         throw new Error('Not Implemented');
     }
 
     /* istanbul ignore next */
-    searchAccountByName(name) {
+    searchAccountByName(name : string) : Promise<any> {
         throw new Error('Not Implemented');
     }
 
     /* istanbul ignore next */
-    getAccountForIdentity(identity) {
+    getAccountForIdentity(identity : string) : Promise<string> {
         throw new Error('Not Implemented');
     }
 }
-Messaging.Feed = MessagingFeed;
+namespace Messaging {
+    export class Feed extends RefCounted {
+        // events: new-message, incoming-message, outgoing-message, members-changed
+        readonly feedId : string;
+
+        constructor(feedId : string) {
+            super();
+
+            this.feedId = feedId;
+        }
+
+        /* istanbul ignore next */
+        async _doOpen() {
+            throw new Error('Not Implemented');
+        }
+
+        /* istanbul ignore next */
+        async _doClose() {
+            throw new Error('Not Implemented');
+        }
+
+        /* istanbul ignore next */
+        async sendText() {
+            throw new Error('Not Implemented');
+        }
+
+        /* istanbul ignore next */
+        async sendItem() {
+            throw new Error('Not Implemented');
+        }
+
+        /* istanbul ignore next */
+        async sendRaw() {
+            throw new Error('Not Implemented');
+        }
+    }
+}
+export default Messaging;

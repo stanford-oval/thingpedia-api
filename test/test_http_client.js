@@ -72,9 +72,32 @@ const _mockDeveloperPlatform = {
 };
 const THINGPEDIA_URL = process.env.THINGPEDIA_URL || 'https://dev.almond.stanford.edu/thingpedia';
 
+const _mockLocalDeveloperPlatform = {
+    _prefs: new MockPreferences,
+
+    getDeveloperKey() {
+        // no developer key
+        return null;
+    },
+
+    getSharedPreferences() {
+        return this._prefs;
+    },
+
+    getCacheDir() {
+        return path.dirname(module.filename);
+    },
+
+    get locale() {
+        return 'en-US';
+    }
+};
+_mockLocalDeveloperPlatform._prefs.set('developer-dir', path.resolve(path.dirname(module.filename), './developer-dir'));
+
 const _httpClient = new HttpClient(_mockPlatform, THINGPEDIA_URL);
 const _schemaRetriever = new ThingTalk.SchemaRetriever(_httpClient, null, true);
 const _developerHttpClient = new HttpClient(_mockDeveloperPlatform, THINGPEDIA_URL);
+const _localDeveloperHttpClient = new HttpClient(_mockLocalDeveloperPlatform, THINGPEDIA_URL);
 //const _developerSchemaRetriever = new ThingTalk.SchemaRetriever(_developerHttpClient, null, true);
 
 async function checkValidManifest(manifest, moduleType) {
@@ -326,6 +349,16 @@ async function testGetDeviceSetup() {
             choices: []
         }
     });
+
+    const local = await _localDeveloperHttpClient.getDeviceSetup(['com.example.test']);
+    assert.deepStrictEqual(local, {
+        'com.example.test': {
+            category: 'data',
+            kind: 'com.example.test',
+            type: 'none',
+            text: 'Test'
+        }
+    });
 }
 
 async function testGetKindByDiscovery() {
@@ -482,6 +515,19 @@ async function testSearchDevices() {
     }]);
 }
 
+async function testLocalGetDeviceCode() {
+    const deviceCode = await _localDeveloperHttpClient.getDeviceCode('com.example.test');
+
+    assert.strictEqual(deviceCode, `class @com.example.test
+#_[name="Test"]
+#_[description="Test Device"]
+#[version=-1] {
+  import loader from @org.thingpedia.v2();
+
+  import config from @org.thingpedia.config.none(api_key="my-secret-test-key");
+}`);
+}
+
 async function main() {
     // remove any cached file, if any
     try {
@@ -491,6 +537,7 @@ async function main() {
     }
 
     await testGetDeviceCode();
+    await testLocalGetDeviceCode();
     await testGetModuleLocation();
     await testGetSchemas(false);
     await testGetSchemas(true);

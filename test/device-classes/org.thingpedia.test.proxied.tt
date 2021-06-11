@@ -1,0 +1,12 @@
+class @org.thingpedia.test.proxied {
+    import loader from @org.thingpedia.v2();
+
+    // API key is required by missing
+    import config from @org.thingpedia.config.none(api_key=$?);
+
+    monitorable query test(out a : String,
+                           out b : Number)
+    #[poll_interval=1h];
+
+    action test_action(in req a : String);
+}

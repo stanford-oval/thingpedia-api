@@ -265,7 +265,7 @@ abstract class BaseDevice extends events.EventEmitter {
     */
     static async loadFromOAuth2(engine : BaseEngine,
                                 accessToken : string,
-                                refreshToken : string,
+                                refreshToken : string|undefined,
                                 extraData : { [key : string] : unknown }) : Promise<BaseDevice> {
         throw new Error('not implemented');
     }
@@ -330,7 +330,7 @@ abstract class BaseDevice extends events.EventEmitter {
      * @param {string} refreshToken - the new refresh token, if one is provided
      * @param {Object} extraData - the whole response to the OAuth token request
      */
-    async updateOAuth2Token(accessToken : string, refreshToken : string, extraData : { [key : string] : unknown }) : Promise<void> {
+    async updateOAuth2Token(accessToken : string, refreshToken : string|undefined, extraData : { [key : string] : unknown }) : Promise<void> {
         this.state.accessToken = accessToken;
         // if the refresh token is single use, we will get a new one when we use it
         if (refreshToken)
@@ -387,11 +387,8 @@ abstract class BaseDevice extends events.EventEmitter {
 
     /**
      * Access the current engine for this device instance.
-     *
-     * @deprecated It is recommended to avoid using the {@link BaseEngine} API as it can change without notice.
      */
     get engine() : BaseEngine {
-        console.log('BaseDevice.engine is deprecated and should not be used in new code.');
         return this._engine;
     }
 

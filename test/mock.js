@@ -70,6 +70,7 @@ class MockClient extends BaseClient {
         case 'org.thingpedia.test.interactive':
         case 'org.thingpedia.test.databasequery':
         case 'org.thingpedia.test.translatable':
+        case 'org.thingpedia.test.proxied':
         case 'org.thingpedia.test.broken':
         case 'org.thingpedia.test.broken.noquery':
         case 'org.thingpedia.test.broken.noaction':
@@ -93,6 +94,19 @@ class MockClient extends BaseClient {
             assert.fail('Invalid device ' + kind);
             // quiet eslint
             return null;
+        }
+    }
+
+    async *invokeQuery(kind, uniqueId, name, params, hints) {
+        if (kind === 'org.thingpedia.test.proxied') {
+            assert.strictEqual(uniqueId, 'org.thingpedia.test.proxied');
+            assert.strictEqual(name, 'test');
+            assert.deepStrictEqual(params, {});
+
+            yield { a: 'foo', b: 1 };
+            yield { a: 'bar', b: 2 };
+        } else {
+            assert.fail('Invalid device ' + kind);
         }
     }
 }

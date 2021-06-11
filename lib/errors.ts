@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,7 +18,6 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-
 /**
  * An error occurred during OAuth.
  */
@@ -29,7 +28,7 @@ class OAuthError extends Error {
  * The implementation of a device has a programming error (e.g. a missing function).
  */
 class ImplementationError extends Error {
-    constructor(msg) {
+    constructor(msg : string) {
         super(`Implementation Error: ${msg}`);
     }
 }
@@ -38,6 +37,8 @@ class ImplementationError extends Error {
  * Some functionality or command is not available in this version of Almond.
  */
 class UnsupportedError extends Error {
+    code : string;
+
     constructor() {
         super(`This command is not available in this version of Almond`);
         this.code = 'ENOSYS';

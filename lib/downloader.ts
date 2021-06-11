@@ -188,9 +188,9 @@ export default class ModuleDownloader {
     private async _doLoadModule(id : string) : Promise<Module> {
         try {
             const classdef = await this.loadClass(id, true);
-            const module = classdef.loader!.module as keyof typeof Modules;
+            const moduleType = classdef.loader!.module as Exclude<keyof typeof Modules, 'org.thingpedia.builtin.unsupported'>;
 
-            if (module === 'org.thingpedia.builtin') {
+            if (moduleType === 'org.thingpedia.builtin') {
                 if (this._builtins[id]) {
                     return new Modules['org.thingpedia.builtin'](id, classdef, this, this._builtins[id].module,
                                                                  this._builtinGettextDomain);
@@ -199,9 +199,15 @@ export default class ModuleDownloader {
                 }
             }
 
-            console.log('Loaded class definition for ' + id + ', module type: '+ module + ', version: ' + classdef.annotations.version.toJS());
+            const module = new (Modules[moduleType])(id, classdef, this);
+            const config = module.config;
+            if (config && config.hasMissingKeys()) {
+                console.log('Loaded proxy class for ' + id + ' due to missing API keys');
+                return new Modules['org.thingpedia.proxied'](id, classdef, this);
+            }
 
-            return new (Modules[module])(id, classdef, this);
+            console.log('Loaded class definition for ' + id + ', module type: '+ moduleType + ', version: ' + classdef.annotations.version.toJS());
+            return module;
         } catch(e) {
             // on error, propagate error but don't cache it (so the next time we'll try again)
             this._moduleRequests.delete(id);

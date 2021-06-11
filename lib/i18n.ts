@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,13 +18,13 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-
 import * as fs from 'fs';
 import * as util from 'util';
 import * as gettextParser from 'gettext-parser';
+import Gettext from 'node-gettext';
 
-async function loadTextdomainDirectory(gt, locale, domain, modir) {
-    let split = locale.split(/[-_.@]/);
+async function loadTextdomainDirectory(gt : Gettext, locale : string, domain : string, modir : string) {
+    const split = locale.split(/[-_.@]/);
     let mo = modir + '/' + split.join('_') + '.mo';
 
     while (!await util.promisify(fs.exists)(mo) && split.length) {
@@ -36,7 +36,7 @@ async function loadTextdomainDirectory(gt, locale, domain, modir) {
         return;
     }
     try {
-        let loaded = gettextParser.mo.parse(await util.promisify(fs.readFile)(mo), 'utf-8');
+        const loaded = gettextParser.mo.parse(await util.promisify(fs.readFile)(mo), 'utf-8');
         gt.addTranslations(locale, domain, loaded);
     } catch(e) {
         console.log(`Failed to load translations for ${locale}/${domain}: ${e.message}`);

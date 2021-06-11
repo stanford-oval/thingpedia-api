@@ -1,4 +1,4 @@
-// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,11 +18,17 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
+import { Ast } from 'thingtalk';
+
+import BaseDevice from '../base_device';
 
 export default class BaseConfigMixin {
-    constructor(classdef) {
+    private _classdef : Ast.ClassDef;
+    private _mixin : Ast.MixinImportStmt;
+
+    constructor(classdef : Ast.ClassDef) {
         this._classdef = classdef;
-        this._mixin = classdef.config;
+        this._mixin = classdef.config!;
     }
 
     get classdef() {
@@ -38,7 +44,22 @@ export default class BaseConfigMixin {
         return this._mixin.module;
     }
 
-    install(deviceClass) {
+    /**
+     * Check if some API keys or secrets are missing in this config mixin.
+     *
+     * This is indicated by an $? value in the manifest that survived after
+     * loading secrets.json
+     *
+     * Returning true causes the module to fail to load directly, and forces
+     * the use of a proxy through the Thingpedia API.
+     *
+     * @returns `true` if some config parameters are missing, `false` otherwise
+     */
+    hasMissingKeys() {
+        return this._mixin.in_params.some((ip) => ip.value.isUndefined);
+    }
+
+    install(deviceClass : BaseDevice.DeviceClass<BaseDevice>) {
         // do nothing, successfully
     }
 }

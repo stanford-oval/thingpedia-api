@@ -319,4 +319,8 @@ export default class FileClient extends BaseClient {
                 { q: searchTerm }, 'application/json');
         }
     }
+
+    invokeQuery() : never {
+        throw new Error('not implemented');
+    }
 }

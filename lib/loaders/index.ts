@@ -25,6 +25,7 @@ import GenericRestModule from './generic';
 import RSSModule from './rss_factory';
 import BuiltinModule from './builtin';
 import UnsupportedBuiltinModule from './unsupported_builtin';
+import ProxyModule from './proxy';
 
 const modules = {
     'org.thingpedia.builtin': BuiltinModule,
@@ -32,6 +33,8 @@ const modules = {
 
     'org.thingpedia.v2': V2,
     'org.thingpedia.rss': RSSModule,
-    'org.thingpedia.generic_rest.v1': GenericRestModule
+    'org.thingpedia.generic_rest.v1': GenericRestModule,
+
+    'org.thingpedia.proxied': ProxyModule,
 };
 export default modules;
