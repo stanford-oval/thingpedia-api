@@ -105,21 +105,22 @@ export default class BaseOnDiskJavascriptModule extends BaseJavascriptModule {
         };
 
         const modir = path.resolve(modulePath, 'po');
+
+        const gettext = this._platform.getCapability('gettext');
         if (await util.promisify(fs.exists)(modir)) {
-            const gettext = this._platform.getCapability('gettext');
-            if (gettext) {
-                if (this._platform.locale !== 'en-US')
-                    await I18n.loadTextdomainDirectory(gettext, this._platform.locale, this.id, modir);
-                deviceClass.gettext = {
-                    gettext: gettext.dgettext.bind(gettext, this.id),
-                    ngettext: gettext.dngettext.bind(gettext, this.id)
-                };
-            } else {
-                deviceClass.gettext = {
-                    gettext(x : string) { return x; },
-                    ngettext(x1 : string, xn : string, n : number) { return n === 1 ? x1 : xn; },
-                };
-            }
+            if (gettext && this._platform.locale !== 'en-US')
+                await I18n.loadTextdomainDirectory(gettext, this._platform.locale, this.id, modir);
+        }
+        if (gettext) {
+            deviceClass.gettext = {
+                gettext: gettext.dgettext.bind(gettext, this.id),
+                ngettext: gettext.dngettext.bind(gettext, this.id)
+            };
+        } else {
+            deviceClass.gettext = {
+                gettext(x : string) { return x; },
+                ngettext(x1 : string, xn : string, n : number) { return n === 1 ? x1 : xn; },
+            };
         }
 
         return this._completeLoading(deviceClass);
