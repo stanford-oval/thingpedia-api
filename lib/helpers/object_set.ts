@@ -24,7 +24,7 @@ import * as events from 'events';
 /**
  * The abstract interface that all ObjectSets must conform to.
  */
-class Base<T> extends events.EventEmitter {
+class AbstractObjectSet<T> extends events.EventEmitter {
     /**
      * Notifies that an object was to this set.
      *
@@ -99,7 +99,7 @@ class Base<T> extends events.EventEmitter {
 /**
  * A simple implementation of {@link Helpers.ObjectSet.Base} backed by a {@link Map}.
  */
-class Simple<T extends { uniqueId : string; }> extends Base<T> {
+class SimpleObjectSet<T extends { uniqueId : string; }> extends AbstractObjectSet<T> {
     private _objects : Map<string, T>;
 
     constructor() {
@@ -195,6 +195,6 @@ class Simple<T extends { uniqueId : string; }> extends Base<T> {
  * @namespace
  */
 export {
-    Simple,
-    Base
+    SimpleObjectSet as Simple,
+    AbstractObjectSet as Base
 };

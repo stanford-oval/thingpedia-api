@@ -18,6 +18,7 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
+import * as stream from 'stream';
 import * as ThingTalk from 'thingtalk';
 import * as events from 'events';
 import * as Url from 'url';
@@ -80,6 +81,11 @@ export interface LegacyRunOAuth2 {
  *
  */
 abstract class BaseDevice extends events.EventEmitter {
+    // no $rpc for queryInterface, extension interfaces are not exported
+    $rpcMethods = [
+        'get name', 'get uniqueId', 'get description',
+        'get ownerTier', 'get kind', 'get isTransient',
+        'checkAvailable', 'hasKind'] as const;
     // legacy interface
     static runOAuth2 ?: LegacyRunOAuth2;
 
@@ -89,9 +95,6 @@ abstract class BaseDevice extends events.EventEmitter {
 
     static Tier = Tier;
     static Availability = Availability;
-
-    // RPC access
-    $rpcMethods ! : string[];
 
     protected _engine : BaseEngine;
     state : BaseDevice.DeviceState;
@@ -524,14 +527,68 @@ abstract class BaseDevice extends events.EventEmitter {
         return null;
     }
 }
-// no $rpc for queryInterface, extension interfaces are not exported
-BaseDevice.prototype.$rpcMethods = [
-    'get name', 'get uniqueId', 'get description',
-    'get ownerTier', 'get kind', 'get isTransient',
-    'checkAvailable', 'hasKind'];
 
 namespace BaseDevice {
 
+/**
+ * An interface to read/write a state associated with each subscription
+ * to events.
+ */
+export interface TriggerState {
+    get(k : 'last-poll') : number|undefined;
+    get(k : string) : unknown|undefined;
+
+    set(k : 'last-poll', v : number) : void;
+    set(k : string, v : unknown) : void;
+}
+
+// This unfortunately doesn't document well until Typescript 4.4 where
+// we'll be able to write "[query : `get_${string}`]" directly inside
+// the BaseDevice class
+/**
+ * The type of a device defined in Thingpedia.
+ *
+ * @deprecated Do not use this type. It exists for documentation only.
+ *   It will be removed when TypeScript 4.4 is available for TypeDoc.
+ */
+export type Device = BaseDevice & {
+    /**
+     * Query methods.
+     *
+     * Each device class defines a method for each query declared in
+     * the manifest. The name of the JS method is `get_` followed by
+     * the query name.
+     */
+    [query in `get_${string}`] : (params : Record<string, any>, hints : ThingTalk.Runtime.CompiledQueryHints, env : ThingTalk.ExecEnvironment) => AsyncIterator<Record<string, any>>|Promise<Iterator<Record<string, any>>>|Iterator<Record<string, any>>;
+} & {
+    /**
+    * Subscribe methods.
+    *
+    * Each device class optionally defines a subscribe method for each
+    * query declared in the manifest. The name of the JS method is
+    * `subscribe_` followed by the query name.
+    *
+    *
+    */
+    [query in `subscribe_${string}`] : (params : Record<string, any>, state : TriggerState, hints : ThingTalk.Runtime.CompiledQueryHints, env : ThingTalk.ExecEnvironment) => stream.Readable;
+} & {
+    /**
+     * Action methods.
+     *
+     * Each device class defines a method for each action declared in
+     * the manifest. The name of the JS method is `do_` followed by
+     * the query name.
+     */
+    [action in `do_${string}`] : (params : Record<string, any>, hints : ThingTalk.Runtime.CompiledQueryHints, env : ThingTalk.ExecEnvironment) => Promise<Record<string, any>>|Record<string, any>|void;
+}
+
+/**
+ * The type of a class object (constructor function) defined for a Thingpedia device.
+ *
+ * This is the type of the constructor of any concrete subclass of {@link BaseDevice},
+ * and the type of the object that should be default exported from the entrypoint of
+ * a Thingpedia device package.
+ */
 export type DeviceClass<T extends BaseDevice> = Omit<typeof BaseDevice, "new"> & {
     new(engine : BaseEngine, state : any) : T;
 
