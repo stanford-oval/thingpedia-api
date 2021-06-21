@@ -115,6 +115,16 @@ function sha256(x : string) : Buffer {
     return hash.digest();
 }
 
+function toBase64URL(x : Buffer) : string {
+    try {
+        return x.toString('base64url');
+    } catch(e) {
+        if (e.code !== 'ERR_UNKNOWN_ENCODING')
+            throw e;
+        return x.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    }
+}
+
 function oauthPart1<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParams<T>,
                                           factory : OAuth2Helper.DeviceClass<T>,
                                           engine : BaseEngine) : [string, Record<string, string>] {
@@ -142,11 +152,11 @@ function oauthPart1<T extends BaseDevice>(params : OAuth2Helper.OAuthHelperParam
         // First generate a random verifier
         // Following https://datatracker.ietf.org/doc/html/rfc7636#section-4.1
         // we generate 32 random bytes and convert them to a 43 byte base64 string
-        const verifier = crypto.randomBytes(32).toString('base64url');
+        const verifier = toBase64URL(crypto.randomBytes(32));
 
         // Then generate the challenge
         // We only support the S256 method
-        query.code_challenge = sha256(verifier).toString('base64url');
+        query.code_challenge = toBase64URL(sha256(verifier));
         query.code_challenge_method = 'S256';
 
         // Finally we store the verifier for later
