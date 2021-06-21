@@ -4,6 +4,7 @@ node_modules/
 .nyc_output/
 coverage/
 dist/
+doc/
 test/snapshot.tt
 testprefs.json
 test.json
