@@ -1,3 +1,17 @@
+2.10.0-alpha.1
+==============
+
+* Added new interfaces and capabilities that devices and platforms can expose [#155, #162]:
+  - custom notification backends
+  - dialogue handlers to dispatch commands to non-ThingTalk backends
+* Added the ability to load secrets.json in development mode [#161].
+* Queries with no authentication are now proxied through Thingpedia if API keys
+  are missing [#161].
+* Added support for OAuth 2.0 PKCE. When supported by the server, this avoids the
+  need for client secrets [#161, #164].
+* Gettext support is now always available for all devices [#163].
+* Updated dependencies [#154, #156, #157, #158, #159, #160]
+
 2.9.0
 =====
 
