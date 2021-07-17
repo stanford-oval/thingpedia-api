@@ -438,7 +438,6 @@ abstract class BaseDevice extends events.EventEmitter {
         return this.state;
     }
 
-    /* istanbul ignore next */
     /**
      * Start a device.
      *
@@ -449,7 +448,6 @@ abstract class BaseDevice extends events.EventEmitter {
         // nothing to do here, subclasses can override if they need to
     }
 
-    /* istanbul ignore next */
     /**
      * Stop a device.
      *
@@ -460,9 +458,23 @@ abstract class BaseDevice extends events.EventEmitter {
         // nothing to do here, subclasses can override if they need to
     }
 
-
-    // Obsolete, ignore
-    get ownerTier() : Tier {
+    /**
+     * The identity of the engine that owns this device.
+     *
+     * This property is relevant when a device can only be accessed through
+     * local connection. In that case, the device should store the {@link BaseEngine.ownTier}
+     * property of the engine that configured the device. To ensure that,
+     * the tier must be stored to the persistent state.
+     * This ensures that the device will not be initialized if its configuration
+     * is copied to a different engine, e.g. through a synchronization mechanism.
+     *
+     * If this property is not equal to {@link BaseEngine.ownTier} for the current
+     * engine, the {@link start} and {@link stop} methods will not be called.
+     *
+     * This property defaults to {@link Tier.GLOBAL} which means the device will
+     * be initialized in all engines.
+     */
+    get ownerTier() : string {
         return Tier.GLOBAL;
     }
 

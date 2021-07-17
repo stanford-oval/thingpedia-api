@@ -56,9 +56,11 @@ export default abstract class BaseEngine {
     }
 
     /**
-     * The current tier of the engine.
+     * The identity of the current engine of the engine.
      *
-     * See {@link BaseDevice.Tier} for an explanation.
+     * This is a string composed of {@link BaseDevice.Tier} and a unique identifier.
+     * It should be accessed and stored by devices that need local connectivity,
+     * to ensure that they are only initialized in the correct engine.
      */
     get ownTier() : string {
         return 'desktop';
