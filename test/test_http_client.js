@@ -192,11 +192,9 @@ async function testGetDeviceList(klass) {
 
     const page0 = await _httpClient.getDeviceList(klass);
 
-    // weird values for page are the same as ignored
+    // negative values for page are the same as ignored
     const pageMinusOne = await _httpClient.getDeviceList(klass, -1);
     assert.deepStrictEqual(pageMinusOne, page0);
-    const pageInvalid = await _httpClient.getDeviceList(klass, 'invalid');
-    assert.deepStrictEqual(pageInvalid, page0);
 
     for (let i = 0; ; i++) {
         const page = await _httpClient.getDeviceList(klass, i, 10);
