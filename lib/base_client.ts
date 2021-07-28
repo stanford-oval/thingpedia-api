@@ -114,6 +114,7 @@ export interface EntityTypeRecord {
     name : string;
     is_well_known : boolean|number;
     has_ner_support : boolean|number;
+    subtype_of ?: string[]|null;
 }
 
 export interface LocationRecord {
