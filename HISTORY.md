@@ -1,3 +1,11 @@
+2.10.0-alpha.2
+==============
+
+* Updated BaseClient interfaces to support entity inheritance [#169].
+* Added new confidence levels for dialogue handlers that use template matching [#171].
+* Improved documentation [#168].
+* Updated dependencies [#166, #167, #181, #182, #183].
+
 2.10.0-alpha.1
 ==============
 
