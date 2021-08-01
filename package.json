@@ -16,7 +16,7 @@
   "dependencies": {
     "@types/feedparser": "^2.2.4",
     "@types/ip": "^1.1.0",
-    "@types/node": "^15.14.5",
+    "@types/node": "^16.4.10",
     "@types/node-gettext": "^3.0.2",
     "@types/qs": "^6.9.7",
     "@types/xml2js": "^0.4.9",
