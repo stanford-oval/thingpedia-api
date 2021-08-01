@@ -510,6 +510,16 @@ async function testSearchDevices() {
         issue_tracker: "",
         license: "BSD-3-Clause",
         subcategory: "home"
+    }, {
+        category: 'system',
+        description: 'Interface for Home Assistant Media Player.',
+        issue_tracker: '',
+        license: 'BSD-3-Clause',
+        name: 'Home Assistant Media Player',
+        primary_kind: 'org.thingpedia.iot.media-player',
+        repository: '',
+        subcategory: 'home',
+        website: ''
     }]);
 }
 
