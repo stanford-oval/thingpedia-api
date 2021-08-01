@@ -123,6 +123,13 @@ export enum Priority {
  */
 export enum Confidence {
     /**
+     * The dialogue handler matched this utterance exactly (using some template
+     * or regular expression), and it is a direct command that should take over
+     * from other dialogue handlers.
+     */
+    EXACT_IN_DOMAIN_COMMAND,
+
+    /**
      * The dialogue handler is confident that the utterance is in-domain, and it
      * is a direct command that should take over from other dialogue handlers.
      */
@@ -134,6 +141,14 @@ export enum Confidence {
      * dialogue handlers.
      */
     NONCONFIDENT_IN_DOMAIN_COMMAND,
+
+    /**
+     * The dialogue handler matched this utterance exactly (using some template
+     * or regular expression), and it is a follow-up to the current dialogue handler state.
+     *
+     * The utterance will not be dispatched if the dialogue handler is not current.
+     */
+    EXACT_IN_DOMAIN_FOLLOWUP,
 
     /**
      * The dialogue handler is confident that the utterance is in-domain, and it
