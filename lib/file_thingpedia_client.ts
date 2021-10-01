@@ -115,11 +115,17 @@ export default class FileClient extends BaseClient {
             this._dataset = await util.promisify(fs.readFile)(this._datasetfilename, { encoding: 'utf8' });
             let parsed;
             try {
-                parsed = await ThingTalk.Syntax.parse(this._dataset);
+                parsed = await ThingTalk.Syntax.parse(this._dataset, ThingTalk.Syntax.SyntaxType.Normal, {
+                    locale: this.locale,
+                    timezone: 'UTC'
+                });
             } catch(e) {
                 if (e.name !== 'SyntaxError')
                     throw e;
-                parsed = await ThingTalk.Syntax.parse(this._dataset, ThingTalk.Syntax.SyntaxType.Legacy);
+                parsed = await ThingTalk.Syntax.parse(this._dataset, ThingTalk.Syntax.SyntaxType.Legacy, {
+                    locale: this.locale,
+                    timezone: 'UTC'
+                });
             }
             assert(parsed instanceof Ast.Library);
 
@@ -154,7 +160,10 @@ export default class FileClient extends BaseClient {
     async getDeviceList(klass ?: string, page = 0, page_size = 10) : Promise<BaseClient.DeviceListRecord[]> {
         await this._ensureLoaded();
 
-        const parsed = ThingTalk.Syntax.parse(this._devices!);
+        const parsed = ThingTalk.Syntax.parse(this._devices!, ThingTalk.Syntax.SyntaxType.Normal, {
+            locale: this.locale,
+            timezone: 'UTC'
+        });
         assert(parsed instanceof Ast.Library);
         const list : BaseClient.DeviceListRecord[] = [];
         for (const classDef of parsed.classes.slice(page_size * page, page_size * (page+1))) {
@@ -182,7 +191,10 @@ export default class FileClient extends BaseClient {
 
         q = q.toLowerCase();
 
-        const parsed = ThingTalk.Syntax.parse(this._devices!);
+        const parsed = ThingTalk.Syntax.parse(this._devices!, ThingTalk.Syntax.SyntaxType.Normal, {
+            locale: this.locale,
+            timezone: 'UTC'
+        });
         assert(parsed instanceof Ast.Library);
         const list : BaseClient.DeviceListRecord[] = [];
         for (const classDef of parsed.classes) {
@@ -209,7 +221,10 @@ export default class FileClient extends BaseClient {
     async getDeviceFactories(klass : string) : Promise<BaseClient.DeviceFactory[]> {
         await this._ensureLoaded();
 
-        const parsed = ThingTalk.Syntax.parse(this._devices!);
+        const parsed = ThingTalk.Syntax.parse(this._devices!, ThingTalk.Syntax.SyntaxType.Normal, {
+            locale: this.locale,
+            timezone: 'UTC'
+        });
         assert(parsed instanceof Ast.Library);
         const list : BaseClient.DeviceFactory[] = [];
         for (const classDef of parsed.classes) {
@@ -230,7 +245,10 @@ export default class FileClient extends BaseClient {
         // we don't have the full class, so we just return the meta info
         await this._ensureLoaded();
 
-        const parsed = ThingTalk.Syntax.parse(this._devices!);
+        const parsed = ThingTalk.Syntax.parse(this._devices!, ThingTalk.Syntax.SyntaxType.Normal, {
+            locale: this.locale,
+            timezone: 'UTC'
+        });
         assert(parsed instanceof Ast.Library);
         for (const classDef of parsed.classes) {
             if (classDef.kind === kind)
@@ -271,7 +289,10 @@ export default class FileClient extends BaseClient {
     async getAllDeviceNames() : Promise<BaseClient.DeviceNameRecord[]> {
         await this._ensureLoaded();
 
-        const parsed = ThingTalk.Syntax.parse(this._devices!);
+        const parsed = ThingTalk.Syntax.parse(this._devices!, ThingTalk.Syntax.SyntaxType.Normal, {
+            locale: this.locale,
+            timezone: 'UTC'
+        });
         assert(parsed instanceof Ast.Library);
         const names = [];
         for (const classDef of parsed.classes) {

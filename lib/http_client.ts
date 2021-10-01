@@ -128,7 +128,10 @@ export default class HttpClient extends BaseClient {
     private async _addConfigFromThingpedia(ourConfig : Ast.MixinImportStmt, deviceKind : string) {
         try {
             const officialMetadata = await this._getDeviceCodeHttp(deviceKind);
-            const officialParsed = ThingTalk.Syntax.parse(officialMetadata);
+            const officialParsed = ThingTalk.Syntax.parse(officialMetadata, ThingTalk.Syntax.SyntaxType.Normal, {
+                locale: this.locale,
+                timezone: 'UTC'
+            });
             assert(officialParsed instanceof Ast.Library);
 
             ourConfig.in_params = ourConfig.in_params.filter((ip) => !ip.value.isUndefined);
@@ -148,7 +151,10 @@ export default class HttpClient extends BaseClient {
 
     private async _getLocalDeviceManifest(manifestPath : string, deviceKind : string) {
         const ourMetadata = (await util.promisify(fs.readFile)(manifestPath)).toString();
-        const ourParsed = ThingTalk.Syntax.parse(ourMetadata);
+        const ourParsed = ThingTalk.Syntax.parse(ourMetadata, ThingTalk.Syntax.SyntaxType.Normal, {
+            locale: this.locale,
+            timezone: 'UTC'
+        });
         assert(ourParsed instanceof Ast.Library);
 
         const ourClassDef = ourParsed.classes[0];
@@ -504,7 +510,10 @@ export default class HttpClient extends BaseClient {
         if (!snapshot)
             snapshot = await this._cacheSnapshot();
 
-        const parsed = ThingTalk.Syntax.parse(snapshot);
+        const parsed = ThingTalk.Syntax.parse(snapshot, ThingTalk.Syntax.SyntaxType.Normal, {
+            locale: this.locale,
+            timezone: 'UTC'
+        });
         assert(parsed instanceof Ast.Library);
         for (const classDef of parsed.classes) {
             names.push({
