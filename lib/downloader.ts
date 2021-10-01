@@ -173,7 +173,10 @@ export default class ModuleDownloader {
 
     async loadClass(id : string, canUseCache : boolean) {
         const classCode = await this._loadClassCode(id, canUseCache);
-        const parsed = await ThingTalk.Syntax.parse(classCode).typecheck(this._schemas);
+        const parsed = await ThingTalk.Syntax.parse(classCode, ThingTalk.Syntax.SyntaxType.Normal, {
+            locale: this._platform.locale,
+            timezone: 'UTC'
+        }).typecheck(this._schemas);
 
         assert(parsed instanceof ThingTalk.Ast.Library && parsed.classes.length === 1);
         const classdef = parsed.classes[0];
