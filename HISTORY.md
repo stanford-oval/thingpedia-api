@@ -1,3 +1,9 @@
+2.10.0-alpha.3
+==============
+
+* Fixed translation of builtin devices with recent Genie [#201].
+* Updated dependencies [#184, #191, #194, #198, #199, #200].
+
 2.10.0-alpha.2
 ==============
 
