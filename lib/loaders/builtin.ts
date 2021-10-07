@@ -19,37 +19,36 @@
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
 import * as ThingTalk from 'thingtalk';
-import type Gettext from 'node-gettext';
 
 import BaseJavascriptModule from './base_js';
 import ModuleDownloader from '../downloader';
 import BaseDevice from '../base_device';
 
-function translate(annotation : unknown, gettext : Gettext, domain : string) {
+function translate(annotation : unknown, gettext : (x : string) => string) {
     if (typeof annotation === 'string') {
-        return gettext.dgettext(domain, annotation);
+        return gettext(annotation);
     } else if (Array.isArray(annotation)) {
-        return annotation.map((str) => gettext.dgettext(domain, str));
+        return annotation.map((str) => gettext(str));
     } else if (typeof annotation === 'object') {
         const translated : Record<string, unknown> = {};
         for (const subkey in annotation)
-            translated[subkey] = translate((annotation as Record<string, unknown>)[subkey], gettext, domain);
+            translated[subkey] = translate((annotation as Record<string, unknown>)[subkey], gettext);
         return translated;
     } else {
         return annotation;
     }
 }
 
-function applyTranslation(metadata : ThingTalk.Ast.NLAnnotationMap, gettext : Gettext, domain : string) {
+function applyTranslation(metadata : ThingTalk.Ast.NLAnnotationMap, gettext : (x : string) => string) {
     for (const key in metadata)
-        metadata[key] = translate(metadata[key], gettext, domain);
+        metadata[key] = translate(metadata[key], gettext);
 }
 
-function applyTranslationFunction(fndef : ThingTalk.Ast.FunctionDef, gettext : Gettext, domain : string) {
-    applyTranslation(fndef.metadata, gettext, domain);
+function applyTranslationFunction(fndef : ThingTalk.Ast.FunctionDef, gettext : (x : string) => string) {
+    applyTranslation(fndef.metadata, gettext);
 
     for (const arg of fndef.args)
-        applyTranslation(fndef.getArgument(arg)!.metadata, gettext, domain);
+        applyTranslation(fndef.getArgument(arg)!.metadata, gettext);
 }
 
 export default class BuiltinModule extends BaseJavascriptModule {
@@ -59,21 +58,18 @@ export default class BuiltinModule extends BaseJavascriptModule {
                 classDef : ThingTalk.Ast.ClassDef,
                 loader : ModuleDownloader,
                 deviceClass : BaseDevice.DeviceClass<BaseDevice>,
-                builtinGettextDomain : string|undefined) {
+                builtinGettext ?: (x : string) => string) {
         // version does not matter for builtin modules
         classDef.annotations.version = new ThingTalk.Ast.Value.Number(0);
         super(id, classDef, loader);
 
-        if (builtinGettextDomain) {
-            const gettext = loader.platform.getCapability('gettext');
-            if (gettext) {
-                applyTranslation(classDef.metadata, gettext, builtinGettextDomain);
+        if (builtinGettext) {
+            applyTranslation(classDef.metadata, builtinGettext);
 
-                for (const query in classDef.queries)
-                    applyTranslationFunction(classDef.queries[query], gettext, builtinGettextDomain);
-                for (const query in classDef.actions)
-                    applyTranslationFunction(classDef.actions[query], gettext, builtinGettextDomain);
-            }
+            for (const query in classDef.queries)
+                applyTranslationFunction(classDef.queries[query], builtinGettext);
+            for (const query in classDef.actions)
+                applyTranslationFunction(classDef.actions[query], builtinGettext);
         }
 
         this._loaded = deviceClass;

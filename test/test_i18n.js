@@ -46,9 +46,10 @@ async function testBuiltin() {
     const platform = new MockPlatform('it-IT');
     const engine = new MockEngine(platform);
     const tpClient = platform.getCapability('thingpedia-client');
+    const gettext = platform.getCapability('gettext');
 
     const downloader = new ModuleDownloader(platform, tpClient, engine.schemas, Builtins, {
-        builtinGettextDomain: 'thingengine-core'
+        builtinGettext: (x) => gettext.dgettext('thingengine-core', x)
     });
     const module = await downloader.getModule('org.thingpedia.builtin.translatable');
 
