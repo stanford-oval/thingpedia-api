@@ -62,7 +62,7 @@ export default class ModuleDownloader {
     private _client : BaseClient;
     private _schemas : ThingTalk.SchemaRetriever;
     private _builtins : BuiltinRegistry;
-    private _builtinGettextDomain : string|undefined;
+    private _builtinGettext : ((x : string) => string)|undefined;
     private _cacheDir : string;
     private _moduleRequests : Map<string, Promise<Module>>;
 
@@ -70,7 +70,7 @@ export default class ModuleDownloader {
                 client : BaseClient,
                 schemas : ThingTalk.SchemaRetriever,
                 builtins : BuiltinRegistry = {},
-                options : { builtinGettextDomain ?: string } = {}) {
+                options : { builtinGettext ?: (x : string) => string } = {}) {
         this._platform = platform;
         this._client = client;
 
@@ -78,7 +78,7 @@ export default class ModuleDownloader {
         this._schemas = schemas;
 
         this._builtins = builtins;
-        this._builtinGettextDomain = options.builtinGettextDomain;
+        this._builtinGettext = options.builtinGettext;
         this._cacheDir = platform.getCacheDir() + '/device-classes';
         this._moduleRequests = new Map;
 
@@ -196,7 +196,7 @@ export default class ModuleDownloader {
             if (moduleType === 'org.thingpedia.builtin') {
                 if (this._builtins[id]) {
                     return new Modules['org.thingpedia.builtin'](id, classdef, this, this._builtins[id].module,
-                                                                 this._builtinGettextDomain);
+                                                                 this._builtinGettext);
                 } else {
                     return new Modules['org.thingpedia.builtin.unsupported'](id, classdef, this);
                 }

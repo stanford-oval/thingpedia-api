@@ -42,12 +42,12 @@ export default class DeviceFactory {
      * @param client - the client to use to contact Thingpedia
      * @param builtins - implementation of builtin classes
      * @param options - additional configuration options
-     * @param options.builtinGettextDomain - gettext domain to use to translate builtin devices
+     * @param options.builtinGettext - gettext function to use to translate builtin devices
      */
     constructor(engine : BaseEngine,
                 client : BaseClient,
                 builtins : Record<string, { class : string, module : BaseDevice.DeviceClass<BaseDevice> }> = {},
-                options : { builtinGettextDomain ?: string } = {}) {
+                options : { builtinGettext ?: (x : string) => string } = {}) {
         this._engine = engine;
         this._downloader = new ModuleDownloader(engine.platform, client, engine.schemas, builtins, options);
     }
