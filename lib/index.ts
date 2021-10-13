@@ -32,11 +32,6 @@ import * as FormatObjects from './format_objects';
 
 import * as ThingTalk from 'thingtalk';
 
-interface Version {
-    major : number;
-    minor : number;
-}
-
 /**
  * Versioning information for the library.
  *
@@ -65,11 +60,13 @@ const VERSION = {
     /**
      * Check if the current version is compatible with the passed in version
      *
-     * @param {number|Version} v - the version, as a number or object with `major`
-     *                             and minor properties
+     * @param v - the version, as a number or object with `major` and minor properties
      * @return {Boolean}
      */
-    compatible(v : number|Version) : boolean {
+    compatible(v : number|{
+        major : number;
+        minor : number;
+    }) : boolean {
         if (typeof v === 'number')
             return this.valueOf() >= v && Math.floor(v/100) === this.major;
         else

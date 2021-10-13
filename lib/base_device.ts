@@ -57,25 +57,6 @@ export enum Availability {
     UNKNOWN = -1
 }
 
-type URLQuery = { [key : string] : string|string[]|undefined };
-type SessionMap = { [key : string] : string };
-
-// deprecated interface for legacy OAuth configuration paths
-interface HTTPRequest {
-    query : URLQuery;
-    session : SessionMap;
-    httpVersion : string;
-    headers : string[],
-    rawHeaders : string[],
-    method : 'GET';
-    url : string;
-}
-
-export interface LegacyRunOAuth2 {
-    (this : typeof BaseDevice, engine : BaseEngine, req : null) : [string, SessionMap];
-    (this : typeof BaseDevice, engine : BaseEngine, req : HTTPRequest) : Promise<BaseDevice|null>;
-}
-
 /**
  * The base class of all Thingpedia device implementations.
  *
@@ -87,7 +68,7 @@ abstract class BaseDevice extends events.EventEmitter {
         'get ownerTier', 'get kind', 'get isTransient',
         'checkAvailable', 'hasKind'] as const;
     // legacy interface
-    static runOAuth2 ?: LegacyRunOAuth2;
+    static runOAuth2 ?: BaseDevice.LegacyRunOAuth2;
 
     // access ThingTalk metadata at runtime
     static metadata : BaseDevice.DeviceMetadata;
@@ -221,7 +202,7 @@ abstract class BaseDevice extends events.EventEmitter {
      * @param {BaseEngine} engine - the shared Almond engine initializing this device
      * @return {Array} tuple of redirect URI and session data
     */
-    static async loadFromCustomOAuth(engine : BaseEngine) : Promise<[string, SessionMap]> {
+    static async loadFromCustomOAuth(engine : BaseEngine) : Promise<[string, BaseDevice.SessionMap]> {
         // if not overridden, call the compatibility method using the legacy interface
         // (req === null to mean phase1, req !== null for phase2)
         // NOTE: we're in a static method, so "this" refers to the class, not the instance!
@@ -240,9 +221,9 @@ abstract class BaseDevice extends events.EventEmitter {
      * @param {Object.<string,string>} session - session data that was returned from {@link BaseDevice.loadFromCustomOAuth}
      * @return {BaseDevice} the fully configured device instance
     */
-    static async completeCustomOAuth(engine : BaseEngine, url : string, session : SessionMap) : Promise<BaseDevice|null> {
+    static async completeCustomOAuth(engine : BaseEngine, url : string, session : BaseDevice.SessionMap) : Promise<BaseDevice|null> {
         // if not overridden, call the compatibility method with a made-up `req` object
-        const req : HTTPRequest = {
+        const req : BaseDevice.HTTPRequest = {
             httpVersion: '1.0',
             headers: [],
             rawHeaders: [],
@@ -629,6 +610,13 @@ export interface DeviceMetadata {
     };
 }
 
+
+/**
+ * Extension interface exposed by devices that support OAuth.
+ *
+ * The HTTP helpers can use this interface to authenticate
+ * and refresh the credentials automatically.
+ */
 export interface OAuth2Interface {
     accessToken : string;
     refreshToken ?: string;
@@ -658,6 +646,34 @@ export interface QueryInterfaceMap {
     'notifications' : NotificationInterface;
     'dialogue-handler' : DialogueHandler<any, any>;
     [key : string] : unknown;
+}
+
+export type URLQuery = { [key : string] : string|string[]|undefined };
+export type SessionMap = { [key : string] : string };
+
+/**
+ * Deprecated interface for legacy OAuth configuration paths.
+ *
+ * @deprecated
+ */
+export interface HTTPRequest {
+    query : URLQuery;
+    session : SessionMap;
+    httpVersion : string;
+    headers : string[],
+    rawHeaders : string[],
+    method : 'GET';
+    url : string;
+}
+
+/**
+ * Legacy OAuth configuration path.
+ *
+ * @deprecated
+ */
+export interface LegacyRunOAuth2 {
+    (this : typeof BaseDevice, engine : BaseEngine, req : null) : [string, SessionMap];
+    (this : typeof BaseDevice, engine : BaseEngine, req : HTTPRequest) : Promise<BaseDevice|null>;
 }
 
 }

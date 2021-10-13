@@ -24,29 +24,14 @@ import * as stream from 'stream';
 import type BaseDevice from '../base_device';
 
 /**
- * Callback called when polling.
- *
- * The callback should poll the underlying API and return the current results.
- *
- * @return the current list of results
- */
-
-export type PollCallback<T> = () => T[];
-
-export interface EventResult {
-    __timestamp ?: number;
-    [key : string] : unknown;
-}
-
-/**
  * A stream.Readable implementation that emits new values at specific interval.
  *
  */
-export default class PollingStream<EventType extends EventResult> extends stream.Readable {
+class PollingStream<EventType extends PollingStream.EventResult> extends stream.Readable {
     private _timeout : NodeJS.Timeout|null;
     readonly state : BaseDevice.TriggerState;
     readonly interval : number;
-    private _callback : PollCallback<EventType>;
+    private _callback : PollingStream.PollCallback<EventType>;
     private _destroyed : boolean;
 
     /**
@@ -58,7 +43,7 @@ export default class PollingStream<EventType extends EventResult> extends stream
      */
     constructor(state : BaseDevice.TriggerState,
                 interval : number,
-                callback : PollCallback<EventType>) {
+                callback : PollingStream.PollCallback<EventType>) {
         super({ objectMode: true });
 
         this._timeout = null;
@@ -115,3 +100,23 @@ export default class PollingStream<EventType extends EventResult> extends stream
             this._nextTimeout();
     }
 }
+
+namespace PollingStream {
+
+/**
+ * Callback called when polling.
+ *
+ * The callback should poll the underlying API and return the current results.
+ *
+ * @return the current list of results
+ */
+export type PollCallback<T> = () => T[];
+
+export interface EventResult {
+    __timestamp ?: number;
+    [key : string] : unknown;
+}
+
+}
+
+export default PollingStream;

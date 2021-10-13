@@ -24,10 +24,12 @@ import * as http from 'http';
 import * as https from 'https';
 import * as Url from 'url';
 
+import type BaseDevice from '../base_device';
+
 /**
  * HTTP Helpers.
  *
- * @namespace
+ * @module
  */
 
 function getModule(parsed : http.ClientRequestArgs) {
@@ -37,21 +39,11 @@ function getModule(parsed : http.ClientRequestArgs) {
         return http;
 }
 
-interface OAuth2Interface {
-    accessToken : string;
-    refreshToken ?: string;
-    refreshCredentials() : Promise<void>;
-}
-
-interface UseOAuth2 {
-    queryInterface<T extends string>(x : T) : T extends 'oauth2' ? OAuth2Interface : unknown;
-}
-
 export interface HTTPRequestOptions {
     dataContentType ?: string;
     auth ?: string;
     accept ?: string;
-    useOAuth2 ?: UseOAuth2;
+    useOAuth2 ?: BaseDevice;
     authMethod ?: string;
     'user-agent' ?: string;
     extraHeaders ?: { [key : string] : string };
@@ -105,7 +97,7 @@ function httpRequestStream<UploadStreamT extends boolean, DownloadStreamT extend
     parsed.method = method;
     parsed.headers = {};
 
-    let oauth2 : OAuth2Interface|null = null;
+    let oauth2 : BaseDevice.OAuth2Interface|null = null;
     if (options.auth) {
         parsed.headers['Authorization'] = options.auth;
     } else if (options.useOAuth2) {
