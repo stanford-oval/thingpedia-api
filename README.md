@@ -4,7 +4,7 @@
 
 ## An Open, Crowdsourced Repository of APIs
 
-Thingpedia is the open repository of API used by the [Almond Virtual Assistant](https://almond.stanford.edu).
+Thingpedia is the open repository of API used by the [Genie Virtual Assistant](https://genie.stanford.edu).
 Anyone can contribute the interface code to access any device or web service, and publish it on Thingpedia.
 
 This package contains the software development kit (SDK) used to develop new
@@ -15,12 +15,12 @@ This package also contains the client side libraries to retrieve and
 instantiate the interface code from a public Thingpedia instance.
 
 Thingpedia is developed by the Stanford Open Virtual Assistant Lab, a research
-initiative led by prof. Monica Lam, from Stanford University. 
+initiative led by prof. Monica Lam, from Stanford University.
 You can find more information at <https://oval.cs.stanford.edu>
 
 ## Documentation
 
-Documentation for this package is hosted on the [Almond wiki](https://wiki.almond.stanford.edu/thingpedia).
+Documentation for this package is hosted on the [Genie wiki](https://wiki.genie.stanford.edu/thingpedia).
 
 **NOTE**: if you are writing an interface for Thingpedia, you should not install this package separately from npm.
 The correct version of this module is already available in the environment and you can just `require('thingpedia')`.
