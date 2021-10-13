@@ -21,7 +21,7 @@
 /**
  * A plain text message.
  */
- export interface Text {
+export interface Text {
     type : 'text';
     text : string;
 }
@@ -32,7 +32,7 @@
  * An RDL is expected to be displayed as a clickable card with optional
  * description and picture.
  */
- export interface RDL {
+export interface RDL {
     type : 'rdl';
     callback ?: string;
     webCallback : string;

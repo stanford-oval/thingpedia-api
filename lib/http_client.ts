@@ -554,7 +554,7 @@ export default class HttpClient extends BaseClient {
         const stream = await Helpers.Http.requestStream(this._url + '/proxy/query/' + kind + '/' + query + qs.stringify(queryparams), 'POST',
             JSON.stringify({ uniqueId, params, hints }), {
             accept: 'application/json-l'
-        });
+            });
 
         for await (const line of stream.pipe(byline()))
             yield JSON.parse(line);

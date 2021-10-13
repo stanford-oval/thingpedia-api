@@ -30,7 +30,7 @@ export default class MyDevice extends Tp.BaseDevice {
     }
 
     get_something() {
-        return [{v1: 'foo', v2: 42}];
+        return [{ v1: 'foo', v2: 42 }];
     }
     subscribe_something() {
         const str = new Stream.Readable({ read() {}, objectMode: true });
@@ -44,10 +44,10 @@ export default class MyDevice extends Tp.BaseDevice {
     }
 
     get_something_poll() {
-        return [{v1: 'foo', v2: 42}];
+        return [{ v1: 'foo', v2: 42 }];
     }
     get_something_nomonitor() {
-        return [{v1: 'foo', v2: 42}];
+        return [{ v1: 'foo', v2: 42 }];
     }
     do_something_else({ v3 }) {
         assert.strictEqual(v3, 'bar');

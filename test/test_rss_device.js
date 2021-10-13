@@ -81,7 +81,9 @@ async function testBasic() {
                     stream.destroy();
                     finished = true;
                 }
-            } catch(e) { reject(e); }
+            } catch(e) {
+                reject(e); 
+            }
         });
         stream.on('end', () => {
             reject(new assert.AssertionError('Stream ended unexpected'));
@@ -112,7 +114,7 @@ async function testBroken() {
     for (let err of ['hasaction', 'nosubscribe']) {
         const metadata = toClassDef(await mockClient.getDeviceCode('com.herokuapp.lorem-rss.broken.' + err));
         const module = new (Modules['org.thingpedia.rss'])('com.herokuapp.lorem-rss.broken.' + err,
-                                                           metadata, downloader);
+            metadata, downloader);
 
         // assert that we cannot actually load this device
         await assert.rejects(() => module.getDeviceClass(), ImplementationError);

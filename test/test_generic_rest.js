@@ -59,7 +59,9 @@ async function testPoll(instance, fn) {
                     stream.destroy();
                     finished = true;
                 }
-            } catch(e) { reject(e); }
+            } catch(e) {
+                reject(e); 
+            }
         });
         stream.on('end', () => {
             reject(new assert.AssertionError('Stream ended unexpected'));

@@ -42,7 +42,7 @@ function testSimple() {
         const stream = new PollingStream(new State(), 500, () => {
             if (stopped)
                 assert.fail('Timeout was stopped');
-            return [{v:cnt++}, {v:cnt++}];
+            return [{ v:cnt++ }, { v:cnt++ }];
         });
 
         let cnt2 = 0;

@@ -29,7 +29,7 @@ export default class InteractiveTestDevice extends Tp.BaseDevice {
 
         await delegate.configDone();
         return new InteractiveTestDevice(engine,
-                                         { kind: 'org.thingpedia.test.interactive' });
+            { kind: 'org.thingpedia.test.interactive' });
     }
 
     async completeDiscovery(delegate) {

@@ -25,7 +25,7 @@ import BaseDevice from './base_device';
 /**
  * The profile of the user.
  */
- export interface UserProfile {
+export interface UserProfile {
     /**
      * Platform-specific account identifier.
      */

@@ -87,7 +87,7 @@ class MockClient extends BaseClient {
         case 'com.herokuapp.lorem-rss.broken.hasaction':
         case 'com.herokuapp.lorem-rss.broken.nosubscribe': {
             const pathname = path.resolve(path.dirname(module.filename),
-                                          `./device-classes/${kind}.tt`);
+                `./device-classes/${kind}.tt`);
             return util.promisify(fs.readFile)(pathname, { encoding: 'utf8' });
         }
         default:

@@ -196,7 +196,7 @@ export default class ModuleDownloader {
             if (moduleType === 'org.thingpedia.builtin') {
                 if (this._builtins[id]) {
                     return new Modules['org.thingpedia.builtin'](id, classdef, this, this._builtins[id].module,
-                                                                 this._builtinGettext);
+                        this._builtinGettext);
                 } else {
                     return new Modules['org.thingpedia.builtin.unsupported'](id, classdef, this);
                 }

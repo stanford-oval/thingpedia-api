@@ -21,7 +21,9 @@
 // load everything in process so we have a global view of code coverage
 import '../lib/index';
 
-process.on('unhandledRejection', (up) => { throw up; });
+process.on('unhandledRejection', (up) => {
+    throw up; 
+});
 process.env.TEST_MODE = '1';
 
 async function seq(array) {

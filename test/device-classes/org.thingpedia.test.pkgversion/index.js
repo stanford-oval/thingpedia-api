@@ -28,6 +28,6 @@ export default class MyDevice extends Tp.BaseDevice {
     }
 
     get_something() {
-        return [{v1: 'foo', v2: 42}];
+        return [{ v1: 'foo', v2: 42 }];
     }
 }

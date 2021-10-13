@@ -75,8 +75,8 @@ function testGet() {
 
 function testPost() {
     return Helpers.Http.post('http://api.shoutcloud.io/V1/SHOUT',
-                      JSON.stringify({ INPUT: 'all caps' }),
-                      { accept: 'application/json',
+        JSON.stringify({ INPUT: 'all caps' }),
+        { accept: 'application/json',
                         dataContentType: 'application/json' })
         .then((data) => {
             let parsed = JSON.parse(data);
@@ -91,7 +91,7 @@ function testPostStream() {
     const data = JSON.stringify({ INPUT: 'all caps' });
 
     const promise = Helpers.Http.postStream('http://api.shoutcloud.io/V1/SHOUT', str,
-                                            { accept: 'application/json',
+        { accept: 'application/json',
                                               dataContentType: 'application/json' })
         .then((data) => {
             let parsed = JSON.parse(data);

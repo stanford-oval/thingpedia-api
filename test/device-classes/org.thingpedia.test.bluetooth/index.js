@@ -35,7 +35,7 @@ export default class BluetoothTestDevice extends Tp.BaseDevice {
 
     static loadFromDiscovery(engine, publicData, privateData) {
         return new BluetoothTestDevice(engine,
-                                       { kind: 'org.thingpedia.test.bluetooth',
+            { kind: 'org.thingpedia.test.bluetooth',
                                          discoveredBy: engine.ownTier,
                                          paired: privateData.paired,
                                          uuids: publicData.uuids,

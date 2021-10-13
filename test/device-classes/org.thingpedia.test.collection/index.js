@@ -25,7 +25,7 @@ import * as Tp from 'thingpedia';
 
 class MySubDevice extends Tp.BaseDevice {
     get_get_data() {
-        return [{data: 'foo'}];
+        return [{ data: 'foo' }];
     }
     do_eat_data({ data }) {
         assert.strictEqual(data, 'bar');

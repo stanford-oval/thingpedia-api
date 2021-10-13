@@ -35,7 +35,7 @@ import Base from './base_generic';
  * This is used when a Thingpedia skill is unavailable locally due to missing
  * API keys.
  */
- export default class ProxyModule extends Base {
+export default class ProxyModule extends Base {
     private _tpClient : BaseClient;
 
     constructor(id : string, manifest : ThingTalk.Ast.ClassDef, loader : ModuleDownloader) {

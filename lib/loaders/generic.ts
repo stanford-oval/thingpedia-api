@@ -37,7 +37,7 @@ export default class GenericRestModule extends Base {
             this._loaded!.prototype['do_' + action] = function(params : any) {
                 const url = Utils.formatString(baseurl, this.state, params)!;
                 return Helpers.Http.request(url, method, JSON.stringify(params),
-                                    { auth: this.auth,
+                    { auth: this.auth,
                                       useOAuth2: this,
                                       dataContentType: 'application/json' });
             };
@@ -62,8 +62,8 @@ export default class GenericRestModule extends Base {
                     auth: this.auth,
                     useOAuth2: this,
                     accept: 'application/json' }).then((response) => {
-                        const parsed = JSON.parse(response);
-                        return Utils.parseGenericResponse(parsed, fndef);
+                    const parsed = JSON.parse(response);
+                    return Utils.parseGenericResponse(parsed, fndef);
                 });
             };
 

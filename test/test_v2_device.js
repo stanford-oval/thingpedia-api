@@ -56,7 +56,7 @@ async function testPreloaded() {
     assert.strictEqual(factory, MyDevice);
     assert.strictEqual(factory.manifest, metadata);
     //assert.strictEqual(factory.metadata, metadata);
-    assert.deepStrictEqual(factory.require('package.json'), {"name":"org.thingpedia.test.mydevice",
+    assert.deepStrictEqual(factory.require('package.json'), { "name":"org.thingpedia.test.mydevice",
         "main": "index.js",
         "thingpedia-version":1
     });
@@ -69,7 +69,7 @@ async function testPreloaded() {
     assert.strictEqual(typeof d.do_something_else, 'function');
 
     assert.deepStrictEqual(await d.get_something(), [
-        {v1: 'foo', v2: 42}
+        { v1: 'foo', v2: 42 }
     ]);
     await new Promise((resolve, reject) => {
         let finished = false;
@@ -96,7 +96,9 @@ async function testPreloaded() {
                     stream.destroy();
                     finished = true;
                 }
-            } catch(e) { reject(e); }
+            } catch(e) {
+                reject(e); 
+            }
         });
         stream.on('end', () => {
             reject(new assert.AssertionError('Stream ended unexpected'));
@@ -127,7 +129,9 @@ async function testPreloaded() {
                     stream.destroy();
                     finished = true;
                 }
-            } catch(e) { reject(e); }
+            } catch(e) {
+                reject(e); 
+            }
         });
         stream.on('end', () => {
             reject(new assert.AssertionError('Stream ended unexpected'));
@@ -150,8 +154,8 @@ async function testSubdevice() {
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
 
     const collectionModule = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.collection',
-                                                                collectionMetadata,
-                                                                downloader);
+        collectionMetadata,
+        downloader);
     assert.strictEqual(collectionModule.id, 'org.thingpedia.test.collection');
 
     // this will also load the subdevices
@@ -177,7 +181,7 @@ async function testBrokenDevices() {
     for (let err of ['noaction', 'noquery', 'nosubscribe', 'databasequery1', 'databasequery2']) {
         const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.broken.' + err));
         const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.broken.' + err,
-                                                          metadata, downloader);
+            metadata, downloader);
 
         // assert that we cannot actually load this device
         await assert.rejects(() => module.getDeviceClass(), ImplementationError);
@@ -186,7 +190,7 @@ async function testBrokenDevices() {
     // now load a device where the error is at runtime
     const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.broken'));
     const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.broken',
-                                                      metadata, downloader);
+        metadata, downloader);
     // this should load correctly
     const factory = await module.getDeviceClass();
     const instance = new factory(mockEngine, { kind: 'org.thingpedia.test.broken' });

@@ -86,13 +86,13 @@ type RequestResult<DownloadStreamT extends boolean, DownloadRawT extends boolean
     http.IncomingMessage|NonStreamResult<DownloadRawT>;
 
 function httpRequestStream<UploadStreamT extends boolean, DownloadStreamT extends boolean, DownloadRawT extends boolean>(url : string,
-     method : string,
-     data : UploadStreamT extends true ? stream.Readable : string|Buffer|null,
-     options_ : HTTPRequestOptions|undefined,
-     uploadStream : UploadStreamT,
-     downloadStream : DownloadStreamT,
-     downloadRaw : DownloadRawT,
-     attemptedOAuth2 = false) : Promise<RequestResult<DownloadStreamT, DownloadRawT>> {
+                                                                                                                         method : string,
+                                                                                                                         data : UploadStreamT extends true ? stream.Readable : string|Buffer|null,
+                                                                                                                         options_ : HTTPRequestOptions|undefined,
+                                                                                                                         uploadStream : UploadStreamT,
+                                                                                                                         downloadStream : DownloadStreamT,
+                                                                                                                         downloadRaw : DownloadRawT,
+                                                                                                                         attemptedOAuth2 = false) : Promise<RequestResult<DownloadStreamT, DownloadRawT>> {
     const options : HTTPRequestOptions = options_ || {};
 
     let parsed : http.ClientRequestArgs = Url.parse(url);
@@ -141,7 +141,7 @@ function httpRequestStream<UploadStreamT extends boolean, DownloadStreamT extend
                 assert(location);
                 const redirect = Url.resolve(url, location);
                 callback(httpRequestStream(redirect, method, data, options,
-                                           uploadStream, downloadStream, downloadRaw));
+                    uploadStream, downloadStream, downloadRaw));
                 return;
             }
             if ((options.followRedirects === true || options.followRedirects === undefined) &&
@@ -151,7 +151,7 @@ function httpRequestStream<UploadStreamT extends boolean, DownloadStreamT extend
                 assert(location);
                 const redirect = Url.resolve(url, location);
                 callback(httpRequestStream(redirect, 'GET', null, options,
-                                           false, downloadStream, downloadRaw));
+                    false, downloadStream, downloadRaw));
                 return;
             }
             if (!ignoreErrors && res.statusCode === 401 && oauth2 !== null && !attemptedOAuth2 && oauth2.refreshToken) {
@@ -351,10 +351,10 @@ export function postStream(url : string, data : stream.Readable, options : HTTPR
 }
 
 function httpDownloadStream(url : string,
-    method : string,
-    data : string|Buffer|null,
-    options ?: HTTPRequestOptions) : Promise<http.IncomingMessage> {
-return httpRequestStream(url, method, data, options, false, true, false);
+                            method : string,
+                            data : string|Buffer|null,
+                            options ?: HTTPRequestOptions) : Promise<http.IncomingMessage> {
+    return httpRequestStream(url, method, data, options, false, true, false);
 }
 
 /**
@@ -407,9 +407,9 @@ export function getStream(url : string, options ?: HTTPRequestOptions) : Promise
  * @param {boolean} [options.raw=false] - return the binary response body instead of converting to a string
  * @return {Promise<string>|Promise<Array>} either the string response body, or a tuple with `Buffer` and content type.
  */
- export function requestStream(url : string,
-    method : string,
-    data : string|Buffer|null,
-    options : HTTPRequestOptions = {}) : Promise<http.IncomingMessage> {
+export function requestStream(url : string,
+                              method : string,
+                              data : string|Buffer|null,
+                              options : HTTPRequestOptions = {}) : Promise<http.IncomingMessage> {
     return httpRequestStream(url, method, data, options, false, true, false);
 }

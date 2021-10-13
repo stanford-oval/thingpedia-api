@@ -135,7 +135,7 @@ async function testGetDeviceCode() {
 async function testGetModuleLocation() {
     const test = await _httpClient.getModuleLocation('com.bing');
     assert(/^.*\/com\.bing-v[0-9]+\.zip$/.test(test),
-          'Invalid response, got ' + test);
+        'Invalid response, got ' + test);
 
     // builtin.test is not downloadable
     await assert.rejects(async () => {
@@ -235,7 +235,7 @@ async function testGetDeviceList(klass) {
     // this is a quick and dirty way to catch pagination errors
     for (let pubDevice of publicDevices) {
         assert(developerDevices.has(pubDevice),
-               'Lost device ' + pubDevice);
+            'Lost device ' + pubDevice);
     }
 }
 

@@ -118,8 +118,12 @@ export default class BaseOnDiskJavascriptModule extends BaseJavascriptModule {
             };
         } else {
             deviceClass.gettext = {
-                gettext(x : string) { return x; },
-                ngettext(x1 : string, xn : string, n : number) { return n === 1 ? x1 : xn; },
+                gettext(x : string) {
+                    return x; 
+                },
+                ngettext(x1 : string, xn : string, n : number) {
+                    return n === 1 ? x1 : xn; 
+                },
             };
         }
 
