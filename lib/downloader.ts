@@ -24,6 +24,7 @@ import * as path from 'path';
 import * as ThingTalk from 'thingtalk';
 
 import Modules from './loaders';
+import type BaseModule from './loaders/base_module';
 
 import type BasePlatform from './base_platform';
 import type BaseClient from './base_client';
@@ -32,7 +33,7 @@ import BaseDevice from './base_device';
 function safeMkdir(dir : string) {
     try {
         fs.mkdirSync(dir);
-    } catch(e) {
+    } catch(e : any) {
         if (e.code !== 'EEXIST')
             throw e;
     }
@@ -41,21 +42,13 @@ function safeMkdir(dir : string) {
 function safeSymlinkSync(from : string, to : string) {
     try {
         fs.symlinkSync(from, to, 'dir');
-    } catch(e) {
+    } catch(e : any) {
         if (e.code !== 'EEXIST')
             throw e;
     }
 }
 
 type BuiltinRegistry = Record<string, { class : string, module : BaseDevice.DeviceClass<BaseDevice> }>;
-
-interface Module {
-    id : string;
-    version : unknown; // FIXME
-
-    clearCache() : void;
-    getDeviceClass() : Promise<BaseDevice.DeviceClass<BaseDevice>>;
-}
 
 export default class ModuleDownloader {
     private _platform : BasePlatform;
@@ -64,7 +57,7 @@ export default class ModuleDownloader {
     private _builtins : BuiltinRegistry;
     private _builtinGettext : ((x : string) => string)|undefined;
     private _cacheDir : string;
-    private _moduleRequests : Map<string, Promise<Module>>;
+    private _moduleRequests : Map<string, Promise<BaseModule>>;
 
     constructor(platform : BasePlatform,
                 client : BaseClient,
@@ -184,11 +177,11 @@ export default class ModuleDownloader {
         return classdef;
     }
 
-    injectModule(id : string, module : Module) {
+    injectModule(id : string, module : BaseModule) {
         this._moduleRequests.set(id, Promise.resolve(module));
     }
 
-    private async _doLoadModule(id : string) : Promise<Module> {
+    private async _doLoadModule(id : string) : Promise<BaseModule> {
         try {
             const classdef = await this.loadClass(id, true);
             const moduleType = classdef.loader!.module as Exclude<keyof typeof Modules, 'org.thingpedia.builtin.unsupported'>;

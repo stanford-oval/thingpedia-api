@@ -24,10 +24,11 @@ import * as Utils from '../utils';
 import { makeBaseDeviceMetadata } from '../compat';
 import * as ConfigMixins from '../config';
 import BaseDevice from '../base_device';
-
 import type BaseEngine from '../base_engine';
 
-export default class BaseGenericModule {
+import BaseModule from './base_module';
+
+export default class BaseGenericModule implements BaseModule {
     protected _id : string;
     protected _manifest : ThingTalk.Ast.ClassDef;
     protected _loaded : BaseDevice.DeviceClass<BaseDevice>|null;

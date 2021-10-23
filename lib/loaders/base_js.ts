@@ -31,6 +31,8 @@ import BaseClient from '../base_client';
 import type ModuleDownloader from '../downloader';
 import BaseDevice from '../base_device';
 
+import BaseModule from './base_module';
+
 /* eslint-disable no-invalid-this */
 
 // shared code between all modules with JS implementation
@@ -77,7 +79,7 @@ function safeWrapSubscribe<ThisArg, Args extends unknown[], Return>(subscribe : 
     };
 }
 
-export default abstract class BaseJavascriptModule {
+export default abstract class BaseJavascriptModule implements BaseModule {
     protected _loader : ModuleDownloader;
     protected _id : string;
     protected _config : ConfigMixins.Base|null;
