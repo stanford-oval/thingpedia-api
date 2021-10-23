@@ -24,6 +24,14 @@ import * as stream from 'stream';
 import type BaseDevice from '../base_device';
 
 /**
+ * Maximum number of items that can be returned by a single polling call.
+ *
+ * This is used to avoid iterating infinite results if a query is implemented
+ * using lazy async iterables.
+ */
+const MAX_ITEMS = 50;
+
+/**
  * A stream.Readable implementation that emits new values at specific interval.
  *
  */
@@ -86,13 +94,15 @@ class PollingStream<EventType extends PollingStream.EventResult> extends stream.
         }, this._nextTick());
     }
 
-    private _onTick(now : number) {
-        return Promise.resolve().then(() => this._callback()).then((results) => {
-            for (const item of results) {
-                item.__timestamp = now;
-                this.push(item);
-            }
-        });
+    private async _onTick(now : number) {
+        let maxItems = MAX_ITEMS;
+        for await (const item of await this._callback()) {
+            item.__timestamp = now;
+            this.push(item);
+            maxItems--;
+            if (maxItems <= 0)
+                break;
+        }
     }
 
     _read() : void {
@@ -110,7 +120,7 @@ namespace PollingStream {
  *
  * @return the current list of results
  */
-export type PollCallback<T> = () => T[];
+export type PollCallback<T> = () => Iterable<T>|Promise<Iterable<T>>|AsyncIterable<T>;
 
 export interface EventResult {
     __timestamp ?: number;

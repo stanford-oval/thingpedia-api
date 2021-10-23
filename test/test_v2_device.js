@@ -40,6 +40,13 @@ async function testDownloader() {
     assert.deepStrictEqual(module.manifest, metadata);
 }
 
+async function collect(iter) {
+    const into = [];
+    for await (const x of iter)
+        into.push(x);
+    return into;
+}
+
 async function testPreloaded() {
     const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.mydevice'));
 
@@ -64,11 +71,16 @@ async function testPreloaded() {
     const d = new factory(mockEngine, { kind: 'org.thingpedia.test.mydevice' });
     assert.strictEqual(typeof d.get_something, 'function');
     assert.strictEqual(typeof d.get_something_poll, 'function');
+    assert.strictEqual(typeof d.get_something_async_iterable, 'function');
     assert.strictEqual(typeof d.subscribe_something, 'function');
     assert.strictEqual(typeof d.subscribe_something_poll, 'function');
+    assert.strictEqual(typeof d.subscribe_something_async_iterable, 'function');
     assert.strictEqual(typeof d.do_something_else, 'function');
 
     assert.deepStrictEqual(await d.get_something(), [
+        { v1: 'foo', v2: 42 }
+    ]);
+    assert.deepStrictEqual(await collect(await d.get_something_async_iterable()), [
         { v1: 'foo', v2: 42 }
     ]);
     await new Promise((resolve, reject) => {
@@ -114,6 +126,39 @@ async function testPreloaded() {
         }, 5000);
 
         const stream = d.subscribe_something_poll({}, new State);
+        let count = 0;
+        stream.on('data', (data) => {
+            try {
+                if (finished)
+                    assert.fail('too many results');
+                delete data.__timestamp;
+                assert.deepStrictEqual(data, {
+                    v1: 'foo',
+                    v2: 42
+                });
+                count++;
+                if (count === 2) {
+                    stream.destroy();
+                    finished = true;
+                }
+            } catch(e) {
+                reject(e);
+            }
+        });
+        stream.on('end', () => {
+            reject(new assert.AssertionError('Stream ended unexpected'));
+        });
+    });
+    await new Promise((resolve, reject) => {
+        let finished = false;
+        setTimeout(() => {
+            if (finished)
+                resolve();
+            else
+                reject(new assert.AssertionError('Timed out'));
+        }, 5000);
+
+        const stream = d.subscribe_something_async_iterable({}, new State);
         let count = 0;
         stream.on('data', (data) => {
             try {
