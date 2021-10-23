@@ -18,8 +18,11 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
+import BaseOnDiskJavascriptLoader from './base_ondisk_js';
 
-import BaseOnDiskJavascriptModule from './base_ondisk_js';
-
-export default class ThingpediaModuleV2 extends BaseOnDiskJavascriptModule {
+/**
+ * Loader for Thingpedia devices that use the v2 format
+ * (which is the normal format).
+ */
+export default class V2Loader extends BaseOnDiskJavascriptLoader {
 }

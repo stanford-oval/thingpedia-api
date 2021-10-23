@@ -25,7 +25,10 @@ import * as Helpers from '../helpers';
 import Base from './base_generic';
 import { ImplementationError } from '../errors';
 
-export default class GenericRestModule extends Base {
+/**
+ * Loader for devices that use the generic REST interface.
+ */
+export default class GenericRestLoader extends Base {
     protected _loadModule() {
         super._loadModule();
 

@@ -26,9 +26,9 @@ import * as ConfigMixins from '../config';
 import BaseDevice from '../base_device';
 import type BaseEngine from '../base_engine';
 
-import BaseModule from './base_module';
+import BaseLoader from './base';
 
-export default class BaseGenericModule implements BaseModule {
+export default class BaseGenericLoader implements BaseLoader {
     protected _id : string;
     protected _manifest : ThingTalk.Ast.ClassDef;
     protected _loaded : BaseDevice.DeviceClass<BaseDevice>|null;

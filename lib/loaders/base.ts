@@ -23,9 +23,12 @@ import * as ThingTalk from 'thingtalk';
 import BaseDevice from '../base_device';
 
 /**
- * Base interface for all Thingpedia modules (implementations of Thingpedia devices)
+ * Base interface for all Thingpedia loaders.
+ *
+ * Thingpedia loaders are responsible for constructing device classes given
+ * the manifest and other information.
  */
-export default interface BaseModule {
+export default interface BaseLoader {
     /**
      * The ID of the module.
      *

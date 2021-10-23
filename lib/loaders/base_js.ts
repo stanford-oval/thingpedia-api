@@ -31,7 +31,7 @@ import BaseClient from '../base_client';
 import type ModuleDownloader from '../downloader';
 import BaseDevice from '../base_device';
 
-import BaseModule from './base_module';
+import BaseLoader from './base';
 
 /* eslint-disable no-invalid-this */
 
@@ -79,7 +79,7 @@ function safeWrapSubscribe<ThisArg, Args extends unknown[], Return>(subscribe : 
     };
 }
 
-export default abstract class BaseJavascriptModule implements BaseModule {
+export default abstract class BaseJavascriptLoader implements BaseLoader {
     protected _loader : ModuleDownloader;
     protected _id : string;
     protected _config : ConfigMixins.Base|null;
@@ -131,7 +131,7 @@ export default abstract class BaseJavascriptModule implements BaseModule {
     protected abstract _doGetDeviceClass() : Promise<BaseDevice.DeviceClass<BaseDevice>>;
 
     protected async _createSubmodule(id : string, manifest : ThingTalk.Ast.ClassDef, deviceClass : BaseDevice.DeviceClass<BaseDevice>) {
-        const submodule : BaseJavascriptModule = new (this.constructor as any)[Symbol.species](id, manifest, this._loader);
+        const submodule : BaseJavascriptLoader = new (this.constructor as any)[Symbol.species](id, manifest, this._loader);
         await submodule._completeLoading(deviceClass);
 
         return submodule;

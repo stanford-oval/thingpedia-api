@@ -23,8 +23,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ThingTalk from 'thingtalk';
 
-import Modules from './loaders';
-import type BaseModule from './loaders/base_module';
+import Loaders from './loaders';
+import type BaseLoader from './loaders/base';
 
 import type BasePlatform from './base_platform';
 import type BaseClient from './base_client';
@@ -57,7 +57,7 @@ export default class ModuleDownloader {
     private _builtins : BuiltinRegistry;
     private _builtinGettext : ((x : string) => string)|undefined;
     private _cacheDir : string;
-    private _moduleRequests : Map<string, Promise<BaseModule>>;
+    private _moduleRequests : Map<string, Promise<BaseLoader>>;
 
     constructor(platform : BasePlatform,
                 client : BaseClient,
@@ -177,33 +177,33 @@ export default class ModuleDownloader {
         return classdef;
     }
 
-    injectModule(id : string, module : BaseModule) {
+    injectModule(id : string, module : BaseLoader) {
         this._moduleRequests.set(id, Promise.resolve(module));
     }
 
-    private async _doLoadModule(id : string) : Promise<BaseModule> {
+    private async _doLoadModule(id : string) : Promise<BaseLoader> {
         try {
             const classdef = await this.loadClass(id, true);
-            const moduleType = classdef.loader!.module as Exclude<keyof typeof Modules, 'org.thingpedia.builtin.unsupported'>;
+            const loaderType = classdef.loader!.module as Exclude<keyof typeof Loaders, 'org.thingpedia.builtin.unsupported'>;
 
-            if (moduleType === 'org.thingpedia.builtin') {
+            if (loaderType === 'org.thingpedia.builtin') {
                 if (this._builtins[id]) {
-                    return new Modules['org.thingpedia.builtin'](id, classdef, this, this._builtins[id].module,
+                    return new Loaders['org.thingpedia.builtin'](id, classdef, this, this._builtins[id].module,
                         this._builtinGettext);
                 } else {
-                    return new Modules['org.thingpedia.builtin.unsupported'](id, classdef, this);
+                    return new Loaders['org.thingpedia.builtin.unsupported'](id, classdef, this);
                 }
             }
 
-            const module = new (Modules[moduleType])(id, classdef, this);
-            const config = module.config;
+            const loader = new (Loaders[loaderType])(id, classdef, this);
+            const config = loader.config;
             if (config && config.hasMissingKeys()) {
                 console.log('Loaded proxy class for ' + id + ' due to missing API keys');
-                return new Modules['org.thingpedia.proxied'](id, classdef, this);
+                return new Loaders['org.thingpedia.proxied'](id, classdef, this);
             }
 
-            console.log('Loaded class definition for ' + id + ', module type: '+ moduleType + ', version: ' + classdef.annotations.version.toJS());
-            return module;
+            console.log('Loaded class definition for ' + id + ', loader type: '+ loaderType + ', version: ' + classdef.annotations.version.toJS());
+            return loader;
         } catch(e) {
             // on error, propagate error but don't cache it (so the next time we'll try again)
             this._moduleRequests.delete(id);

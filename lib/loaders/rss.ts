@@ -23,7 +23,10 @@ import * as Utils from '../utils';
 import * as Helpers from '../helpers';
 import { ImplementationError } from '../errors';
 
-export default class RSSModule extends Base {
+/**
+ * Loader for device classes that use RSS.
+ */
+export default class RSSLoader extends Base {
     protected _loadModule() {
         super._loadModule();
 

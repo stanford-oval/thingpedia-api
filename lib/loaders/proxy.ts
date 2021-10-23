@@ -29,13 +29,13 @@ import ModuleDownloader from '../downloader';
 import Base from './base_generic';
 
 /**
- * A loader module that proxies all ThingTalk function calls through the
+ * A loader that creates a device class proxying all ThingTalk function calls through the
  * Thingpedia API.
  *
  * This is used when a Thingpedia skill is unavailable locally due to missing
  * API keys.
  */
-export default class ProxyModule extends Base {
+export default class ProxyLoader extends Base {
     private _tpClient : BaseClient;
 
     constructor(id : string, manifest : ThingTalk.Ast.ClassDef, loader : ModuleDownloader) {

@@ -20,7 +20,7 @@
 
 import * as ThingTalk from 'thingtalk';
 
-import BaseJavascriptModule from './base_js';
+import BaseJavascriptLoader from './base_js';
 import ModuleDownloader from '../downloader';
 import BaseDevice from '../base_device';
 
@@ -51,7 +51,11 @@ function applyTranslationFunction(fndef : ThingTalk.Ast.FunctionDef, gettext : (
         applyTranslation(fndef.getArgument(arg)!.metadata, gettext);
 }
 
-export default class BuiltinModule extends BaseJavascriptModule {
+/**
+ * Loader for Thingpedia devices that are shipped inside Genie
+ * itself.
+ */
+export default class BuiltinLoader extends BaseJavascriptLoader {
     private _loaded : BaseDevice.DeviceClass<BaseDevice>;
 
     constructor(id : string,

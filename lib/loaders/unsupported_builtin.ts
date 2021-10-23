@@ -27,6 +27,10 @@ import BaseDevice from '../base_device';
 import type BaseEngine from '../base_engine';
 import type ModuleDownloader from '../downloader';
 
+/**
+ * Loader for device classes that should be builtin but are
+ * not available.
+ */
 export default class UnsupportedBuiltinModule {
     private _id : string;
     private _manifest : ThingTalk.Ast.ClassDef;
