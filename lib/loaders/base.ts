@@ -23,36 +23,56 @@ import * as ThingTalk from 'thingtalk';
 import BaseDevice from '../base_device';
 
 /**
- * Base interface for all Thingpedia loaders.
+ * Base class for all Thingpedia loaders.
  *
  * Thingpedia loaders are responsible for constructing device classes given
  * the manifest and other information.
  */
-export default interface BaseLoader {
+export default abstract class BaseLoader {
+    protected _id : string;
+    protected _manifest : ThingTalk.Ast.ClassDef;
+    protected _parents : Record<string, ThingTalk.Ast.ClassDef>;
+
+    constructor(kind : string, manifest : ThingTalk.Ast.ClassDef, parents : Record<string, ThingTalk.Ast.ClassDef>) {
+        this._id = kind;
+        this._manifest = manifest;
+        this._parents = parents;
+    }
+
     /**
-     * The ID of the module.
+     * The ID of the device class.
      *
      * This is the same as the Thingpedia device kind.
      */
-    get id() : string;
+    get id() : string {
+        return this._id;
+    }
 
     /**
-     * The version of the module.
+     * The version of the device class.
      */
-    get version() : number;
+    get version() {
+        return this._manifest.getImplementationAnnotation<number>('version')!;
+    }
 
     /**
-     * The manifest associated with this module.
+     * The manifest associated with this device class.
      */
-    get manifest() : ThingTalk.Ast.ClassDef;
+    get manifest() : ThingTalk.Ast.ClassDef {
+        return this._manifest;
+    }
+
+    getParentManifest(kind : string) : ThingTalk.Ast.ClassDef {
+        return this._parents[kind];
+    }
 
     /**
-     * Clear any node.js caches associated with this module.
+     * Clear any node.js caches associated with this device class.
      */
-    clearCache() : void;
+    abstract clearCache() : void;
 
     /**
      * Retrieve the fully initialized device class.
      */
-    getDeviceClass() : Promise<BaseDevice.DeviceClass<BaseDevice>>;
+    abstract getDeviceClass() : Promise<BaseDevice.DeviceClass<BaseDevice>>;
 }

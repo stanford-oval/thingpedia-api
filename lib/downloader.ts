@@ -164,6 +164,15 @@ export default class ModuleDownloader {
         return this._client.getDeviceCode(id);
     }
 
+    _recursiveLoadParentClasses(classdef : ThingTalk.Ast.ClassDef,
+                                into : Record<string, ThingTalk.Ast.ClassDef>) {
+        return Promise.all(classdef.extends.map(async (parent) => {
+            const parentClass = await this._schemas.getFullMeta(parent);
+            into[parent] = parentClass;
+            await this._recursiveLoadParentClasses(classdef, into);
+        }));
+    }
+
     async loadClass(id : string, canUseCache : boolean) {
         const classCode = await this._loadClassCode(id, canUseCache);
         const parsed = await ThingTalk.Syntax.parse(classCode, ThingTalk.Syntax.SyntaxType.Normal, {
@@ -174,7 +183,11 @@ export default class ModuleDownloader {
         assert(parsed instanceof ThingTalk.Ast.Library && parsed.classes.length === 1);
         const classdef = parsed.classes[0];
         this._schemas.injectClass(classdef);
-        return classdef;
+
+        const parents : Record<string, ThingTalk.Ast.ClassDef> = {};
+        await this._recursiveLoadParentClasses(classdef, parents);
+
+        return [classdef, parents] as const;
     }
 
     injectModule(id : string, module : BaseLoader) {
@@ -183,23 +196,23 @@ export default class ModuleDownloader {
 
     private async _doLoadModule(id : string) : Promise<BaseLoader> {
         try {
-            const classdef = await this.loadClass(id, true);
+            const [classdef, parents] = await this.loadClass(id, true);
             const loaderType = classdef.loader!.module as Exclude<keyof typeof Loaders, 'org.thingpedia.builtin.unsupported'>;
 
             if (loaderType === 'org.thingpedia.builtin') {
                 if (this._builtins[id]) {
-                    return new Loaders['org.thingpedia.builtin'](id, classdef, this, this._builtins[id].module,
+                    return new Loaders['org.thingpedia.builtin'](id, classdef, parents, this, this._builtins[id].module,
                         this._builtinGettext);
                 } else {
-                    return new Loaders['org.thingpedia.builtin.unsupported'](id, classdef, this);
+                    return new Loaders['org.thingpedia.builtin.unsupported'](id, classdef, parents, this);
                 }
             }
 
-            const loader = new (Loaders[loaderType])(id, classdef, this);
+            const loader = new (Loaders[loaderType])(id, classdef, parents, this);
             const config = loader.config;
             if (config && config.hasMissingKeys()) {
                 console.log('Loaded proxy class for ' + id + ' due to missing API keys');
-                return new Loaders['org.thingpedia.proxied'](id, classdef, this);
+                return new Loaders['org.thingpedia.proxied'](id, classdef, parents, this);
             }
 
             console.log('Loaded class definition for ' + id + ', loader type: '+ loaderType + ', version: ' + classdef.annotations.version.toJS());

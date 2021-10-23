@@ -79,24 +79,19 @@ function safeWrapSubscribe<ThisArg, Args extends unknown[], Return>(subscribe : 
     };
 }
 
-export default abstract class BaseJavascriptLoader implements BaseLoader {
+export default abstract class BaseJavascriptLoader extends BaseLoader {
     protected _loader : ModuleDownloader;
-    protected _id : string;
     protected _config : ConfigMixins.Base|null;
     protected _client : BaseClient;
     protected _loading : Promise<BaseDevice.DeviceClass<BaseDevice>>|null;
-    protected _manifest : ThingTalk.Ast.ClassDef;
     protected _modulePath : string|null;
 
-    constructor(id : string, manifest : ThingTalk.Ast.ClassDef, loader : ModuleDownloader) {
-        assert(id);
-        assert(manifest);
+    constructor(kind : string, manifest : ThingTalk.Ast.ClassDef, parents : Record<string, ThingTalk.Ast.ClassDef>, loader : ModuleDownloader) {
+        super(kind, manifest, parents);
         assert(loader);
 
         this._loader = loader;
         this._client = loader.client;
-        this._id = id;
-        this._manifest = manifest;
 
         this._loading = null;
         this._modulePath = null;
@@ -104,34 +99,31 @@ export default abstract class BaseJavascriptLoader implements BaseLoader {
         this._config = ConfigMixins.get(this._manifest);
     }
 
-    get id() {
-        return this._id;
-    }
-    get manifest() {
-        return this._manifest;
-    }
-    get version() {
-        return this._manifest.annotations.version.toJS() as number;
-    }
     get config() {
         return this._config;
     }
 
-    static get [Symbol.species]() {
+    static get [Symbol.species]() : new(kind : string,
+        manifest : ThingTalk.Ast.ClassDef,
+        parents : Record<string, ThingTalk.Ast.ClassDef>,
+        loader : ModuleDownloader) => BaseJavascriptLoader {
         // TRICKY NOTE: in JS, "static" means class method, not static method
         // so we can use "this", and "this" refers to the class where this accessor
         // is invoked; hence, if this accessor is called on a derived class, we
         // will return the derived class, which is the desired behavior (and also
         // how this feature is used by native Array and native RegExp)
-        return this;
+        return this as any;
     }
 
     abstract clearCache() : void;
 
     protected abstract _doGetDeviceClass() : Promise<BaseDevice.DeviceClass<BaseDevice>>;
 
-    protected async _createSubmodule(id : string, manifest : ThingTalk.Ast.ClassDef, deviceClass : BaseDevice.DeviceClass<BaseDevice>) {
-        const submodule : BaseJavascriptLoader = new (this.constructor as any)[Symbol.species](id, manifest, this._loader);
+    protected async _createSubmodule(id : string,
+                                     manifest : ThingTalk.Ast.ClassDef,
+                                     parents : Record<string, ThingTalk.Ast.ClassDef>,
+                                     deviceClass : BaseDevice.DeviceClass<BaseDevice>) {
+        const submodule = new (this.constructor as typeof BaseJavascriptLoader)[Symbol.species](id, manifest, parents, this._loader);
         await submodule._completeLoading(deviceClass);
 
         return submodule;
@@ -190,8 +182,8 @@ export default abstract class BaseJavascriptLoader implements BaseLoader {
                 return;
             }
 
-            const childClassDef = await this._loader.loadClass(childId, true);
-            const submodule = await this._createSubmodule(childId, childClassDef, subdevices[childId]);
+            const [childClassDef, parents] = await this._loader.loadClass(childId, true);
+            const submodule = await this._createSubmodule(childId, childClassDef, parents, subdevices[childId]);
             this._loader.injectModule(childId, submodule);
         }));
 

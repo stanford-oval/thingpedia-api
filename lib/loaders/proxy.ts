@@ -38,8 +38,8 @@ import Base from './base_generic';
 export default class ProxyLoader extends Base {
     private _tpClient : BaseClient;
 
-    constructor(id : string, manifest : ThingTalk.Ast.ClassDef, loader : ModuleDownloader) {
-        super(id, manifest);
+    constructor(kind : string, manifest : ThingTalk.Ast.ClassDef, parents : Record<string, ThingTalk.Ast.ClassDef>, loader : ModuleDownloader) {
+        super(kind, manifest, parents);
 
         this._tpClient = loader.client;
     }

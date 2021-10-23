@@ -28,15 +28,12 @@ import type BaseEngine from '../base_engine';
 
 import BaseLoader from './base';
 
-export default class BaseGenericLoader implements BaseLoader {
-    protected _id : string;
-    protected _manifest : ThingTalk.Ast.ClassDef;
+export default class BaseGenericLoader extends BaseLoader {
     protected _loaded : BaseDevice.DeviceClass<BaseDevice>|null;
     protected _config : ConfigMixins.Base|null;
 
-    constructor(kind : string, ast : ThingTalk.Ast.ClassDef) {
-        this._id = kind;
-        this._manifest = ast;
+    constructor(kind : string, manifest : ThingTalk.Ast.ClassDef, parents : Record<string, ThingTalk.Ast.ClassDef>) {
+        super(kind, manifest, parents);
         this._loaded = null;
 
         this._config = ConfigMixins.get(this._manifest);
@@ -71,15 +68,6 @@ export default class BaseGenericLoader implements BaseLoader {
         this._loaded = newClass;
     }
 
-    get id() {
-        return this._id;
-    }
-    get manifest() {
-        return this._manifest;
-    }
-    get version() {
-        return this._manifest.getImplementationAnnotation<number>('version')!;
-    }
     get config() {
         return this._config;
     }

@@ -70,8 +70,8 @@ export default class BaseOnDiskJavascriptLoader extends BaseJavascriptLoader {
     private _platform : BasePlatform;
     private _cacheDir : string;
 
-    constructor(id : string, manifest : ThingTalk.Ast.ClassDef, loader : ModuleDownloader) {
-        super(id, manifest, loader);
+    constructor(kind : string, manifest : ThingTalk.Ast.ClassDef, parents : Record<string, ThingTalk.Ast.ClassDef>, loader : ModuleDownloader) {
+        super(kind, manifest, parents, loader);
 
         this._platform = loader.platform;
         this._cacheDir = loader.platform.getCacheDir() + '/device-classes';
@@ -180,7 +180,7 @@ export default class BaseOnDiskJavascriptLoader extends BaseJavascriptLoader {
             });
             try {
                 fs.mkdirSync(this._modulePath);
-            } catch(e) {
+            } catch(e : any) {
                 if (e.code !== 'EEXIST')
                     throw e;
             }

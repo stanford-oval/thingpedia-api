@@ -58,22 +58,23 @@ function applyTranslationFunction(fndef : ThingTalk.Ast.FunctionDef, gettext : (
 export default class BuiltinLoader extends BaseJavascriptLoader {
     private _loaded : BaseDevice.DeviceClass<BaseDevice>;
 
-    constructor(id : string,
-                classDef : ThingTalk.Ast.ClassDef,
+    constructor(kind : string,
+                manifest : ThingTalk.Ast.ClassDef,
+                parents : Record<string, ThingTalk.Ast.ClassDef>,
                 loader : ModuleDownloader,
                 deviceClass : BaseDevice.DeviceClass<BaseDevice>,
                 builtinGettext ?: (x : string) => string) {
         // version does not matter for builtin modules
-        classDef.annotations.version = new ThingTalk.Ast.Value.Number(0);
-        super(id, classDef, loader);
+        manifest.annotations.version = new ThingTalk.Ast.Value.Number(0);
+        super(kind, manifest, parents, loader);
 
         if (builtinGettext) {
-            applyTranslation(classDef.metadata, builtinGettext);
+            applyTranslation(manifest.metadata, builtinGettext);
 
-            for (const query in classDef.queries)
-                applyTranslationFunction(classDef.queries[query], builtinGettext);
-            for (const query in classDef.actions)
-                applyTranslationFunction(classDef.actions[query], builtinGettext);
+            for (const query in manifest.queries)
+                applyTranslationFunction(manifest.queries[query], builtinGettext);
+            for (const query in manifest.actions)
+                applyTranslationFunction(manifest.actions[query], builtinGettext);
         }
 
         this._loaded = deviceClass;
