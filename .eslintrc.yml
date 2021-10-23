@@ -85,7 +85,8 @@ rules:
   linebreak-style:
     - error
     - unix
-  semi:
+  semi: off
+  '@typescript-eslint/semi':
     - error
     - always
   curly:
