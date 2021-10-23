@@ -30,8 +30,7 @@ export default class RSSLoader extends Base {
     protected _loadModule() {
         super._loadModule();
 
-        for (const query in this._manifest.queries) {
-            const fndef = this._manifest.queries[query];
+        for (const [query, fndef] of this._iterateFunctions(this._manifest, 'queries')) {
             const pollInterval = Utils.getPollInterval(fndef);
             const baseurl = fndef.getImplementationAnnotation<string>('url')!;
 

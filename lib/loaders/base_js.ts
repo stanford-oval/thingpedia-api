@@ -135,22 +135,22 @@ export default abstract class BaseJavascriptLoader extends BaseLoader {
         deviceClass.manifest = this._manifest;
         deviceClass.metadata = makeBaseDeviceMetadata(this._manifest);
 
-        for (const action in this._manifest.actions) {
+        for (const [action,] of this._iterateFunctions(this._manifest, 'actions')) {
             if (typeof deviceClass.prototype['do_' + action] !== 'function')
                 throw new ImplementationError(`Implementation for action ${action} missing`);
             deviceClass.prototype['do_' + action] = safeWrapAction(deviceClass.prototype['do_' + action]);
         }
-        for (const query in this._manifest.queries) {
+        for (const [query, queryDef] of this._iterateFunctions(this._manifest, 'queries')) {
             // skip functions with `handle_thingtalk` annotation
-            if (this._manifest.queries[query].annotations['handle_thingtalk']) {
+            if (queryDef.annotations['handle_thingtalk']) {
                 if (typeof deviceClass.prototype['query'] !== 'function')
                     throw new ImplementationError(`Implementation for the query function to handle Thingtalk is missing`);
-                if (this._manifest.queries[query].is_monitorable && typeof deviceClass.prototype['subscribe'] !== 'function')
+                if (queryDef.is_monitorable && typeof deviceClass.prototype['subscribe'] !== 'function')
                     throw new ImplementationError(`Implementation for the subscribe function to handle ThingTalk is missing`);
                 continue;
             }
 
-            const pollInterval = getPollInterval(this._manifest.queries[query]);
+            const pollInterval = getPollInterval(queryDef);
 
             if (pollInterval === 0 && typeof deviceClass.prototype['subscribe_' + query] !== 'function')
                 throw new ImplementationError(`Poll interval === 0 but no subscribe function was found`);

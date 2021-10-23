@@ -62,10 +62,6 @@ export default abstract class BaseLoader {
         return this._manifest;
     }
 
-    getParentManifest(kind : string) : ThingTalk.Ast.ClassDef {
-        return this._parents[kind];
-    }
-
     /**
      * Clear any node.js caches associated with this device class.
      */
@@ -75,4 +71,24 @@ export default abstract class BaseLoader {
      * Retrieve the fully initialized device class.
      */
     abstract getDeviceClass() : Promise<BaseDevice.DeviceClass<BaseDevice>>;
+
+    protected *_iterateFunctions(classDef : ThingTalk.Ast.ClassDef,
+                                 ftype : 'actions' | 'queries',
+                                 visited : Set<string> = new Set) : IterableIterator<readonly [string, ThingTalk.Ast.FunctionDef]> {
+        for (const fname in classDef[ftype]) {
+            if (visited.has(fname))
+                continue;
+            visited.add(fname);
+            yield [fname, classDef[ftype][fname]] as const;
+        }
+
+        for (const parent of classDef.extends) {
+            const parentClass = this._parents[parent];
+            if (!parentClass) {
+                console.error(`WARNING: parent class ${parent} of ${classDef.kind} was not loaded correctly`);
+                continue;
+            }
+            yield* this._iterateFunctions(parentClass, ftype, visited);
+        }
+    }
 }

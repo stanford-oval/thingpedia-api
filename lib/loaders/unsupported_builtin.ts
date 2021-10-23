@@ -54,16 +54,16 @@ export default class UnsupportedBuiltinModule extends BaseLoader {
             }
         };
 
-        for (const action in manifest.actions) {
-            (this._loaded.prototype as any)['do_' + action] = function() {
+        for (const action of this._iterateFunctions(this._manifest, 'actions')) {
+            this._loaded.prototype['do_' + action] = function() {
                 throw new UnsupportedError();
             };
         }
-        for (const query in manifest.queries) {
-            (this._loaded.prototype as any)['get_' + query] = function() {
+        for (const query of this._iterateFunctions(this._manifest, 'queries')) {
+            this._loaded.prototype['get_' + query] = function() {
                 throw new UnsupportedError();
             };
-            (this._loaded.prototype as any)['subscribe_' + query] = function() {
+            this._loaded.prototype['subscribe_' + query] = function() {
                 throw new UnsupportedError();
             };
         }
