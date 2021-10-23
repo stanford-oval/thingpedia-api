@@ -1,0 +1,9 @@
+class @com.example.translated
+#_[name="Test"]
+#_[description="Dispositivo di test tradotto"]
+{
+    import loader from @org.thingpedia.v2();
+
+    query article()
+    #_[canonical=["articolo", "articolo delle notizie"]];
+}

@@ -94,10 +94,33 @@ const _mockLocalDeveloperPlatform = {
 };
 _mockLocalDeveloperPlatform._prefs.set('developer-dir', path.resolve(path.dirname(module.filename), './developer-dir'));
 
+const _mockItalianLocalDeveloperPlatform = {
+    _prefs: new MockPreferences,
+
+    getDeveloperKey() {
+        // no developer key
+        return null;
+    },
+
+    getSharedPreferences() {
+        return this._prefs;
+    },
+
+    getCacheDir() {
+        return path.dirname(module.filename);
+    },
+
+    get locale() {
+        return 'it-IT';
+    }
+};
+_mockItalianLocalDeveloperPlatform._prefs.set('developer-dir', path.resolve(path.dirname(module.filename), './developer-dir'));
+
 const _httpClient = new HttpClient(_mockPlatform, THINGPEDIA_URL);
 const _schemaRetriever = new ThingTalk.SchemaRetriever(_httpClient, null, true);
 const _developerHttpClient = new HttpClient(_mockDeveloperPlatform, THINGPEDIA_URL);
 const _localDeveloperHttpClient = new HttpClient(_mockLocalDeveloperPlatform, THINGPEDIA_URL);
+const _italianLocalDeveloperHttpClient = new HttpClient(_mockItalianLocalDeveloperPlatform, THINGPEDIA_URL);
 //const _developerSchemaRetriever = new ThingTalk.SchemaRetriever(_developerHttpClient, null, true);
 
 async function checkValidManifest(manifest, moduleType) {
@@ -533,6 +556,32 @@ async function testLocalGetDeviceCode() {
   import loader from @org.thingpedia.v2();
 
   import config from @org.thingpedia.config.none(api_key="my-secret-test-key");
+}`);
+
+    const deviceCode2 = await _localDeveloperHttpClient.getDeviceCode('com.example.translated');
+
+    assert.strictEqual(deviceCode2, `class @com.example.translated
+#_[name="Test"]
+#_[description="Test device that is translated"]
+#[version=-1] {
+  import loader from @org.thingpedia.v2();
+
+  query article()
+  #_[canonical=["article", "news article"]]
+  #[minimal_projection=[]];
+}`);
+
+    const deviceCode3 = await _italianLocalDeveloperHttpClient.getDeviceCode('com.example.translated');
+
+    assert.strictEqual(deviceCode3, `class @com.example.translated
+#_[name="Test"]
+#_[description="Dispositivo di test tradotto"]
+#[version=-1] {
+  import loader from @org.thingpedia.v2();
+
+  query article()
+  #_[canonical=["articolo", "articolo delle notizie"]]
+  #[minimal_projection=[]];
 }`);
 }
 

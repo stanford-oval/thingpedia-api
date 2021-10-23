@@ -199,18 +199,39 @@ export default class HttpClient extends BaseClient {
         return developerDirs;
     }
 
-    async getDeviceCode(id : string) : Promise<string> {
+    private async _tryGetLocalDeviceManifest(developerDirs : string[], kind : string) {
+        const localeParts = this.locale.toLowerCase().split(/[-_.@]/);
+
+        // try with locale first
+        while (localeParts.length > 0) {
+            for (const dir of developerDirs) {
+                const localPath = path.resolve(dir, kind, `manifest.${localeParts.join('-')}.tt`);
+                if (await util.promisify(fs.exists)(localPath))
+                    return this._getLocalDeviceManifest(localPath, kind);
+            }
+            localeParts.pop();
+        }
+
+        // try without locale next
+        for (const dir of developerDirs) {
+            const localPath = path.resolve(dir, kind, `manifest.tt`);
+            if (await util.promisify(fs.exists)(localPath))
+                return this._getLocalDeviceManifest(localPath, kind);
+        }
+
+        return null;
+    }
+
+    async getDeviceCode(kind : string) : Promise<string> {
         const developerDirs = this._getDeveloperDirs();
 
         if (developerDirs) {
-            for (const dir of developerDirs) {
-                const localPath = path.resolve(dir, id, 'manifest.tt');
-                if (await util.promisify(fs.exists)(localPath))
-                    return (await this._getLocalDeviceManifest(localPath, id)).prettyprint();
-            }
+            const classDef = await this._tryGetLocalDeviceManifest(developerDirs, kind);
+            if (classDef !== null)
+                return classDef.prettyprint();
         }
 
-        return this._getDeviceCodeHttp(id);
+        return this._getDeviceCodeHttp(kind);
     }
 
     async getModuleLocation(id : string) : Promise<string> {
@@ -236,16 +257,10 @@ export default class HttpClient extends BaseClient {
         const handled : Ast.ClassDef[] = [];
 
         for (const kind of kinds) {
-            let ok = false;
-            for (const dir of developerDirs) {
-                const localPath = path.resolve(dir, kind, 'manifest.tt');
-                if (await util.promisify(fs.exists)(localPath)) {
-                    handled.push(await this._getLocalDeviceManifest(localPath, kind));
-                    ok = true;
-                    break;
-                }
-            }
-            if (!ok)
+            const classDef = await this._tryGetLocalDeviceManifest(developerDirs, kind);
+            if (classDef !== null)
+                handled.push(classDef);
+            else
                 forward.push(kind);
         }
 
