@@ -44,7 +44,7 @@ async function testPreloaded() {
     const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.mydevice'));
 
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
-    const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.mydevice', metadata, downloader);
+    const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.mydevice', metadata, {}, downloader);
 
     assert.strictEqual(module.id, 'org.thingpedia.test.mydevice');
     assert.strictEqual(module.version, 1);
@@ -97,7 +97,7 @@ async function testPreloaded() {
                     finished = true;
                 }
             } catch(e) {
-                reject(e); 
+                reject(e);
             }
         });
         stream.on('end', () => {
@@ -130,7 +130,7 @@ async function testPreloaded() {
                     finished = true;
                 }
             } catch(e) {
-                reject(e); 
+                reject(e);
             }
         });
         stream.on('end', () => {
@@ -154,7 +154,7 @@ async function testSubdevice() {
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
 
     const collectionModule = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.collection',
-        collectionMetadata,
+        collectionMetadata, {},
         downloader);
     assert.strictEqual(collectionModule.id, 'org.thingpedia.test.collection');
 
@@ -181,7 +181,7 @@ async function testBrokenDevices() {
     for (let err of ['noaction', 'noquery', 'nosubscribe', 'databasequery1', 'databasequery2']) {
         const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.broken.' + err));
         const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.broken.' + err,
-            metadata, downloader);
+            metadata, {}, downloader);
 
         // assert that we cannot actually load this device
         await assert.rejects(() => module.getDeviceClass(), ImplementationError);
@@ -190,7 +190,7 @@ async function testBrokenDevices() {
     // now load a device where the error is at runtime
     const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.broken'));
     const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.broken',
-        metadata, downloader);
+        metadata, {}, downloader);
     // this should load correctly
     const factory = await module.getDeviceClass();
     const instance = new factory(mockEngine, { kind: 'org.thingpedia.test.broken' });
@@ -213,7 +213,7 @@ async function testThingpedia() {
     const metadata = toClassDef(await mockClient.getDeviceCode('com.xkcd'));
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
 
-    const module = new (Modules['org.thingpedia.v2'])('com.xkcd', metadata, downloader);
+    const module = new (Modules['org.thingpedia.v2'])('com.xkcd', metadata, {}, downloader);
 
     assert.strictEqual(module.id, 'com.xkcd');
     assert(module.version >= 91);
@@ -243,7 +243,7 @@ async function testBluetooth() {
     const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.bluetooth'));
 
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
-    const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.bluetooth', metadata, downloader);
+    const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.bluetooth', metadata, {}, downloader);
 
     const deviceClass = await module.getDeviceClass();
 
@@ -282,7 +282,7 @@ async function testInteractive() {
     const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.interactive'));
 
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
-    const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.interactive', metadata, downloader);
+    const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.interactive', metadata, {}, downloader);
 
     const deviceClass = await module.getDeviceClass();
 
@@ -310,7 +310,7 @@ async function testDatabase() {
     const metadata = toClassDef(await mockClient.getDeviceCode('org.thingpedia.test.databasequery'));
 
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
-    const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.databasequery', metadata, downloader);
+    const module = new (Modules['org.thingpedia.v2'])('org.thingpedia.test.databasequery', metadata, {}, downloader);
 
     const factory = await module.getDeviceClass();
     const device = new factory(mockEngine, { kind: 'org.thingpedia.test.databasequery' });
@@ -340,6 +340,21 @@ async function testProxied() {
     }]);
 }
 
+async function testSubclass() {
+    const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
+    const module = await downloader.getModule('org.thingpedia.test.subclass');
+
+    const factory = await module.getDeviceClass();
+    const device = new factory(mockEngine, { kind: 'org.thingpedia.test.subclass' });
+
+    assert.strictEqual(typeof device.get_something, 'function');
+    assert.deepStrictEqual(await device.get_something({}), [
+        { v1: 'foo', v2: 42 }
+    ]);
+
+    assert.strictEqual(typeof device.subscribe_something, 'function');
+}
+
 async function main() {
     await testPreloaded();
     await testSubdevice();
@@ -351,6 +366,7 @@ async function main() {
     await testInteractive();
     await testDatabase();
     await testProxied();
+    await testSubclass();
 }
 export default main;
 if (!module.parent)

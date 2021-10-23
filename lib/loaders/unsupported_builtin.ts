@@ -54,12 +54,12 @@ export default class UnsupportedBuiltinModule extends BaseLoader {
             }
         };
 
-        for (const action of this._iterateFunctions(this._manifest, 'actions')) {
+        for (const [action,] of this._iterateFunctions(this._manifest, 'actions')) {
             this._loaded.prototype['do_' + action] = function() {
                 throw new UnsupportedError();
             };
         }
-        for (const query of this._iterateFunctions(this._manifest, 'queries')) {
+        for (const [query,] of this._iterateFunctions(this._manifest, 'queries')) {
             this._loaded.prototype['get_' + query] = function() {
                 throw new UnsupportedError();
             };

@@ -169,7 +169,7 @@ export default class ModuleDownloader {
         return Promise.all(classdef.extends.map(async (parent) => {
             const parentClass = await this._schemas.getFullMeta(parent);
             into[parent] = parentClass;
-            await this._recursiveLoadParentClasses(classdef, into);
+            await this._recursiveLoadParentClasses(parentClass, into);
         }));
     }
 

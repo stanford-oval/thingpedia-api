@@ -60,7 +60,7 @@ async function testPoll(instance, fn) {
                     finished = true;
                 }
             } catch(e) {
-                reject(e); 
+                reject(e);
             }
         });
         stream.on('end', () => {
@@ -73,7 +73,7 @@ async function testBasic() {
     const metadata = toClassDef(await mockClient.getDeviceCode('org.httpbin'));
 
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
-    const module = new (Modules['org.thingpedia.generic_rest.v1'])('org.httpbin', metadata, downloader);
+    const module = new (Modules['org.thingpedia.generic_rest.v1'])('org.httpbin', metadata, {}, downloader);
 
     assert.strictEqual(module.id, 'org.httpbin');
     assert.strictEqual(module.version, 1);
@@ -130,7 +130,7 @@ async function testOAuth() {
     const metadata = toClassDef(await mockClient.getDeviceCode('org.httpbin.oauth'));
 
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
-    const module = new (Modules['org.thingpedia.generic_rest.v1'])('org.httpbin.oauth', metadata, downloader);
+    const module = new (Modules['org.thingpedia.generic_rest.v1'])('org.httpbin.oauth', metadata, {}, downloader);
 
     assert.strictEqual(module.id, 'org.httpbin.oauth');
     assert.strictEqual(module.version, 1);
@@ -223,7 +223,7 @@ async function testAlmondOAuth() {
     const metadata = toClassDef(await mockClient.getDeviceCode('edu.stanford.almond-dev'));
 
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
-    const module = new (Modules['org.thingpedia.generic_rest.v1'])('edu.stanford.almond-dev', metadata, downloader);
+    const module = new (Modules['org.thingpedia.generic_rest.v1'])('edu.stanford.almond-dev', metadata, {}, downloader);
 
     assert.strictEqual(module.id, 'edu.stanford.almond-dev');
     assert.strictEqual(module.version, 1);
@@ -296,7 +296,7 @@ async function testBasicAuth() {
     const metadata = toClassDef(await mockClient.getDeviceCode('org.httpbin.basicauth'));
 
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
-    const module = new (Modules['org.thingpedia.generic_rest.v1'])('org.httpbin.basicauth', metadata, downloader);
+    const module = new (Modules['org.thingpedia.generic_rest.v1'])('org.httpbin.basicauth', metadata, {}, downloader);
 
     assert.strictEqual(module.id, 'org.httpbin.basicauth');
     assert.strictEqual(module.version, 1);
@@ -323,7 +323,7 @@ async function testBroken() {
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
 
     const metadata = toClassDef(await mockClient.getDeviceCode('org.httpbin.broken'));
-    const module = new (Modules['org.thingpedia.generic_rest.v1'])('org.httpbin.broken', metadata, downloader);
+    const module = new (Modules['org.thingpedia.generic_rest.v1'])('org.httpbin.broken', metadata, {}, downloader);
 
     // assert that we cannot actually load this device
     await assert.rejects(() => module.getDeviceClass(), ImplementationError);
@@ -333,7 +333,7 @@ async function testForm() {
     const metadata = toClassDef(await mockClient.getDeviceCode('org.httpbin.form'));
 
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
-    const module = new (Modules['org.thingpedia.generic_rest.v1'])('org.httpbin.form', metadata, downloader);
+    const module = new (Modules['org.thingpedia.generic_rest.v1'])('org.httpbin.form', metadata, {}, downloader);
 
     assert.strictEqual(module.id, 'org.httpbin.form');
     assert.strictEqual(module.version, 1);

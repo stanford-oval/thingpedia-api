@@ -1,0 +1,5 @@
+abstract class @org.thingpedia.test.parentclass {
+    monitorable query something(out v1 : String,
+                                out v2 : Number)
+    #[poll_interval=1h];
+}
