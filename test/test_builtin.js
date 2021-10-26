@@ -18,8 +18,8 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-
 import assert from 'assert';
+import { Syntax } from 'thingtalk';
 
 import ModuleDownloader from '../lib/downloader';
 import BaseDevice from '../lib/base_device';
@@ -28,12 +28,12 @@ import { mockClient, mockPlatform, mockEngine } from './mock';
 
 const Builtins = {
     'org.thingpedia.builtin.foo': {
-        class: `class @org.thingpedia.builtin.foo {
+        class: Syntax.parse(`class @org.thingpedia.builtin.foo {
             import loader from @org.thingpedia.builtin();
             import config from @org.thingpedia.config.none();
 
             query get(out something : String);
-        }`,
+        }`).classes[0],
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         module: class FooBuiltin extends BaseDevice {
@@ -51,11 +51,11 @@ const Builtins = {
     },
 
     'org.thingpedia.builtin.test.collection': {
-        class: `class @org.thingpedia.builtin.test.collection
+        class: Syntax.parse(`class @org.thingpedia.builtin.test.collection
         #[child_types=["org.thingpedia.builtin.test.subdevice"]] {
             import loader from @org.thingpedia.builtin();
             import config from @org.thingpedia.config.none();
-        }`,
+        }`).classes[0],
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         module: class CollectionBuiltin extends BaseDevice {
@@ -69,12 +69,12 @@ const Builtins = {
     },
 
     'org.thingpedia.builtin.test.subdevice': {
-        class: `class @org.thingpedia.builtin.test.subdevice {
+        class: Syntax.parse(`class @org.thingpedia.builtin.test.subdevice {
             import loader from @org.thingpedia.embedded();
             import config from @org.thingpedia.config.none();
 
             query bla(out something : String);
-        }`,
+        }`).classes[0],
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         module: class SubdeviceBuiltin extends BaseDevice {

@@ -18,6 +18,8 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
+import * as ThingTalk from 'thingtalk';
+
 import BaseClient from './base_client';
 import BaseEngine from './base_engine';
 import ModuleDownloader from './downloader';
@@ -46,10 +48,9 @@ export default class DeviceFactory {
      */
     constructor(engine : BaseEngine,
                 client : BaseClient,
-                builtins : Record<string, { class : string, module : BaseDevice.DeviceClass<BaseDevice> }> = {},
-                options : { builtinGettext ?: (x : string) => string } = {}) {
+                builtins : Record<string, { class : ThingTalk.Ast.ClassDef, module : BaseDevice.DeviceClass<BaseDevice> }> = {}) {
         this._engine = engine;
-        this._downloader = new ModuleDownloader(engine.platform, client, engine.schemas, builtins, options);
+        this._downloader = new ModuleDownloader(engine.platform, client, engine.schemas, builtins);
     }
 
     /**

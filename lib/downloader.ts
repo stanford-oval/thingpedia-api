@@ -48,22 +48,20 @@ function safeSymlinkSync(from : string, to : string) {
     }
 }
 
-type BuiltinRegistry = Record<string, { class : string, module : BaseDevice.DeviceClass<BaseDevice> }>;
+type BuiltinRegistry = Record<string, { class : ThingTalk.Ast.ClassDef, module : BaseDevice.DeviceClass<BaseDevice> }>;
 
 export default class ModuleDownloader {
     private _platform : BasePlatform;
     private _client : BaseClient;
     private _schemas : ThingTalk.SchemaRetriever;
     private _builtins : BuiltinRegistry;
-    private _builtinGettext : ((x : string) => string)|undefined;
     private _cacheDir : string;
     private _moduleRequests : Map<string, Promise<BaseLoader>>;
 
     constructor(platform : BasePlatform,
                 client : BaseClient,
                 schemas : ThingTalk.SchemaRetriever,
-                builtins : BuiltinRegistry = {},
-                options : { builtinGettext ?: (x : string) => string } = {}) {
+                builtins : BuiltinRegistry = {}) {
         this._platform = platform;
         this._client = client;
 
@@ -71,7 +69,6 @@ export default class ModuleDownloader {
         this._schemas = schemas;
 
         this._builtins = builtins;
-        this._builtinGettext = options.builtinGettext;
         this._cacheDir = platform.getCacheDir() + '/device-classes';
         this._moduleRequests = new Map;
 
@@ -157,24 +154,10 @@ export default class ModuleDownloader {
         return developerDirs as string[];
     }
 
-    async _loadClassCode(id : string, canUseCache : boolean) {
+    private async _loadClassInternal(id : string) {
         if (this._builtins[id])
             return this._builtins[id].class;
-
-        return this._client.getDeviceCode(id);
-    }
-
-    _recursiveLoadParentClasses(classdef : ThingTalk.Ast.ClassDef,
-                                into : Record<string, ThingTalk.Ast.ClassDef>) {
-        return Promise.all(classdef.extends.map(async (parent) => {
-            const parentClass = await this._schemas.getFullMeta(parent);
-            into[parent] = parentClass;
-            await this._recursiveLoadParentClasses(parentClass, into);
-        }));
-    }
-
-    async loadClass(id : string, canUseCache : boolean) {
-        const classCode = await this._loadClassCode(id, canUseCache);
+        const classCode = await this._client.getDeviceCode(id);
         const parsed = await ThingTalk.Syntax.parse(classCode, ThingTalk.Syntax.SyntaxType.Normal, {
             locale: this._platform.locale,
             timezone: 'UTC'
@@ -183,7 +166,20 @@ export default class ModuleDownloader {
         assert(parsed instanceof ThingTalk.Ast.Library && parsed.classes.length === 1);
         const classdef = parsed.classes[0];
         this._schemas.injectClass(classdef);
+        return classdef;
+    }
 
+    private _recursiveLoadParentClasses(classdef : ThingTalk.Ast.ClassDef,
+                                        into : Record<string, ThingTalk.Ast.ClassDef>) {
+        return Promise.all(classdef.extends.map(async (parent) => {
+            const parentClass = await this._schemas.getFullMeta(parent);
+            into[parent] = parentClass;
+            await this._recursiveLoadParentClasses(parentClass, into);
+        }));
+    }
+
+    async loadClass(id : string) {
+        const classdef = await this._loadClassInternal(id);
         const parents : Record<string, ThingTalk.Ast.ClassDef> = {};
         await this._recursiveLoadParentClasses(classdef, parents);
 
@@ -196,16 +192,14 @@ export default class ModuleDownloader {
 
     private async _doLoadModule(id : string) : Promise<BaseLoader> {
         try {
-            const [classdef, parents] = await this.loadClass(id, true);
+            const [classdef, parents] = await this.loadClass(id);
             const loaderType = classdef.loader!.module as Exclude<keyof typeof Loaders, 'org.thingpedia.builtin.unsupported'>;
 
             if (loaderType === 'org.thingpedia.builtin') {
-                if (this._builtins[id]) {
-                    return new Loaders['org.thingpedia.builtin'](id, classdef, parents, this, this._builtins[id].module,
-                        this._builtinGettext);
-                } else {
+                if (this._builtins[id])
+                    return new Loaders['org.thingpedia.builtin'](id, classdef, parents, this, this._builtins[id].module);
+                else
                     return new Loaders['org.thingpedia.builtin.unsupported'](id, classdef, parents, this);
-                }
             }
 
             const loader = new (Loaders[loaderType])(id, classdef, parents, this);

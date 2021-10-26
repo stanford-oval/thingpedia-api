@@ -182,7 +182,7 @@ export default abstract class BaseJavascriptLoader extends BaseLoader {
                 return;
             }
 
-            const [childClassDef, parents] = await this._loader.loadClass(childId, true);
+            const [childClassDef, parents] = await this._loader.loadClass(childId);
             const submodule = await this._createSubmodule(childId, childClassDef, parents, subdevices[childId]);
             this._loader.injectModule(childId, submodule);
         }));

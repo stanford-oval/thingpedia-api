@@ -25,62 +25,8 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 
 import ModuleDownloader from '../lib/downloader';
-import BaseDevice from '../lib/base_device';
 
 import { MockPlatform, MockEngine } from './mock';
-
-const Builtins = {
-    'org.thingpedia.builtin.translatable': {
-        class: fs.readFileSync(path.resolve(path.dirname(module.filename), './device-classes/org.thingpedia.builtin.translatable.tt'), { encoding: 'utf8' }),
-
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        module: class TranslatableBuiltin extends BaseDevice {
-            get_elements() {
-                return [];
-            }
-        }
-    }
-};
-
-async function testBuiltin() {
-    const platform = new MockPlatform('it-IT');
-    const engine = new MockEngine(platform);
-    const tpClient = platform.getCapability('thingpedia-client');
-    const gettext = platform.getCapability('gettext');
-
-    const downloader = new ModuleDownloader(platform, tpClient, engine.schemas, Builtins, {
-        builtinGettext: (x) => gettext.dgettext('thingengine-core', x)
-    });
-    const module = await downloader.getModule('org.thingpedia.builtin.translatable');
-
-    assert.strictEqual(module.manifest.prettyprint(), `class @org.thingpedia.builtin.translatable
-#_[name="Predefinito Traducibile"]
-#_[description="Descrizione del Predefinito Traducibile"]
-#[version=0] {
-  import loader from @org.thingpedia.builtin();
-
-  import config from @org.thingpedia.config.builtin();
-
-  monitorable query elements(out something : String
-                             #_[canonical="qualcosa"],
-                             out author : Entity(tt:username)
-                             #_[canonical={
-                               npp=["autore"],
-                               pvp=["scritto da"],
-                               default="npp"
-                             }])
-  #_[confirmation="elementi predefiniti dentro la roba"]
-  #_[canonical="elementi"]
-  #[poll_interval=1ms]
-  #[minimal_projection=[]];
-}`);
-
-    const _class = await module.getDeviceClass();
-    const dev = new _class(engine, { kind: 'org.thingpedia.builtin.translatable' });
-
-    assert.strictEqual(dev.name, 'Predefinito Traducibile');
-    assert.strictEqual(dev.description, 'Descrizione del Predefinito Traducibile');
-}
 
 async function testOnDisk() {
     // first test English
@@ -130,7 +76,6 @@ async function main() {
         ]);
     }
 
-    await testBuiltin();
     await testOnDisk();
 }
 export default main;
