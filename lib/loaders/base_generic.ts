@@ -24,18 +24,16 @@ import * as Utils from '../utils';
 import { makeBaseDeviceMetadata } from '../compat';
 import * as ConfigMixins from '../config';
 import BaseDevice from '../base_device';
-
 import type BaseEngine from '../base_engine';
 
-export default class BaseGenericModule {
-    protected _id : string;
-    protected _manifest : ThingTalk.Ast.ClassDef;
+import BaseLoader from './base';
+
+export default class BaseGenericLoader extends BaseLoader {
     protected _loaded : BaseDevice.DeviceClass<BaseDevice>|null;
     protected _config : ConfigMixins.Base|null;
 
-    constructor(kind : string, ast : ThingTalk.Ast.ClassDef) {
-        this._id = kind;
-        this._manifest = ast;
+    constructor(kind : string, manifest : ThingTalk.Ast.ClassDef, parents : Record<string, ThingTalk.Ast.ClassDef>) {
+        super(kind, manifest, parents);
         this._loaded = null;
 
         this._config = ConfigMixins.get(this._manifest);
@@ -70,15 +68,6 @@ export default class BaseGenericModule {
         this._loaded = newClass;
     }
 
-    get id() {
-        return this._id;
-    }
-    get manifest() {
-        return this._manifest;
-    }
-    get version() {
-        return this._manifest.getImplementationAnnotation<number>('version')!;
-    }
     get config() {
         return this._config;
     }

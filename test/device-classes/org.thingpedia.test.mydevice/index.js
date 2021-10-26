@@ -52,4 +52,8 @@ export default class MyDevice extends Tp.BaseDevice {
     do_something_else({ v3 }) {
         assert.strictEqual(v3, 'bar');
     }
+
+    async *get_something_async_iterable() {
+        yield { v1: 'foo', v2: 42 };
+    }
 }

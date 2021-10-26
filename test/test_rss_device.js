@@ -33,7 +33,7 @@ async function testBasic() {
     const metadata = toClassDef(await mockClient.getDeviceCode('com.herokuapp.lorem-rss'));
 
     const downloader = new ModuleDownloader(mockPlatform, mockClient, mockEngine.schemas);
-    const module = new (Modules['org.thingpedia.rss'])('com.herokuapp.lorem-rss', metadata, downloader);
+    const module = new (Modules['org.thingpedia.rss'])('com.herokuapp.lorem-rss', metadata, {}, downloader);
 
     assert.strictEqual(module.id, 'com.herokuapp.lorem-rss');
     assert.strictEqual(module.version, 1);
@@ -82,7 +82,7 @@ async function testBasic() {
                     finished = true;
                 }
             } catch(e) {
-                reject(e); 
+                reject(e);
             }
         });
         stream.on('end', () => {
@@ -114,7 +114,7 @@ async function testBroken() {
     for (let err of ['hasaction', 'nosubscribe']) {
         const metadata = toClassDef(await mockClient.getDeviceCode('com.herokuapp.lorem-rss.broken.' + err));
         const module = new (Modules['org.thingpedia.rss'])('com.herokuapp.lorem-rss.broken.' + err,
-            metadata, downloader);
+            metadata, {}, downloader);
 
         // assert that we cannot actually load this device
         await assert.rejects(() => module.getDeviceClass(), ImplementationError);

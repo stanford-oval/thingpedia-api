@@ -19,22 +19,22 @@
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
 
-import V2 from './v2';
+import V2Loader from './v2';
 
-import GenericRestModule from './generic';
-import RSSModule from './rss_factory';
-import BuiltinModule from './builtin';
-import UnsupportedBuiltinModule from './unsupported_builtin';
-import ProxyModule from './proxy';
+import GenericRestLoader from './generic';
+import RSSLoader from './rss';
+import BuiltinLoader from './builtin';
+import UnsupportedBuiltinLoader from './unsupported_builtin';
+import ProxyLoader from './proxy';
 
 const modules = {
-    'org.thingpedia.builtin': BuiltinModule,
-    'org.thingpedia.builtin.unsupported': UnsupportedBuiltinModule,
+    'org.thingpedia.builtin': BuiltinLoader,
+    'org.thingpedia.builtin.unsupported': UnsupportedBuiltinLoader,
 
-    'org.thingpedia.v2': V2,
-    'org.thingpedia.rss': RSSModule,
-    'org.thingpedia.generic_rest.v1': GenericRestModule,
+    'org.thingpedia.v2': V2Loader,
+    'org.thingpedia.rss': RSSLoader,
+    'org.thingpedia.generic_rest.v1': GenericRestLoader,
 
-    'org.thingpedia.proxied': ProxyModule,
+    'org.thingpedia.proxied': ProxyLoader,
 };
 export default modules;

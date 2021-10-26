@@ -25,12 +25,14 @@ import * as Helpers from '../helpers';
 import Base from './base_generic';
 import { ImplementationError } from '../errors';
 
-export default class GenericRestModule extends Base {
+/**
+ * Loader for devices that use the generic REST interface.
+ */
+export default class GenericRestLoader extends Base {
     protected _loadModule() {
         super._loadModule();
 
-        for (const action in this._manifest.actions) {
-            const fndef = this._manifest.actions[action];
+        for (const [action, fndef] of this._iterateFunctions(this._manifest, 'actions')) {
             const baseurl = fndef.getImplementationAnnotation<string>('url')!;
             const method =  fndef.getImplementationAnnotation<string>('method') || 'POST';
 
@@ -43,8 +45,7 @@ export default class GenericRestModule extends Base {
             };
         }
 
-        for (const query in this._manifest.queries) {
-            const fndef = this._manifest.queries[query];
+        for (const [query, fndef] of this._iterateFunctions(this._manifest, 'queries')) {
             const pollInterval = Utils.getPollInterval(fndef);
             const baseurl = fndef.getImplementationAnnotation<string>('url')!;
             const method =  fndef.getImplementationAnnotation<string>('method') || 'GET';

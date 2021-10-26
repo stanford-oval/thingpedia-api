@@ -71,6 +71,8 @@ class MockClient extends BaseClient {
         case 'org.thingpedia.test.databasequery':
         case 'org.thingpedia.test.translatable':
         case 'org.thingpedia.test.proxied':
+        case 'org.thingpedia.test.subclass':
+        case 'org.thingpedia.test.parentclass':
         case 'org.thingpedia.test.broken':
         case 'org.thingpedia.test.broken.noquery':
         case 'org.thingpedia.test.broken.noaction':
@@ -95,6 +97,10 @@ class MockClient extends BaseClient {
             // quiet eslint
             return null;
         }
+    }
+
+    async getSchemas(kinds) {
+        return (await Promise.all(kinds.map((k) => this.getDeviceCode(k)))).join('\n');
     }
 
     async *invokeQuery(kind, uniqueId, name, params, hints) {

@@ -70,4 +70,4 @@ export interface Button {
 
 export type FormattedObject = (RDL | SoundEffect | Media | Text | Button) & {
     toLocaleString(locale : string) : string;
-}
+};

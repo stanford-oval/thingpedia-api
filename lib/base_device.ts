@@ -573,7 +573,7 @@ export type Device = BaseDevice & {
      * the query name.
      */
     [action in `do_${string}`] : (params : Record<string, any>, hints : ThingTalk.Runtime.CompiledQueryHints, env : ThingTalk.ExecEnvironment) => Promise<Record<string, any>>|Record<string, any>|void;
-}
+};
 
 /**
  * The type of a class object (constructor function) defined for a Thingpedia device.

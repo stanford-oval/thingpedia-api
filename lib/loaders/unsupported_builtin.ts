@@ -27,18 +27,19 @@ import BaseDevice from '../base_device';
 import type BaseEngine from '../base_engine';
 import type ModuleDownloader from '../downloader';
 
-export default class UnsupportedBuiltinModule {
-    private _id : string;
-    private _manifest : ThingTalk.Ast.ClassDef;
+import BaseLoader from './base';
+
+/**
+ * Loader for device classes that should be builtin but are
+ * not available.
+ */
+export default class UnsupportedBuiltinModule extends BaseLoader {
     private _loaded : BaseDevice.DeviceClass<BaseDevice>;
 
-    constructor(id : string,
-                manifest : ThingTalk.Ast.ClassDef,
-                loader : ModuleDownloader) {
+    constructor(kind : string, manifest : ThingTalk.Ast.ClassDef, parents : Record<string, ThingTalk.Ast.ClassDef>, loader : ModuleDownloader) {
         // version does not matter for builtin modules
         manifest.annotations.version = new ThingTalk.Ast.Value.Number(0);
-        this._id = id;
-        this._manifest = manifest;
+        super(kind, manifest, parents);
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         this._loaded = class UnsupportedDevice extends BaseDevice {
@@ -53,31 +54,21 @@ export default class UnsupportedBuiltinModule {
             }
         };
 
-        for (const action in manifest.actions) {
-            (this._loaded.prototype as any)['do_' + action] = function() {
+        for (const [action,] of this._iterateFunctions(this._manifest, 'actions')) {
+            this._loaded.prototype['do_' + action] = function() {
                 throw new UnsupportedError();
             };
         }
-        for (const query in manifest.queries) {
-            (this._loaded.prototype as any)['get_' + query] = function() {
+        for (const [query,] of this._iterateFunctions(this._manifest, 'queries')) {
+            this._loaded.prototype['get_' + query] = function() {
                 throw new UnsupportedError();
             };
-            (this._loaded.prototype as any)['subscribe_' + query] = function() {
+            this._loaded.prototype['subscribe_' + query] = function() {
                 throw new UnsupportedError();
             };
         }
 
         this._loaded.metadata = makeBaseDeviceMetadata(manifest);
-    }
-
-    get id() {
-        return this._id;
-    }
-    get manifest() {
-        return this._manifest;
-    }
-    get version() {
-        return this._manifest.getImplementationAnnotation<number>('version')!;
     }
 
     clearCache() {

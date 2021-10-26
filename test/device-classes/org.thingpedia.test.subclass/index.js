@@ -1,4 +1,4 @@
-// -*- mode: typescript; indent-tabs-mode: nil; js-basic-offset: 4 -*-
+// -*- mode: js; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
 // This file is part of Thingpedia
 //
@@ -18,11 +18,10 @@
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
-import BaseOnDiskJavascriptLoader from './base_ondisk_js';
+import * as Tp from 'thingpedia';
 
-/**
- * Loader for Thingpedia devices that use the v2 format
- * (which is the normal format).
- */
-export default class V2Loader extends BaseOnDiskJavascriptLoader {
+export default class SubclassDevice extends Tp.BaseDevice {
+    get_something() {
+        return [{ v1: 'foo', v2: 42 }];
+    }
 }

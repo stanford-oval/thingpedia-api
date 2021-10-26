@@ -25,12 +25,13 @@ import * as tmp from 'tmp';
 import * as util from 'util';
 import * as Module from 'module';
 
-import BaseJavascriptModule from './base_js';
 import * as Helpers from '../helpers';
 import * as I18n from '../i18n';
 import BasePlatform from '../base_platform';
 import ModuleDownloader from '../downloader';
 import BaseDevice from '../base_device';
+
+import BaseJavascriptLoader from './base_js';
 
 function resolve(mainModule : string) {
     if (process.platform !== 'win32' && !mainModule.startsWith('/'))
@@ -58,14 +59,19 @@ function clearRequireCache(mainModule : string) {
     }
 }
 
-// base class of all JS modules loaded from Thingpedia and cached on disk
-// this differs from BaseJavascriptModule because the latter covers BuiltinModules too
-export default class BaseOnDiskJavascriptModule extends BaseJavascriptModule {
+/**
+ * Base class of all loaders that retrieve JS code on-demand from a
+ * Thingpedia server and cache it on disk.
+ *
+ * This differs from {@link BaseJavascriptLoader} because the latter covers
+ * {@link BuiltinLoader} too.
+ */
+export default class BaseOnDiskJavascriptLoader extends BaseJavascriptLoader {
     private _platform : BasePlatform;
     private _cacheDir : string;
 
-    constructor(id : string, manifest : ThingTalk.Ast.ClassDef, loader : ModuleDownloader) {
-        super(id, manifest, loader);
+    constructor(kind : string, manifest : ThingTalk.Ast.ClassDef, parents : Record<string, ThingTalk.Ast.ClassDef>, loader : ModuleDownloader) {
+        super(kind, manifest, parents, loader);
 
         this._platform = loader.platform;
         this._cacheDir = loader.platform.getCacheDir() + '/device-classes';
@@ -119,10 +125,10 @@ export default class BaseOnDiskJavascriptModule extends BaseJavascriptModule {
         } else {
             deviceClass.gettext = {
                 gettext(x : string) {
-                    return x; 
+                    return x;
                 },
                 ngettext(x1 : string, xn : string, n : number) {
-                    return n === 1 ? x1 : xn; 
+                    return n === 1 ? x1 : xn;
                 },
             };
         }
@@ -174,7 +180,7 @@ export default class BaseOnDiskJavascriptModule extends BaseJavascriptModule {
             });
             try {
                 fs.mkdirSync(this._modulePath);
-            } catch(e) {
+            } catch(e : any) {
                 if (e.code !== 'EEXIST')
                     throw e;
             }

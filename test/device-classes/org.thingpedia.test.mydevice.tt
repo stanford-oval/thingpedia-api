@@ -12,6 +12,10 @@ class @org.thingpedia.test.mydevice
                                    out v2: Number)
   #[poll_interval=1000ms];
 
+  monitorable query something_async_iterable(out v1: String,
+                                             out v2: Number)
+  #[poll_interval=1000ms];
+
   query something_nomonitor(out v1: String,
                             out v2: Number);
 

@@ -29,17 +29,17 @@ import ModuleDownloader from '../downloader';
 import Base from './base_generic';
 
 /**
- * A loader module that proxies all ThingTalk function calls through the
+ * A loader that creates a device class proxying all ThingTalk function calls through the
  * Thingpedia API.
  *
  * This is used when a Thingpedia skill is unavailable locally due to missing
  * API keys.
  */
-export default class ProxyModule extends Base {
+export default class ProxyLoader extends Base {
     private _tpClient : BaseClient;
 
-    constructor(id : string, manifest : ThingTalk.Ast.ClassDef, loader : ModuleDownloader) {
-        super(id, manifest);
+    constructor(kind : string, manifest : ThingTalk.Ast.ClassDef, parents : Record<string, ThingTalk.Ast.ClassDef>, loader : ModuleDownloader) {
+        super(kind, manifest, parents);
 
         this._tpClient = loader.client;
     }
@@ -48,15 +48,14 @@ export default class ProxyModule extends Base {
         super._loadModule();
 
         const tpClient = this._tpClient;
-        for (const action in this._manifest.actions) {
+        for (const [action,] of this._iterateFunctions(this._manifest, 'actions')) {
             this._loaded!.prototype['do_' + action] = function(params : Record<string, unknown>) {
                 // actions cannot be proxied
                 throw new UnsupportedError();
             };
         }
 
-        for (const query in this._manifest.queries) {
-            const fndef = this._manifest.queries[query];
+        for (const [query, fndef] of this._iterateFunctions(this._manifest, 'queries')) {
             const pollInterval = Utils.getPollInterval(fndef);
 
             this._loaded!.prototype['get_' + query] = function(params : Record<string, unknown>, hints : ThingTalk.Runtime.CompiledQueryHints, env : ThingTalk.ExecEnvironment) {
