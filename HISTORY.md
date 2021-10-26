@@ -1,3 +1,12 @@
+2.10.0-alpha.4
+==============
+
+* Fix monitoring of classes that use abstract interfaces, and classes
+  that use async-iterable queries [#203].
+* Added support for translated manifests in developer directories [#203].
+* Removed translation support for builtins. Builtins should be translated
+  ahead of time by the app code [#203].
+
 2.10.0-alpha.3
 ==============
 
