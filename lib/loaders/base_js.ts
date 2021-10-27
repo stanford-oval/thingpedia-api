@@ -160,11 +160,11 @@ export default abstract class BaseJavascriptLoader extends BaseLoader {
             deviceClass.prototype['get_' + query] = safeWrapQuery(deviceClass.prototype['get_' + query], query);
             if (!deviceClass.prototype['subscribe_' + query]) {
                 if (pollInterval > 0) {
-                    deviceClass.prototype['subscribe_' + query] = function(params : any, state : any, hints : any) {
-                        return new Helpers.PollingStream(state, pollInterval, () => this['get_' + query](params, hints));
+                    deviceClass.prototype['subscribe_' + query] = function(params : Record<string, unknown>, state : any, hints : ThingTalk.Runtime.CompiledQueryHints, env : ThingTalk.ExecEnvironment) {
+                        return new Helpers.PollingStream(state, pollInterval, () => this['get_' + query](params, hints, env));
                     };
                 } else if (pollInterval < 0) {
-                    deviceClass.prototype['subscribe_' + query] = function(params : any, state : any, hints : any) {
+                    deviceClass.prototype['subscribe_' + query] = function(params : Record<string, unknown>, state : any, hints : ThingTalk.Runtime.CompiledQueryHints, env : ThingTalk.ExecEnvironment) {
                         throw new Error('This query is non-deterministic and cannot be monitored');
                     };
                 }
