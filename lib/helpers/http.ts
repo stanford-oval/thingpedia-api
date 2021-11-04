@@ -39,6 +39,8 @@ function getModule(parsed : http.ClientRequestArgs) {
         return http;
 }
 
+const DEFAULT_TIMEOUT = 30000; // 30 seconds
+
 export interface HTTPRequestOptions {
     dataContentType ?: string;
     auth ?: string;
@@ -51,6 +53,7 @@ export interface HTTPRequestOptions {
     followRedirects ?: boolean;
     raw ?: boolean;
     debug ?: boolean;
+    timeout ?: number;
 }
 
 export class HTTPError extends Error {
@@ -120,6 +123,7 @@ function httpRequestStream<UploadStreamT extends boolean, DownloadStreamT extend
         Object.assign(parsed.headers, options.extraHeaders);
     if (options.debug === undefined)
         options.debug = true;
+    parsed.timeout = options.timeout ?? DEFAULT_TIMEOUT;
 
     const ignoreErrors = !!options.ignoreErrors;
 
@@ -198,6 +202,9 @@ function httpRequestStream<UploadStreamT extends boolean, DownloadStreamT extend
                     });
                 }
             }
+        });
+        req.on('timeout', () => {
+            req.destroy();
         });
         req.on('error', (err) => {
             errback(err);
