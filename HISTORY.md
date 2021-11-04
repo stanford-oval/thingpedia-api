@@ -1,3 +1,9 @@
+2.10.0-alpha.5
+==============
+
+* Added a timeout to HTTP requests [#207].
+* Fixed signature of polling functions [#204].
+
 2.10.0-alpha.4
 ==============
 
