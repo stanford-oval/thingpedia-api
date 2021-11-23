@@ -93,7 +93,7 @@ export default class FilePreferences extends Preferences {
     flush() : Promise<void> {
         if (!this._dirty)
             return Promise.resolve();
-        return util.promisify(fs.writeFile)(this._file, JSON.stringify(this._prefs));
+        return util.promisify(fs.writeFile)(this._file, JSON.stringify(this._prefs, undefined, 2));
     }
 
     saveCopy(to : string) : Promise<void> {
