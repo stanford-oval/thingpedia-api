@@ -34,6 +34,7 @@ const _fileClient = new FileClient({
     thingpedia: path.resolve(path.dirname(module.filename), './data/thingpedia.tt'),
     entities: path.resolve(path.dirname(module.filename), './data/entities.json'),
     dataset: path.resolve(path.dirname(module.filename), './data/dataset.tt'),
+    parameter_datasets: path.resolve(path.dirname(module.filename), './developer-dir/parameter-datasets.tsv'),
 });
 const _schemaRetriever = new ThingTalk.SchemaRetriever(_fileClient, null, true);
 
@@ -199,6 +200,32 @@ async function testSearchDevices() {
     }]);
 }
 
+async function testLookupEntity() {
+    const entity = await _fileClient.lookupEntity('com.example:my_entity', 'alice');
+
+    assert.deepStrictEqual(entity, {
+        data: [
+            {
+                name: "Entity Alice",
+                value: "1",
+                canonical: "entity alice",
+                type: 'com.example:my_entity'
+            },
+            {
+                name: "Entity Bob",
+                value: "2",
+                canonical: "entity bob",
+                type: 'com.example:my_entity'
+            }
+        ],
+        meta: {
+            has_ner_support: true,
+            is_well_known: false,
+            name: 'com.example:my_entity'
+        }
+    });
+}
+
 async function main() {
     await testGetDeviceCode();
     await testGetSchemas(false);
@@ -209,6 +236,8 @@ async function main() {
 
     await testGetDeviceList();
     await testSearchDevices();
+
+    await testLookupEntity();
 }
 
 export default main;
