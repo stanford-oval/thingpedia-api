@@ -32,6 +32,7 @@ import * as Helpers from './helpers';
 import BaseClient from './base_client';
 import BasePlatform from './base_platform';
 import { makeDeviceFactory } from './device_factory_utils';
+import FileParameterProvider from './file_parameter_provider';
 
 const DEFAULT_THINGPEDIA_URL = 'https://thingpedia.stanford.edu/thingpedia';
 
@@ -56,6 +57,7 @@ interface APIQueryParams {
 export default class HttpClient extends BaseClient {
     platform : BasePlatform;
     private _url : string;
+    private _localEntityProvider : Promise<FileParameterProvider|null>|null;
 
     /**
      * Construct a new HttpClient.
@@ -67,6 +69,7 @@ export default class HttpClient extends BaseClient {
         super();
         this.platform = platform;
         this._url = url + '/api/v3';
+        this._localEntityProvider = null;
     }
 
     /**
@@ -492,9 +495,60 @@ export default class HttpClient extends BaseClient {
             { method: 'POST' });
     }
 
-    lookupEntity(entityType : string, searchTerm : string) : Promise<BaseClient.EntityLookupResult> {
-        return this._simpleRequest('/entities/lookup/' + encodeURIComponent(entityType),
-            { q: searchTerm }, 'application/json', { extractData: false });
+    private _getLocalEntityProvider() {
+        if (this._localEntityProvider)
+            return this._localEntityProvider;
+        return this._localEntityProvider = this._doGetLocalEntityProvider();
+    }
+
+    private async _getParameterDatasetsFile() {
+        const developerDirs = this._getDeveloperDirs();
+
+        if (!developerDirs)
+            return null;
+
+        // for each developer directory, search in the same directory
+        // and in the parent directory
+        // this covers the normal case where it's in the same directory,
+        // and the thingpedia-common-devices case
+        for (const d of developerDirs) {
+            let localPath = path.resolve(d, 'parameter-datasets.tsv');
+            if (await util.promisify(fs.exists)(localPath))
+                return localPath;
+            localPath = path.resolve(d, '../parameter-datasets.tsv');
+            if (await util.promisify(fs.exists)(localPath))
+                return localPath;
+        }
+
+        return null;
+    }
+
+    private async _doGetLocalEntityProvider() {
+        const filename = await this._getParameterDatasetsFile();
+        if (!filename)
+            return null;
+        const provider = new FileParameterProvider(filename, this.platform.locale);
+        await provider.load();
+        return provider;
+    }
+
+    async lookupEntity(entityType : string, searchTerm : string) : Promise<BaseClient.EntityLookupResult> {
+        const localProvider = await this._getLocalEntityProvider();
+        if (localProvider) {
+            // ignore search term, return everything
+            const result = await localProvider.lookupEntity(entityType, searchTerm);
+            if (result.length > 0)
+                return { data: result, meta: { name: entityType, is_well_known: false, has_ner_support: true } };
+        }
+
+        try {
+            return await this._simpleRequest('/entities/lookup/' + encodeURIComponent(entityType),
+                { q: searchTerm }, 'application/json', { extractData: false });
+        } catch(e) {
+            if (e.code !== 404)
+                throw e;
+            return { data: [], meta: { name: entityType, is_well_known: false, has_ner_support: false } };
+        }
     }
 
     lookupLocation(searchTerm : string, around ?: {

@@ -1,0 +1,15 @@
+{
+    "result": "ok",
+    "data": [
+        {
+            "name": "Entity Alice",
+            "value": "1",
+            "canonical": "entity alice"
+        },
+        {
+            "name": "Entity Bob",
+            "value": "2",
+            "canonical": "entity bob"
+        }
+    ]
+}

@@ -31,6 +31,7 @@ import { getCategory } from './compat';
 import { makeDeviceFactory } from './device_factory_utils';
 
 import BaseClient from './base_client';
+import FileParameterProvider from './file_parameter_provider';
 
 // who to contact to resolve locations and entities
 const THINGPEDIA_URL = 'https://thingpedia.stanford.edu/thingpedia/api/v3';
@@ -57,6 +58,7 @@ export default class FileClient extends BaseClient {
     private _entityfilename : string|undefined;
     private _datasetfilename : string|undefined;
     private _loaded : Promise<void>|null;
+    private _entityProvider : FileParameterProvider|null;
 
     /**
      * Construct a new FileClient.
@@ -72,6 +74,7 @@ export default class FileClient extends BaseClient {
         locale : string;
         entities ?: string;
         dataset ?: string;
+        parameter_datasets ?: string;
     }) {
         super();
         this._locale = args.locale;
@@ -84,6 +87,10 @@ export default class FileClient extends BaseClient {
         this._thingpediafilename = args.thingpedia;
         this._entityfilename = args.entities;
         this._datasetfilename = args.dataset;
+
+        this._entityProvider = null;
+        if (args.parameter_datasets)
+            this._entityProvider = new FileParameterProvider(args.parameter_datasets, args.locale);
         this._loaded = null;
     }
 
@@ -148,6 +155,9 @@ export default class FileClient extends BaseClient {
                 }
             }
         }
+
+        if (this._entityProvider)
+            await this._entityProvider.load();
     }
 
     private _ensureLoaded() {
@@ -323,7 +333,13 @@ export default class FileClient extends BaseClient {
             return parsed;
     }
 
-    lookupEntity(entityType : string, searchTerm : string) : Promise<BaseClient.EntityLookupResult> {
+    async lookupEntity(entityType : string, searchTerm : string) : Promise<BaseClient.EntityLookupResult> {
+        if (this._entityProvider) {
+            const result = await this._entityProvider.lookupEntity(entityType, searchTerm);
+            if (result.length > 0)
+                return { data: result, meta: { name: entityType, is_well_known: false, has_ner_support: true } };
+        }
+
         return this._httpRequest('/entities/lookup/' + encodeURIComponent(entityType),
             { q: searchTerm }, 'application/json', { extractData: false });
     }

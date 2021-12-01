@@ -472,6 +472,46 @@ async function testGetExamples() {
     }
 }
 
+
+async function testLookupEntity() {
+    const entity = await _localDeveloperHttpClient.lookupEntity('com.example:my_entity', 'alice');
+
+    assert.deepStrictEqual(entity, {
+        data: [
+            {
+                name: "Entity Alice",
+                value: "1",
+                canonical: "entity alice",
+                type: 'com.example:my_entity'
+            }
+        ],
+        meta: {
+            has_ner_support: true,
+            is_well_known: false,
+            name: 'com.example:my_entity'
+        }
+    });
+
+    const entity2 = await _localDeveloperHttpClient.lookupEntity('com.yelp:restaurant_cuisine', 'italian');
+
+    assert.deepStrictEqual(entity2, {
+        data: [
+            {
+                name: "Italian",
+                value: "italian",
+                canonical: "italian",
+                type: 'com.yelp:restaurant_cuisine'
+            }
+        ],
+        meta: {
+            has_ner_support: 1,
+            is_well_known: 0,
+            name: 'Cuisines in Yelp'
+        },
+        result: 'ok'
+    });
+}
+
 async function testLookupLocation() {
     const data = await _httpClient.lookupLocation('seattle');
     console.log(data);
@@ -619,6 +659,7 @@ async function main() {
     await testGetExamples();
 
     await testLookupLocation();
+    await testLookupEntity();
 
     await testGetEntities();
 

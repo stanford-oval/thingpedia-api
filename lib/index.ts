@@ -31,6 +31,7 @@ import DialogueHandler from './dialogue-handler';
 import * as FormatObjects from './format_objects';
 
 import * as ThingTalk from 'thingtalk';
+import FileParameterProvider from './file_parameter_provider';
 
 /**
  * Versioning information for the library.
@@ -143,6 +144,7 @@ export {
     FileClient,
     DeviceFactory,
     DeviceConfigUtils,
+    FileParameterProvider,
 
     // expose errors
     ImplementationError,
