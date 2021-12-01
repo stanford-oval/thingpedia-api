@@ -20,6 +20,7 @@
 
 import assert from 'assert';
 import * as path from 'path';
+import * as seedrandom from 'seedrandom';
 
 import FileParameterProvider from "../lib/file_parameter_provider";
 
@@ -61,12 +62,96 @@ async function testBasic() {
             weight: 1.0
         }
     ]);
+
+    assert.deepStrictEqual(await provider.get('string', 'com.example:my_entity'), []);
+}
+
+async function testSample() {
+    const rng = seedrandom.alea('almond is awesome');
+
+    const sequential = await provider.getSampler('string', 'com.example:my_string', FileParameterProvider.SampleMode.SEQUENTIAL);
+    assert.deepStrictEqual(sequential.size, 4);
+    assert.deepStrictEqual(await sequential.sample(rng), {
+        preprocessed: 'aaaa',
+        value: 'Aaaa',
+        weight: 1.0
+    });
+    assert.deepStrictEqual(await sequential.sample(rng), {
+        preprocessed: 'bbbb',
+        value: 'bbbb',
+        weight: 5.0
+    });
+
+    const uniform = await provider.getSampler('string', 'com.example:my_string', FileParameterProvider.SampleMode.UNIFORM);
+    assert.deepStrictEqual(uniform.size, 4);
+    assert.deepStrictEqual(await uniform.sample(rng), {
+        preprocessed: 'cccc',
+        value: 'CCcc',
+        weight: 1.0
+    });
+    assert.deepStrictEqual(await uniform.sample(rng), {
+        preprocessed: 'dddd',
+        value: 'DDDD',
+        weight: 1.0
+    });
+
+    const weighted = await provider.getSampler('string', 'com.example:my_string', FileParameterProvider.SampleMode.WEIGHTED);
+    assert.deepStrictEqual(weighted.size, 4);
+    for (let i = 0; i < 7; i++) {
+        assert.deepStrictEqual(await weighted.sample(rng), {
+            preprocessed: 'bbbb',
+            value: 'bbbb',
+            weight: 5.0
+        });
+    }
+    assert.deepStrictEqual(await weighted.sample(rng), {
+        preprocessed: 'aaaa',
+        value: 'Aaaa',
+        weight: 1.0
+    });
+}
+
+async function testSampleEntity() {
+    const rng = seedrandom.alea('almond is awesome');
+
+    const sequential = await provider.getSampler('entity', 'com.example:my_entity', FileParameterProvider.SampleMode.SEQUENTIAL);
+    assert.deepStrictEqual(sequential.size, 2);
+    assert.deepStrictEqual(await sequential.sample(rng), {
+        preprocessed: 'entity alice',
+        value: '1',
+        weight: 1.0
+    });
+    assert.deepStrictEqual(await sequential.sample(rng), {
+        preprocessed: 'entity bob',
+        value: '2',
+        weight: 1.0
+    });
+
+    const uniform = await provider.getSampler('entity', 'com.example:my_entity', FileParameterProvider.SampleMode.UNIFORM);
+    assert.deepStrictEqual(uniform.size, 2);
+    assert.deepStrictEqual(await uniform.sample(rng), {
+        preprocessed: 'entity bob',
+        value: '2',
+        weight: 1.0
+    });
+    assert.deepStrictEqual(await uniform.sample(rng), {
+        preprocessed: 'entity bob',
+        value: '2',
+        weight: 1.0
+    });
+    assert.deepStrictEqual(await uniform.sample(rng), {
+        preprocessed: 'entity alice',
+        value: '1',
+        weight: 1.0
+    });
 }
 
 async function main() {
     await provider.load();
 
     await testBasic();
+    await testSample();
+    await testSampleEntity();
 }
 export default main;
 if (!module.parent)

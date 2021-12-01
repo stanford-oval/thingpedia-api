@@ -66,6 +66,28 @@ async function dbAll(db : sqlite3.Database, query : string, ...args : unknown[])
     });
 }
 
+async function dbGet(db : sqlite3.Database, query : string, ...args : unknown[]) {
+    return new Promise<any>((resolve, reject) => {
+        db.get(query, ...args, (err : Error|null, rows : any[]) => {
+            if (err)
+                reject(err);
+            else
+                resolve(rows);
+        });
+    });
+}
+
+async function stmtGet(stmt : sqlite3.Statement, ...args : unknown[]) {
+    return new Promise<any>((resolve, reject) => {
+        stmt.get(...args, (err : Error|null, rows : any[]) => {
+            if (err)
+                reject(err);
+            else
+                resolve(rows);
+        });
+    });
+}
+
 /**
  * Load strings and entities from files.
  *
@@ -248,6 +270,18 @@ class FileParameterProvider {
             throw new TypeError(`Unexpected value list type ${valueListType}`);
         }
     }
+
+    async getSampler(valueListType : 'string'|'entity', valueListName : string, mode : FileParameterProvider.SampleMode) : Promise<FileParameterProvider.Sampler> {
+        let sampler;
+        if (valueListType === 'string' && mode === FileParameterProvider.SampleMode.WEIGHTED)
+            sampler = new WeightedSampler(this._db, this._paramLocale, valueListName);
+        else if (mode === FileParameterProvider.SampleMode.SEQUENTIAL)
+            sampler = new SequentialSampler(this._db, valueListType, this._paramLocale, valueListName);
+        else
+            sampler = new UniformSampler(this._db, valueListType, this._paramLocale, valueListName);
+        await sampler.init();
+        return sampler;
+    }
 }
 namespace FileParameterProvider {
     export interface ParameterRecord {
@@ -255,6 +289,134 @@ namespace FileParameterProvider {
         value : string;
         weight : number;
     }
+
+    export enum SampleMode {
+        SEQUENTIAL,
+        UNIFORM,
+        WEIGHTED,
+    }
+
+    export interface Sampler {
+        get size() : number;
+
+        sample(rng : () => number) : Promise<ParameterRecord>;
+    }
 }
 
 export default FileParameterProvider;
+
+class UniformSampler implements FileParameterProvider.Sampler {
+    private readonly _db : sqlite3.Database;
+    private readonly _table : 'string' | 'entity';
+    private readonly _locale : string;
+    private readonly _type : string;
+    private readonly _stmt : sqlite3.Statement;
+    private _size : number;
+
+    constructor(db : sqlite3.Database, table : 'string'|'entity', locale : string, type : string) {
+        this._db = db;
+        this._table = table;
+        if (table === 'entity') {
+            this._stmt = db.prepare(`select value,canonical as preprocessed,1.0 as weight from entity where locale = ? and type = ?
+                and serial = ?`);
+        } else {
+            this._stmt = db.prepare(`select value,preprocessed,weight from string where locale = ? and type = ?
+                and serial = ?`);
+        }
+        this._locale = locale;
+        this._type = type;
+        this._size = 0;
+    }
+
+    async init() {
+        const row = await dbGet(this._db, `select count(*) as size from ${this._table} where locale = ? and type = ?`,
+            this._locale, this._type);
+        this._size = row.size;
+    }
+
+    get size() {
+        return this._size;
+    }
+
+    async sample(rng : () => number) : Promise<FileParameterProvider.ParameterRecord> {
+        const sampled = Math.floor(this._size * rng());
+        return stmtGet(this._stmt, this._locale, this._type, sampled);
+    }
+}
+
+class SequentialSampler implements FileParameterProvider.Sampler {
+    private readonly _db : sqlite3.Database;
+    private readonly _table : 'string' | 'entity';
+    private readonly _locale : string;
+    private readonly _type : string;
+    private readonly _stmt : sqlite3.Statement;
+    private _size : number;
+    private _index : number;
+
+    constructor(db : sqlite3.Database, table : 'string'|'entity', locale : string, type : string) {
+        this._db = db;
+        this._table = table;
+        if (table === 'entity') {
+            this._stmt = db.prepare(`select value,canonical as preprocessed,1.0 as weight from entity where locale = ? and type = ?
+                and serial = ?`);
+        } else {
+            this._stmt = db.prepare(`select value,preprocessed,weight from string where locale = ? and type = ?
+                and serial = ?`);
+        }
+        this._locale = locale;
+        this._type = type;
+        this._size = 0;
+        this._index = 0;
+    }
+
+    async init() {
+        const row = await dbGet(this._db, `select count(*) as size from ${this._table} where locale = ? and type = ?`,
+            this._locale, this._type);
+        this._size = row.size;
+    }
+
+    get size() {
+        return this._size;
+    }
+
+    async sample(rng : () => number) : Promise<FileParameterProvider.ParameterRecord> {
+        const sampled = this._index;
+        this._index = (this._index + 1) % this._size;
+        return stmtGet(this._stmt, this._locale, this._type, sampled);
+    }
+}
+
+class WeightedSampler implements FileParameterProvider.Sampler {
+    private readonly _db : sqlite3.Database;
+    private readonly _locale : string;
+    private readonly _type : string;
+    private readonly _stmt : sqlite3.Statement;
+    private _size : number;
+    private _cumsumTotal : number;
+
+    constructor(db : sqlite3.Database, locale : string, type : string) {
+        this._db = db;
+        this._stmt = db.prepare(`select value,preprocessed,weight from string where locale = ? and type = ?
+            and weight_cumsum > ? order by weight_cumsum asc limit 1`);
+        this._locale = locale;
+        this._type = type;
+        this._size = 0;
+        this._cumsumTotal = 0;
+    }
+
+    async init() {
+        const row = await dbGet(this._db, `select count(*) as size, max(weight_cumsum) as cumsum_total from string where locale = ? and type = ?`,
+            this._locale, this._type);
+        this._size = row.size;
+        this._cumsumTotal = row.cumsum_total ?? 0;
+    }
+
+    get size() {
+        return this._size;
+    }
+
+    async sample(rng : () => number) : Promise<FileParameterProvider.ParameterRecord> {
+        const sampled = this._cumsumTotal * rng();
+        return stmtGet(this._stmt, this._locale, this._type, sampled);
+    }
+}
