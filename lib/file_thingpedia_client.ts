@@ -58,7 +58,6 @@ export default class FileClient extends BaseClient {
     private _entityfilename : string|undefined;
     private _datasetfilename : string|undefined;
     private _loaded : Promise<void>|null;
-    private _cachedEntities : Map<string, BaseClient.EntityRecord[]>;
     private _entityProvider : FileParameterProvider|null;
 
     /**
@@ -89,7 +88,6 @@ export default class FileClient extends BaseClient {
         this._entityfilename = args.entities;
         this._datasetfilename = args.dataset;
 
-        this._cachedEntities = new Map;
         this._entityProvider = null;
         if (args.parameter_datasets)
             this._entityProvider = new FileParameterProvider(args.parameter_datasets, args.locale);
@@ -336,17 +334,10 @@ export default class FileClient extends BaseClient {
     }
 
     async lookupEntity(entityType : string, searchTerm : string) : Promise<BaseClient.EntityLookupResult> {
-        const cached = this._cachedEntities.get(entityType);
-        if (cached)
-            return { data: cached, meta: { name: entityType, is_well_known: false, has_ner_support: true } };
-
         if (this._entityProvider) {
-            // ignore search term, return everything
-            const result = await this._entityProvider.getEntity(entityType);
-            if (result.length > 0) {
-                this._cachedEntities.set(entityType, result);
+            const result = await this._entityProvider.lookupEntity(entityType, searchTerm);
+            if (result.length > 0)
                 return { data: result, meta: { name: entityType, is_well_known: false, has_ner_support: true } };
-            }
         }
 
         return this._httpRequest('/entities/lookup/' + encodeURIComponent(entityType),

@@ -8,3 +8,4 @@ doc/
 test/snapshot.tt
 testprefs.json
 test.json
+*.sqlite

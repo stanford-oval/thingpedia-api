@@ -210,12 +210,6 @@ async function testLookupEntity() {
                 value: "1",
                 canonical: "entity alice",
                 type: 'com.example:my_entity'
-            },
-            {
-                name: "Entity Bob",
-                value: "2",
-                canonical: "entity bob",
-                type: 'com.example:my_entity'
             }
         ],
         meta: {

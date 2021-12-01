@@ -22,7 +22,7 @@
 import '../lib/index';
 
 process.on('unhandledRejection', (up) => {
-    throw up; 
+    throw up;
 });
 process.env.TEST_MODE = '1';
 
@@ -48,6 +48,7 @@ seq([
     ('./test_refcounted'),
     ('./test_content'),
     ('./test_factory_api'),
+    ('./test_parameter_provider'),
     ('./test_http_client'),
     ('./test_file_client'),
     ('./test_builtin'),

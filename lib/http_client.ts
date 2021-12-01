@@ -57,7 +57,6 @@ interface APIQueryParams {
 export default class HttpClient extends BaseClient {
     platform : BasePlatform;
     private _url : string;
-    private _cachedEntities : Map<string, BaseClient.EntityRecord[]>;
     private _localEntityProvider : Promise<FileParameterProvider|null>|null;
 
     /**
@@ -71,7 +70,6 @@ export default class HttpClient extends BaseClient {
         this.platform = platform;
         this._url = url + '/api/v3';
         this._localEntityProvider = null;
-        this._cachedEntities = new Map;
     }
 
     /**
@@ -535,18 +533,12 @@ export default class HttpClient extends BaseClient {
     }
 
     async lookupEntity(entityType : string, searchTerm : string) : Promise<BaseClient.EntityLookupResult> {
-        const cached = this._cachedEntities.get(entityType);
-        if (cached)
-            return { data: cached, meta: { name: entityType, is_well_known: false, has_ner_support: true } };
-
         const localProvider = await this._getLocalEntityProvider();
         if (localProvider) {
             // ignore search term, return everything
-            const result = await localProvider.getEntity(entityType);
-            if (result.length > 0) {
-                this._cachedEntities.set(entityType, result);
+            const result = await localProvider.lookupEntity(entityType, searchTerm);
+            if (result.length > 0)
                 return { data: result, meta: { name: entityType, is_well_known: false, has_ner_support: true } };
-            }
         }
 
         try {

@@ -1,1 +1,3 @@
 entity	en-US	com.example:my_entity	parameter-datasets/com.example:my_entity.json
+string	en-US	com.example:my_string	parameter-datasets/com.example:my_string.tsv
+string	en-US	com.example:my_string2	parameter-datasets/com.example:my_string2.tsv
