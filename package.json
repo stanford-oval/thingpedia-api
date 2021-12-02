@@ -16,7 +16,7 @@
   "dependencies": {
     "@types/feedparser": "^2.2.4",
     "@types/ip": "^1.1.0",
-    "@types/node": "^16.11.6",
+    "@types/node": "^16.11.11",
     "@types/node-gettext": "^3.0.2",
     "@types/qs": "^6.9.7",
     "@types/xml2js": "^0.4.9",
@@ -24,7 +24,7 @@
     "byline": "^5.0.0",
     "csv-parse": "^4.16.3",
     "feedparser": "^2.2.9",
-    "gettext-parser": "^4.0.2",
+    "gettext-parser": "^4.2.0",
     "ip": "^1.1.0",
     "qs": "^6.9.6",
     "smtlib": "^1.0.0",
@@ -44,7 +44,7 @@
     "doc": "typedoc lib/index.ts"
   },
   "devDependencies": {
-    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/JSONStream": "npm:@types/jsonstream@^0.8.30",
     "@types/byline": "^4.2.33",
     "@types/gettext-parser": "^4.0.1",
@@ -58,11 +58,11 @@
     "nyc": "^15.0.0",
     "pegjs": "^0.10.0",
     "seedrandom": "^3.0.5",
-    "source-map-support": "^0.5.20",
-    "thingtalk": "^2.1.0-alpha.9",
+    "source-map-support": "^0.5.21",
+    "thingtalk": "^2.1.0-alpha.11",
     "tough-cookie": "^4.0.0",
     "ts-node": "^10.4.0",
-    "typedoc": "^0.22.7",
+    "typedoc": "^0.22.10",
     "typescript": "~4.3.5"
   },
   "nyc": {
