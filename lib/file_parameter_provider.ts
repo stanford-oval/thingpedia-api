@@ -260,6 +260,11 @@ class FileParameterProvider {
             and (value = ? or canonical like ?)`, [this._paramLocale, stringType, term, '%' + (term.toLowerCase()) + '%']);
     }
 
+    async getEntity(stringType : string) : Promise<BaseClient.EntityRecord[]> {
+        return dbAll(this._db, `select type,name,value,canonical from entity where locale = ? and type = ?`,
+            [this._paramLocale, stringType]);
+    }
+
     async get(valueListType : 'string'|'entity', valueListName : string) : Promise<FileParameterProvider.ParameterRecord[]> {
         switch (valueListType) {
         case 'string':
