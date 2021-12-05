@@ -68,6 +68,25 @@ export interface Button {
     json : string;
 }
 
-export type FormattedObject = (RDL | SoundEffect | Media | Text | Button) & {
+/**
+ * A button that answers a multiple-choice question.
+ */
+export interface Choice {
+    type : 'choice';
+    title : string;
+    idx : number;
+}
+
+/**
+ * A button that navigates within the assistant app, or
+ * triggers an app action such as configuring a new skill.
+ */
+export interface Link {
+    type : 'link';
+    title : string;
+    url : string;
+}
+
+export type FormattedObject = (RDL | SoundEffect | Media | Text | Button | Choice | Link) & {
     toLocaleString(locale : string) : string;
 };
