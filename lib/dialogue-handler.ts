@@ -130,8 +130,18 @@ export enum Confidence {
     EXACT_IN_DOMAIN_COMMAND,
 
     /**
+     * The dialogue handler is strongly confident (above the normal confidence
+     * level) that the utterance is in-domain, and it
+     * is a direct command that should take over from other dialogue handlers.
+     */
+    STRONLY_CONFIDENT_IN_DOMAIN_COMMAND,
+
+    /**
      * The dialogue handler is confident that the utterance is in-domain, and it
      * is a direct command that should take over from other dialogue handlers.
+     *
+     * This is the normal level of confidence that should be used in case confidence
+     * estimation is not available.
      */
     CONFIDENT_IN_DOMAIN_COMMAND,
 
@@ -151,8 +161,20 @@ export enum Confidence {
     EXACT_IN_DOMAIN_FOLLOWUP,
 
     /**
+     * The dialogue handler is strongly confident (above the normal confidence
+     * level) that the utterance is in-domain, and it is a follow-up to the current
+     * dialogue handler state.
+     *
+     * The utterance will not be dispatched if the dialogue handler is not current.
+     */
+    STRONGLY_CONFIDENT_IN_DOMAIN_FOLLOWUP,
+
+    /**
      * The dialogue handler is confident that the utterance is in-domain, and it
      * is a follow-up to the current dialogue handler state.
+     *
+     * This is the normal level of confidence that should be used in case confidence
+     * estimation is not available, and the utterance is a follow-up.
      *
      * The utterance will not be dispatched if the dialogue handler is not current.
      */
