@@ -1,3 +1,12 @@
+2.10.0-alpha.6
+==============
+
+* Added support for resolving entities from the developer directory [#213].
+* Added sqlite-based caching of parameter datasets [#213].
+* Updated dependencies [#214].
+* Added new confidence level for dialogue handlers, intermediate between
+  exact and normal [#215].
+
 2.10.0-alpha.5
 ==============
 
