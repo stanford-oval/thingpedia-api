@@ -134,7 +134,7 @@ export enum Confidence {
      * level) that the utterance is in-domain, and it
      * is a direct command that should take over from other dialogue handlers.
      */
-    STRONLY_CONFIDENT_IN_DOMAIN_COMMAND,
+    STRONGLY_CONFIDENT_IN_DOMAIN_COMMAND,
 
     /**
      * The dialogue handler is confident that the utterance is in-domain, and it
