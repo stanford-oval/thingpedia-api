@@ -1,3 +1,11 @@
+2.10.0
+======
+
+* Updated dependencies.
+
+Please see the previous releases for the full list of changes in this
+development cycle.
+
 2.10.0-alpha.6
 ==============
 
