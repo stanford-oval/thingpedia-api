@@ -41,6 +41,12 @@ function safeMkdir(dir : string) {
 
 function safeSymlinkSync(from : string, to : string) {
     try {
+        fs.unlinkSync(to);
+    } catch(e : any) {
+        if (e.code !== 'ENOENT')
+            throw e;
+    }
+    try {
         fs.symlinkSync(from, to, 'dir');
     } catch(e : any) {
         if (e.code !== 'EEXIST')
