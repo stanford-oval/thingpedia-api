@@ -161,9 +161,16 @@ class FileParameterProvider {
         for (const [typekey, filename] of this._paths) {
             const [stringOrEntity, locale, type] = typekey.split('+', 3);
 
-            const stat = await pfs.stat(filename);
-            if (stat.mtimeMs <= mtime)
-                continue;
+            try {
+                const stat = await pfs.stat(filename);
+                if (stat.mtimeMs <= mtime)
+                    continue;
+            } catch(e) {
+                if (e.code !== 'ENOENT')
+                    throw e;
+                else
+                    continue;
+            }
 
             console.log(`${stringOrEntity} ${type} (${locale}) is newer than sqlite db, updating`);
 
