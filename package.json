@@ -24,7 +24,7 @@
     "byline": "^5.0.0",
     "csv-parse": "^4.16.3",
     "feedparser": "^2.2.9",
-    "gettext-parser": "^4.2.0",
+    "gettext-parser": "^5.1.1",
     "ip": "^1.1.0",
     "qs": "^6.10.2",
     "smtlib": "^1.0.0",
