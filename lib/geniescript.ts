@@ -3,28 +3,35 @@ import CommandAnalysisResult = DialogueHandler.CommandAnalysisResult;
 import ReplyResult = DialogueHandler.ReplyResult;
 import { Type } from "thingtalk";
 
+interface GeniescriptAnalysisResult extends DialogueHandler.CommandAnalysisResult {
+    confident : DialogueHandler.Confidence;
+    user_target : string;
+    utterance : string;
+    branch : string;
+}
+
 interface LogicParameter {
     type : LogicParameterType;
-    content : string;
+    content : string | GeniescriptAnalysisResult | DialogueHandler.CommandAnalysisResult;
 }
 
 enum LogicParameterType {
-    UTTERANCE = "utterance",
-    ANALYZED = "analyzed",
+    ANALYZE_COMMAND = "AnalyzeCommand",
+    GET_REPLY = "getReply",
 }
 
-export abstract class AbstractGeniescriptHandler<AnalysisType extends DialogueHandler.CommandAnalysisResult> implements DialogueHandler<AnalysisType, string> {
-    private _logic : AsyncGenerator<CommandAnalysisResult | ReplyResult> | null;
+type GeniescriptLogic = AsyncGenerator<CommandAnalysisResult | ReplyResult | null, any, LogicParameter>;
 
-    protected constructor() {
+// TODO: rename this Agent
+export class AbstractGeniescriptHandler implements DialogueHandler<GeniescriptAnalysisResult, string> {
+    private _logic : GeniescriptLogic | null;
+
+    protected constructor(public priority = DialogueHandler.Priority.PRIMARY, public icon : string | null = null) {
         console.log("AbstractGeniescriptHandler constructor");
         this._logic = null;
         if (this.constructor === AbstractGeniescriptHandler)
             throw new Error("Abstract classes can't be instantiated.");
     }
-
-    priority = DialogueHandler.Priority.PRIMARY;
-    icon = null;
 
     getState() : string {
         // TODO: Implementation serialization
@@ -43,26 +50,30 @@ export abstract class AbstractGeniescriptHandler<AnalysisType extends DialogueHa
         return null;
     }
 
-    async analyzeCommand(utterance : string) : Promise<AnalysisType> {
+    async analyzeCommand(utterance : string) : Promise<GeniescriptAnalysisResult> {
         console.log("AbstractGeniescriptHandler analyzeCommand");
-        const result = await this._logic!.next({ type: LogicParameterType.UTTERANCE, content: utterance });
+        const result = await this._logic!.next({ type: LogicParameterType.ANALYZE_COMMAND, content: utterance });
         console.log(result.value);
         return result.value;
     }
 
-    async getReply(analyzed : AnalysisType) : Promise<DialogueHandler.ReplyResult> {
-        const result0 = this._logic!.next({ type: LogicParameterType.ANALYZED, content: analyzed });
+    async getReply(analyzed : GeniescriptAnalysisResult | DialogueHandler.CommandAnalysisResult) : Promise<DialogueHandler.ReplyResult> {
+        const result0 = this._logic!.next({ type: LogicParameterType.GET_REPLY, content: analyzed });
         const result = await result0;
         return result.value;
     }
 
-    abstract logic() : AsyncGenerator<CommandAnalysisResult | ReplyResult, LogicParameter>;
+    // TODO: call this main
+    async *logic() : GeniescriptLogic {
+        yield null;
+        return null;
+    }
 }
 
 export class GeniescriptDlg {
     private readonly _user_target : string;
     private readonly _skill_name : string;
-    private _last_result : CommandAnalysisResult | ReplyResult | null;
+    private _last_result : GeniescriptAnalysisResult | CommandAnalysisResult | ReplyResult | null;
     private _last_branch : string | null;
     private _last_analyzed : string | null;
     private _last_messages : string[];
@@ -85,7 +96,7 @@ export class GeniescriptDlg {
         func_map : Map<string,
             (GeneratorFunction | AsyncGeneratorFunction | (() => Promise<any>)| (() => any))
             >
-    ) : AsyncGenerator<CommandAnalysisResult | ReplyResult | null, LogicParameter, any> {
+    ) : GeniescriptLogic {
         if (this._last_analyzed !== null) {
             this._last_result = {
                 messages: this._last_messages,
@@ -100,27 +111,30 @@ export class GeniescriptDlg {
         }
         while (true) {
             const input = yield this._last_result;
-            if (input.type === "utterance") {
+            if (input.type === LogicParameterType.ANALYZE_COMMAND) {
+                const content = input.content as string;
                 this._last_result = {
                     confident: DialogueHandler.Confidence.OUT_OF_DOMAIN_COMMAND,
-                    utterance: input.content,
+                    utterance: content,
                     user_target: ''
                 };
                 for (const func_key of func_map.keys()) {
                     const regExp = new RegExp(func_key, 'i');
-                    const match = regExp.exec(input.content);
+                    const match = regExp.exec(content);
                     if (match) {
                         this._last_branch = func_key;
                         this._last_result = {
                             confident: DialogueHandler.Confidence.EXACT_IN_DOMAIN_COMMAND,
-                            utterance: input.content,
-                            user_target: this._user_target
+                            utterance: content,
+                            user_target: this._user_target,
+                            branch: func_key
                         };
                         break;
                     }
                 }
-            } else if (input.type === "analyzed") {
-                this._last_analyzed = input.content;
+            } else if (input.type === LogicParameterType.GET_REPLY) {
+                const content = input.content as GeniescriptAnalysisResult;
+                this._last_analyzed = content.user_target;
                 const current_func = func_map.get(this._last_branch!)!;
                 if (current_func.constructor.name === "GeneratorFunction" || current_func.constructor.name === "AsyncGeneratorFunction")
                     return yield* current_func();
@@ -139,4 +153,6 @@ export class GeniescriptDlg {
         this._last_target = target;
         this._last_expecting = expecting;
     }
+
+
 }
