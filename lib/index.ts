@@ -14,7 +14,6 @@ import './string_format';
 import Messaging from './messaging';
 import Preferences from './prefs';
 import BaseDevice, { Availability, Tier } from './base_device';
-import { AbstractGeniescriptHandler, GeniescriptDlg } from "./geniescript";
 import * as Helpers from './helpers';
 import * as ObjectSet from './helpers/object_set';
 import ConfigDelegate from './config_delegate';
@@ -118,8 +117,6 @@ export {
 
     // APIs for implementers of Thingpedia interfaces
     BaseDevice,
-    AbstractGeniescriptHandler,
-    GeniescriptDlg,
     Availability,
     Tier,
 
