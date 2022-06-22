@@ -230,6 +230,8 @@ export interface ReplyResult {
     // used in the conversation logs
     context : string;
     agent_target : string;
+
+    program ?: string|null;
 }
 
 }
