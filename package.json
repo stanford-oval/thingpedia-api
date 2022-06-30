@@ -16,7 +16,7 @@
   "dependencies": {
     "@types/feedparser": "^2.2.5",
     "@types/ip": "^1.1.0",
-    "@types/node": "^16.11.17",
+    "@types/node": "^16.11.41",
     "@types/node-gettext": "^3.0.3",
     "@types/qs": "^6.9.7",
     "@types/xml2js": "^0.4.9",
@@ -34,7 +34,7 @@
     "xml2js": "^0.4.17"
   },
   "peerDependencies": {
-    "thingtalk": "^2.1.0"
+    "thingtalk": "2.1.1"
   },
   "scripts": {
     "lint": "eslint --ext .js,.jsx,.ts,.tsx ./lib ./test",
@@ -59,7 +59,7 @@
     "pegjs": "^0.10.0",
     "seedrandom": "^3.0.5",
     "source-map-support": "^0.5.21",
-    "thingtalk": "^2.1.0",
+    "thingtalk": "2.1.1",
     "tough-cookie": "^4.0.0",
     "ts-node": "^10.4.0",
     "typedoc": "^0.22.10",

@@ -64,12 +64,13 @@ class PollingStream<EventType extends PollingStream.EventResult> extends stream.
     /**
      * Destroy the current stream (stop polling).
      */
-    destroy() : void {
+    destroy() : this {
         if (this._timeout === null)
-            return;
+            return this;
         clearTimeout(this._timeout);
         this._timeout = null;
         this._destroyed = true;
+        return this;
     }
 
     private _nextTick() {
@@ -113,19 +114,19 @@ class PollingStream<EventType extends PollingStream.EventResult> extends stream.
 
 namespace PollingStream {
 
-/**
- * Callback called when polling.
- *
- * The callback should poll the underlying API and return the current results.
- *
- * @return the current list of results
- */
-export type PollCallback<T> = () => Iterable<T>|Promise<Iterable<T>>|AsyncIterable<T>;
+    /**
+     * Callback called when polling.
+     *
+     * The callback should poll the underlying API and return the current results.
+     *
+     * @return the current list of results
+     */
+    export type PollCallback<T> = () => Iterable<T>|Promise<Iterable<T>>|AsyncIterable<T>;
 
-export interface EventResult {
-    __timestamp ?: number;
-    [key : string] : unknown;
-}
+    export interface EventResult {
+        __timestamp ?: number;
+        [key : string] : unknown;
+    }
 
 }
 
