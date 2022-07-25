@@ -232,6 +232,7 @@ export interface ReplyResult {
     agent_target : string;
 
     program ?: string|null;
+    raw_results ?: Array<[string, Record<string, unknown>]>
 }
 
 }
