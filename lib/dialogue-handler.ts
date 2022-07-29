@@ -231,8 +231,10 @@ export interface ReplyResult {
     context : string;
     agent_target : string;
 
+    // used in the mixed-initiative mode
     program ?: string|null;
-    raw_results ?: Array<[string, Record<string, unknown>]>
+    result_type ?: string|null;
+    result_values ?: Array<Record<string, unknown>>;
 }
 
 }
