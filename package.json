@@ -59,7 +59,7 @@
     "pegjs": "^0.10.0",
     "seedrandom": "^3.0.5",
     "source-map-support": "^0.5.21",
-    "thingtalk": "^2.1.0",
+    "thingtalk": "stanford-oval/thingpedia-api#wip/levenshtein",
     "tough-cookie": "^4.0.0",
     "ts-node": "^10.4.0",
     "typedoc": "^0.22.10",
