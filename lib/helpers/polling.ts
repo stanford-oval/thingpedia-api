@@ -64,7 +64,7 @@ class PollingStream<EventType extends PollingStream.EventResult> extends stream.
     /**
      * Destroy the current stream (stop polling).
      */
-    destroy() : void {
+    destroy() : any {
         if (this._timeout === null)
             return;
         clearTimeout(this._timeout);
