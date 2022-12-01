@@ -137,7 +137,7 @@ export default class ModuleDownloader {
                 // keep the old module we had already loaded
                 // this avoids reloading the JS code multiple times
                 // unnecessarily
-                this._moduleRequests.set(id, Promise.resolve(oldModule));
+                this._moduleRequests.set(id, Promise.resolve(newModule));
             } else {
                 // remove any remnant of the old module
                 await oldModule.clearCache();
