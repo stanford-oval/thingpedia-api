@@ -121,7 +121,7 @@ export default class ModuleDownloader {
         return cached;
     }
 
-    async updateModule(id : string) {
+    async updateModule(id : string, force : boolean) {
         let oldModule;
         try {
             oldModule = await this._moduleRequests.get(id);
@@ -130,21 +130,22 @@ export default class ModuleDownloader {
         }
         this._moduleRequests.delete(id);
 
-        // const newModule = await this.getModule(id);
+        const newModule = await this.getModule(id);
 
-        // if (oldModule) {
-        //     if (oldModule.version === newModule.version) {
-        //         // keep the old module we had already loaded
-        //         // this avoids reloading the JS code multiple times
-        //         // unnecessarily
-        //         this._moduleRequests.set(id, Promise.resolve(newModule));
-        //     } else {
-        //         // remove any remnant of the old module
-        //         await oldModule.clearCache();
-        //     }
-        // }
-        if (oldModule)
-            await oldModule.clearCache();
+        if (oldModule) {
+            if (force) {
+                // remove any remnant of the old module
+                await oldModule.clearCache();
+            } else if (oldModule.version === newModule.version) {
+                // keep the old module we had already loaded
+                // this avoids reloading the JS code multiple times
+                // unnecessarily
+                this._moduleRequests.set(id, Promise.resolve(newModule));
+            } else {
+                // remove any remnant of the old module
+                await oldModule.clearCache();
+            }
+        }
     }
 
     getModule(id : string) {
