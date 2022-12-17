@@ -188,7 +188,12 @@ export default class HttpClient extends BaseClient {
         if (ourConfig.in_params.every((v) => !v.value.isUndefined))
             return ourClassDef;
 
-        await this._addConfigFromThingpedia(ourConfig, deviceKind);
+        try {
+            await this._addConfigFromThingpedia(ourConfig, deviceKind);    
+        } catch(error) {
+            console.log("adding remote config failed, disregarding...");
+        }
+
         return ourClassDef;
     }
 
