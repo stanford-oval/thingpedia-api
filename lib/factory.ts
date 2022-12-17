@@ -66,9 +66,10 @@ export default class DeviceFactory {
      * Update the cached device class with the given ID.
      *
      * @param kind - the class identifier to update
+     * @param force - boolean flag to execute the update forcefully
      */
-    updateDeviceClass(kind : string) {
-        return this._downloader.updateModule(kind);
+    updateDeviceClass(kind : string, force : boolean) {
+        return this._downloader.updateModule(kind, force);
     }
 
     /**
