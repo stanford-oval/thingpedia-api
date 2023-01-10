@@ -550,8 +550,7 @@ export default class HttpClient extends BaseClient {
             return await this._simpleRequest('/entities/lookup/' + encodeURIComponent(entityType),
                 { q: searchTerm }, 'application/json', { extractData: false });
         } catch(e) {
-            if (e.code !== 404)
-                throw e;
+            console.log("lookupEntity to remote failed, returning empty list... ");
             return { data: [], meta: { name: entityType, is_well_known: false, has_ner_support: false } };
         }
     }
