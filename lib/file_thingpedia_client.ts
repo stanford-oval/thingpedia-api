@@ -34,7 +34,7 @@ import BaseClient from './base_client';
 import FileParameterProvider from './file_parameter_provider';
 
 // who to contact to resolve locations and entities
-const THINGPEDIA_URL = 'https://thingpedia.stanford.edu/thingpedia/api/v3';
+const THINGPEDIA_URL = 'http://127.0.0.1:8410/v3';
 
 interface APIQueryParams {
     locale ?: string;
