@@ -68,7 +68,7 @@ export default class HttpClient extends BaseClient {
     constructor(platform : BasePlatform, url = DEFAULT_THINGPEDIA_URL) {
         super();
         this.platform = platform;
-        this._url = url + '/api/v3';
+        this._url = DEFAULT_THINGPEDIA_URL + '/v3';
         this._localEntityProvider = null;
     }
 
