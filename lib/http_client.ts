@@ -34,7 +34,7 @@ import BasePlatform from './base_platform';
 import { makeDeviceFactory } from './device_factory_utils';
 import FileParameterProvider from './file_parameter_provider';
 
-const DEFAULT_THINGPEDIA_URL = 'https://thingpedia.stanford.edu/thingpedia';
+const DEFAULT_THINGPEDIA_URL = 'http://127.0.0.1:8410';
 
 interface SimpleRequestOptions {
     extractData ?: boolean;
