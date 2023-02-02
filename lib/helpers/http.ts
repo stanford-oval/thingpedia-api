@@ -164,8 +164,8 @@ function httpRequestStream<UploadStreamT extends boolean, DownloadStreamT extend
                     data += chunk;
                 });
                 res.on('end', () => {
-                    if (options.debug && (res.statusCode !== 301 && res.statusCode !== 302 && res.statusCode !== 303))
-                        console.log('HTTP request failed: ' + data);
+                    // if (options.debug && (res.statusCode !== 301 && res.statusCode !== 302 && res.statusCode !== 303))
+                        // console.log('HTTP request failed: ' + data);
 
                     const error = new HTTPError(res.statusCode!, url, data);
                     if (res.statusCode! >= 300 && res.statusCode! < 400) {
