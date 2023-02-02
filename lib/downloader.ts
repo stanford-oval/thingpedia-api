@@ -218,7 +218,7 @@ export default class ModuleDownloader {
                 return new Loaders['org.thingpedia.proxied'](id, classdef, parents, this);
             }
 
-            console.log('Loaded class definition for ' + id + ', loader type: '+ loaderType + ', version: ' + classdef.annotations.version.toJS());
+            // console.log('Loaded class definition for ' + id + ', loader type: '+ loaderType + ', version: ' + classdef.annotations.version.toJS());
             return loader;
         } catch(e) {
             // on error, propagate error but don't cache it (so the next time we'll try again)

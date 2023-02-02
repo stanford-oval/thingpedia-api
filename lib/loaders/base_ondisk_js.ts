@@ -98,7 +98,7 @@ export default class BaseOnDiskJavascriptLoader extends BaseJavascriptLoader {
         const version = JSON.parse(fs.readFileSync(modulePath + '/package.json').toString('utf8'))['thingpedia-version'];
 
         if (version !== undefined && version !== this.package_version) {
-            console.log(`Cached module ${this.id} is out of date (found ${version}, want ${this.package_version})`);
+            // console.log(`Cached module ${this.id} is out of date (found ${version}, want ${this.package_version})`);
             return null;
         }
 
