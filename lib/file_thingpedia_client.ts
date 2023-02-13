@@ -32,6 +32,7 @@ import { makeDeviceFactory } from './device_factory_utils';
 
 import BaseClient from './base_client';
 import FileParameterProvider from './file_parameter_provider';
+import resolveLocation from './location-linking';
 
 // who to contact to resolve locations and entities
 const THINGPEDIA_URL = 'http://127.0.0.1:8410/v3';
@@ -348,13 +349,14 @@ export default class FileClient extends BaseClient {
         latitude : number;
         longitude : number;
     }) : Promise<BaseClient.LocationRecord[]> {
-        if (around) {
-            return this._httpRequest('/locations/lookup',
-                { q: searchTerm, latitude: String(around.latitude), longitude: String(around.longitude) }, 'application/json');
-        } else {
-            return this._httpRequest('/locations/lookup',
-                { q: searchTerm }, 'application/json');
-        }
+        return resolveLocation('en-US', searchTerm, around);
+        // if (around) {
+        //     return this._httpRequest('/locations/lookup',
+        //         { q: searchTerm, latitude: String(around.latitude), longitude: String(around.longitude) }, 'application/json');
+        // } else {
+        //     return this._httpRequest('/locations/lookup',
+        //         { q: searchTerm }, 'application/json');
+        // }
     }
 
     invokeQuery() : never {

@@ -45,7 +45,7 @@ function resolve(mainModule : string) {
 function clearRequireCache(mainModule : string) {
     try {
         const fileName = resolve(mainModule);
-        console.log(mainModule + ' was cached as ' + fileName);
+        // console.log(mainModule + ' was cached as ' + fileName);
 
         delete require.cache[fileName];
 
