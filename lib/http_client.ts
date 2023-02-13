@@ -33,6 +33,7 @@ import BaseClient from './base_client';
 import BasePlatform from './base_platform';
 import { makeDeviceFactory } from './device_factory_utils';
 import FileParameterProvider from './file_parameter_provider';
+import resolveLocation from './location-linking';
 
 const DEFAULT_THINGPEDIA_URL = 'http://127.0.0.1:8410';
 
@@ -559,13 +560,14 @@ export default class HttpClient extends BaseClient {
         latitude : number;
         longitude : number;
     }) : Promise<BaseClient.LocationRecord[]> {
-        if (around) {
-            return this._simpleRequest('/locations/lookup',
-                { q: searchTerm, latitude: String(around.latitude), longitude: String(around.longitude) }, 'application/json');
-        } else {
-            return this._simpleRequest('/locations/lookup',
-                { q: searchTerm }, 'application/json');
-        }
+        // if (around) {
+        //     return this._simpleRequest('/locations/lookup',
+        //         { q: searchTerm, latitude: String(around.latitude), longitude: String(around.longitude) }, 'application/json');
+        // } else {
+        //     return this._simpleRequest('/locations/lookup',
+        //         { q: searchTerm }, 'application/json');
+        // }
+        return resolveLocation('en-US', searchTerm, around);
     }
 
     getAllExamples() : Promise<string> {
